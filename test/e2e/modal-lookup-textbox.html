@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Background Image Setting - Test Page</title>
+    <link rel="stylesheet" href="/bower_components/common-style/dist/css/rise.min.css">
+</head>
+<body ng-app="testapp" ng-controller="mainController">
+
+<tag-textbox id="testTagTextBox" tags="{{tags}}" tagDefs="{{tagDefs}}" statusCode="{{statusCode}}"></tag-textbox>
+
+
+<script type="text/javascript" src="/bower_components/angular/angular.js"></script>
+<script type="text/javascript" src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script type="text/javascript" src="/bower_components/angular-spinner/angular-spinner.js"></script>
+<script type="text/javascript" src="/bower_components/rv-loading/loading.js"></script>
+<script type="text/javascript" src="/dist/js/modal-lookup-textbox.js"></script>
+
+<script>
+    angular.module("testapp", ["risevision.app.common.components.modal-lookup-textbox",
+        "risevision.common.loading",
+        "angularSpinner"])
+            .controller("mainController", ["$scope", function ($scope) {
+                $scope.tags = [];
+                $scope.tagDefs = [];
+                $scope.statusCode = 200;
+            }]);
+</script>
+
+</body>
+</html>
