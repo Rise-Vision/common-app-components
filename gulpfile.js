@@ -67,16 +67,32 @@
     "bower_components/angular/angular.js",
     "bower_components/q/q.js",
     "bower_components/angular-mocks/angular-mocks.js",
-    "src/ctr-*.js",
-    "src/svc-*.js",
-    "src/flt-*.js",
+    "bower_components/angular-spinner/angular-spinner.js",
+    "bower_components/rv-loading/loading.js",
+    "bower_components/angular-bootstrap/ui-bootstrap-tpls.js",
+    "bower_components/angular-ui-router/release/angular-ui-router.js",
+    "src/**/app-*.js",
+    "src/**/ctr-*.js",
+    "src/**/svc-*.js",
+    "src/**/flt-*.js",
     "test/unit/**/*.tests.js"
   ];
   gulp.task("test:unit", factory.testUnitAngular({testFiles: unitTestFiles, configFile : 'test/unit/karma.conf.js'}));
 
   gulp.task("test",  function (cb) {
-    runSequence("config", ["test:unit"], cb);
+    runSequence("config", ["test:unit", "test:e2e"], cb);
   });
+  gulp.task("server", factory.testServer({https: false}));
+  gulp.task("server-close", factory.testServerClose());
+  gulp.task("test:webdrive_update", factory.webdriveUpdate());
+  gulp.task("test:e2e:core", ["test:webdrive_update"], factory.testE2EAngular({
+    src: ["test/e2e/*test.js"],
+    browser: "chrome"
+  }));
+  gulp.task("test:e2e", function (cb) {
+    runSequence("server", "test:e2e:core", "server-close", cb);
+  });
+
   gulp.task("build", function() {
     var folders = getFolders(scriptsPath);
 
@@ -85,6 +101,7 @@
         svcJSFiles = gulp.src(path.join(scriptsPath, folder, "/svc-*.js")),
         ctrlJSFiles = gulp.src(path.join(scriptsPath, folder, "/ctr-*.js")),
         fltJSFiles = gulp.src(path.join(scriptsPath, folder, "/flt-*.js")),
+        dtvJSFiles = gulp.src(path.join(scriptsPath, folder, "/dtv-*.js")),
       htmlTemplates = gulp.src(path.join(scriptsPath, folder, "/*.html"));
       htmlTemplates.pipe(html2js({
         outputModuleName: "risevision.app.common.components." + folder,
@@ -92,8 +109,9 @@
         base: "src"
         }))
         .pipe(rename({extname: ".js"}));
-      return es.merge(appJSFiles, svcJSFiles, ctrlJSFiles, fltJSFiles, htmlTemplates)
+      return es.merge(appJSFiles, svcJSFiles, ctrlJSFiles, fltJSFiles, dtvJSFiles, htmlTemplates)
         .pipe(concat(folder + ".js"))
+        .pipe(gulp.dest("dist/js"))
         .pipe(uglify())
         .pipe(rename(folder + ".min.js"))
         .pipe(gulp.dest("dist/js"));
