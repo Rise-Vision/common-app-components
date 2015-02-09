@@ -10,11 +10,11 @@
             tagDefs: "=",
             statusCode: "@"
           },
-          templateUrl: $templateCache.get("modal-lookup-textbox/tag-textbox.html"),
+          template: $templateCache.get("modal-lookup-textbox/tag-textbox.html"),
           link: function ($scope) {
             $scope.openModal = function () {
               var modalInstance = $modal.open({
-                templateUrl: $templateCache.get("modal-lookup-textbox/tag-lookup-modal.html"),
+                template: $templateCache.get("modal-lookup-textbox/tag-lookup-modal.html"),
                 controller: "tagLookup",
                 resolve: {
                   tags: function () {

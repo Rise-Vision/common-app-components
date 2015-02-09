@@ -2,7 +2,6 @@
 
     <div class="modal-body">
         <div rv-spinner rv-spinner-key="tag-loader" rv-spinner-start-active="0"></div>
-
         <div class="content-box content-box-editable">
             <div class="label label-tag" ng-repeat="tag in selectedTags" ng-click="removeTag($index)">
                 {{tag.name}}: <span class="tag-value">{{tag.value}}</span>
