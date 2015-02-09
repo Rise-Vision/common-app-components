@@ -2,7 +2,7 @@ Common-App-Components [![Circle CI](https://circleci.com/gh/Rise-Vision/common-a
 ==============
 
 ## Introduction
-Various UI Angular custom diretives shared across Angular based apps developed by Rise Vision.
+Various UI Angular custom directives shared across Angular based apps developed by Rise Vision.
 
 At this time Chrome is the only browser that this project and Rise Vision supports.
 
@@ -32,11 +32,8 @@ gulp server
 This now runs a local server at http://localhost:8099 which allows you to view the location of the E2E test HTML file of a component. Eg. http://localhost:8099/test/e2e/angular/color-picker-test-ng.html
 
 ### Dependencies
-- [RV Common Style](https://github.com/Rise-Vision/common-style)
 - [AngularJS](https://angularjs.org/) -> [jQuery](http://jquery.com/)
-- [i18next](http://i18next.com/)
 - [angular-bootstrap](http://angular-ui.github.io/bootstrap/)
-- [angular-bootstrap-show-errors](https://github.com/paulyoder/angular-bootstrap-show-errors)
 
 ### Testing
 To run unit and E2E testing, do
@@ -60,15 +57,6 @@ What you expected to happen.
 **Actual Results**
 
 What actually happened. (screenshots / video captures always help)
-
-### Languages
-
-If you would like translate the user interface for this product to another language please complete the following:
-- Download the english translation file from this repository.
-- Download and install POEdit. This is software that you can use to write translations into another language.
-- Open the translation file in the [POEdit](http://www.poedit.net/) program and set the language for which you are writing a translation.
-- In the Source text window, you will see the English word or phrase to be translated. You can provide a translation for it in the Translation window.
-- When the translation is complete, save it with a .po extension and email the file to support@risevision.com. Please be sure to indicate the Widget or app the translation file is for, as well as the language that it has been translated into, and we will integrate it after the translation has been verified.
 
 Facilitator
 ----------
