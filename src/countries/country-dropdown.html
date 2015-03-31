@@ -1,0 +1,4 @@
+<select id="country-dropdown" class="form-control selectpicker"
+  ng-model="country" ng-disabled="!countries.length" ng-options="c.code as c.name for c in countries | orderBy: 'name'">
+  <option value="">&lt; Select Country &gt;</option>
+</select>

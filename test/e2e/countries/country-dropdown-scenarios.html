@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Last Modified - Test Page</title>
+    <link rel="stylesheet" href="/bower_components/common-style/dist/css/rise.min.css">
+</head>
+<body ng-app="testapp" ng-controller="mainController">
+
+  <country-dropdown country="country"></country-dropdown>
+
+<script type="text/javascript" src="/bower_components/angular/angular.js"></script>
+<script type="text/javascript" src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script type="text/javascript" src="/bower_components/ng-gapi-loader/src/js/svc-gapi.js"></script>
+<script type="text/javascript" src="/bower_components/ng-core-api-client/src/js/svc-countries.js"></script>
+<script type="text/javascript" src="../gapi-mock.js"></script>
+<script type="text/javascript" src="/dist/js/countries.js"></script>
+
+<script>
+  angular.module("testapp", ["risevision.common.components.countries"])
+    .controller("mainController", ["$scope", function ($scope) {
+      $scope.country = "CA";
+    }])
+    .value("CORE_URL", "");
+</script>
+
+</body>
+</html>
