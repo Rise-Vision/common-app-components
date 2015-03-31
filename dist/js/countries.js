@@ -27,7 +27,7 @@ app.run(["$templateCache", function($templateCache) {
   "use strict";
   $templateCache.put("countries/country-dropdown.html",
     "<select id=\"country-dropdown\" class=\"form-control selectpicker\"\n" +
-    "  ng-model=\"country\" ng-options=\"c.code as c.name for c in countries | orderBy: 'name'\">\n" +
+    "  ng-model=\"country\" ng-disabled=\"!countries.length\" ng-options=\"c.code as c.name for c in countries | orderBy: 'name'\">\n" +
     "  <option value=\"\">&lt; Select Country &gt;</option>\n" +
     "</select>\n" +
     "");
