@@ -29,7 +29,7 @@
     "angular-bootstrap": "0.13.1",
     "angular-ui-flow-manager": "https://github.com/Rise-Vision/angular-ui-flow-manager.git",
     "ng-biscuit": "~0.2.1",
-    "ng-core-api-client": "https://github.com/Rise-Vision/ng-core-api-client.git",
+    "ng-core-api-client": "https://github.com/Rise-Vision/ng-core-api-client.git#fix/user-add-cache",
     "ng-gapi-loader": "https://github.com/Rise-Vision/ng-gapi-loader.git",
     "rv-loading": "https://github.com/Rise-Vision/rv-loading.git",
     "rv-common-i18n": "https://github.com/Rise-Vision/common-i18n.git",
