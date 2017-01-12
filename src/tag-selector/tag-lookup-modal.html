@@ -3,14 +3,14 @@
   <div class="modal-body" stop-event="touchend">
     <div rv-spinner rv-spinner-key="tag-loader" rv-spinner-start-active="0"></div>
     
-    <div class="content-box selected-tags content-box-editable">
+    <div class="panel selected-tags panel-editable">
       <div class="label label-tag" ng-repeat="tag in selectedTags" ng-click="removeTag($index)">      
         {{tag.name}}: <span class="tag-value">{{tag.value}}</span>
         <span><i class="fa fa-minus-circle"></i></span>
       </div>       
     </div>
     
-    <div class="content-box select-tags half-top">
+    <div class="panel select-tags half-top">
       <div class="input-group">
         <span class="input-group-addon"><i class="fa fa-search"></i></span>
         <input type="text" class="form-control" placeholder="Search Lookup Tags" ng-model="query">

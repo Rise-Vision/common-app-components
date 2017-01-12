@@ -223,7 +223,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('tag-selector/tag-lookup-modal.html',
-    '<div><div class="modal-body" stop-event="touchend"><div rv-spinner="" rv-spinner-key="tag-loader" rv-spinner-start-active="0"></div><div class="content-box selected-tags content-box-editable"><div class="label label-tag" ng-repeat="tag in selectedTags" ng-click="removeTag($index)">{{tag.name}}: <span class="tag-value">{{tag.value}}</span> <span><i class="fa fa-minus-circle"></i></span></div></div><div class="content-box select-tags half-top"><div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span> <input type="text" class="form-control" placeholder="Search Lookup Tags" ng-model="query"></div><div class="label label-tag" ng-repeat="tag in availableTags | tagSelection:selectedTags | filter:query" ng-click="selectTag(tag)">{{tag.name}}: <span class="tag-value">{{tag.value}}</span> <span><i class="fa fa-plus-circle"></i></span></div></div></div><div class="modal-footer"><button type="button" class="btn btn-primary btn-fixed-width" ng-click="apply()">Apply <i class="fa fa-white fa-check icon-right"></i></button> <button type="button" class="btn btn-default btn-fixed-width" ng-click="cancel()">Cancel <i class="fa fa-times icon-right"></i></button></div></div>');
+    '<div><div class="modal-body" stop-event="touchend"><div rv-spinner="" rv-spinner-key="tag-loader" rv-spinner-start-active="0"></div><div class="panel selected-tags panel-editable"><div class="label label-tag" ng-repeat="tag in selectedTags" ng-click="removeTag($index)">{{tag.name}}: <span class="tag-value">{{tag.value}}</span> <span><i class="fa fa-minus-circle"></i></span></div></div><div class="panel select-tags half-top"><div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span> <input type="text" class="form-control" placeholder="Search Lookup Tags" ng-model="query"></div><div class="label label-tag" ng-repeat="tag in availableTags | tagSelection:selectedTags | filter:query" ng-click="selectTag(tag)">{{tag.name}}: <span class="tag-value">{{tag.value}}</span> <span><i class="fa fa-plus-circle"></i></span></div></div></div><div class="modal-footer"><button type="button" class="btn btn-primary btn-fixed-width" ng-click="apply()">Apply <i class="fa fa-white fa-check icon-right"></i></button> <button type="button" class="btn btn-default btn-fixed-width" ng-click="cancel()">Cancel <i class="fa fa-times icon-right"></i></button></div></div>');
 }]);
 })();
 
@@ -235,6 +235,6 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('tag-selector/tag-textbox.html',
-    '<div class="content-box content-box-editable clickable add-bottom" ng-click="openModal()"><span class="edit-icon"><i class="fa fa-lg fa-pencil"></i></span><div class="label label-tag" ng-repeat="tag in tags"><span class="tag-name">{{tag.name}}</span> <span class="tag-value">{{tag.value}}</span></div></div>');
+    '<div class="panel panel-editable clickable add-bottom" ng-click="openModal()"><span class="edit-icon"><i class="fa fa-lg fa-pencil"></i></span><div class="label label-tag" ng-repeat="tag in tags"><span class="tag-name">{{tag.name}}</span> <span class="tag-value">{{tag.value}}</span></div></div>');
 }]);
 })();

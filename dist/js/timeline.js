@@ -703,7 +703,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('timeline/timeline-textbox.html',
-    '<label class="control-label control-label-secondary add-left"><input ng-model="timeline.always" type="checkbox"> Always</label><div id="timelineTextbox" class="content-box-editable remove-bottom clickable" ng-click="openModal()" ng-show="!timeline.always"><div class="label label-tag"><span id="timelineLabel" timeline="timeline">{{timeline.label}}</span></div></div>');
+    '<label class="control-label control-label-secondary add-left"><input ng-model="timeline.always" type="checkbox"> Always</label><div id="timelineTextbox" class="panel-editable remove-bottom clickable" ng-click="openModal()" ng-show="!timeline.always"><div class="label label-tag"><span id="timelineLabel" timeline="timeline">{{timeline.label}}</span></div></div>');
 }]);
 })();
 

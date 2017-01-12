@@ -289,6 +289,6 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('distribution-selector/distribution-selector.html',
-    '<div class="form-group"><label class="control-label add-right">Distribution</label> <label class="control-label control-label-secondary"><input type="checkbox" ng-model="distributeToAll" ng-checked="distributeToAll" class="ng-valid ng-dirty" checked="checked"> <span id="distributeToAllText">Select All Displays</span></label><div id="distributionField" ng-class="{\'input-group\': !hideCta}" class="content-box-editable clickable" ng-click="manage()" ng-if="!distributeToAll"><div class="label label-tag"><span id="distributionFieldText" ng-bind="distributionSelectionMessage"></span></div><span ng-hide="hideCta" class="input-group-addon btn btn-primary">Select Display(s)</span></div></div>');
+    '<div class="form-group"><label class="control-label add-right">Distribution</label> <label class="control-label control-label-secondary"><input type="checkbox" ng-model="distributeToAll" ng-checked="distributeToAll" class="ng-valid ng-dirty" checked="checked"> <span id="distributeToAllText">Select All Displays</span></label><div id="distributionField" ng-class="{\'input-group\': !hideCta}" class="panel-editable clickable" ng-click="manage()" ng-if="!distributeToAll"><div class="label label-tag"><span id="distributionFieldText" ng-bind="distributionSelectionMessage"></span></div><span ng-hide="hideCta" class="input-group-addon btn btn-primary">Select Display(s)</span></div></div>');
 }]);
 })();
