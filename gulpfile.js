@@ -83,7 +83,7 @@
   gulp.task("test:unit", factory.testUnitAngular({testFiles: unitTestFiles}));
 
   gulp.task("test",  function (cb) {
-    runSequence("build", cb);
+    runSequence("build", ["test:unit", "test:e2e"], cb);
   });
   gulp.task("server", factory.testServer({https: false}));
   gulp.task("server-close", factory.testServerClose());
