@@ -10,7 +10,7 @@
     });
     
     it("Should load rows", function() {
-      expect(element.all(by.css(".table-2 .list-row")).count())
+      expect(element.all(by.css(".table .list-row")).count())
         .to.eventually.equal(20);      
     });
 
@@ -24,7 +24,7 @@
       });
       
       it("Should load more rows on scroll", function() {
-        expect(element.all(by.css(".table-2 .list-row")).count())
+        expect(element.all(by.css(".table .list-row")).count())
           .to.eventually.equal(40);
       });
     });
@@ -40,7 +40,7 @@
       });
 
       it("Should not load more rows on scroll", function() {
-        expect(element.all(by.css(".table-2 .list-row")).count())
+        expect(element.all(by.css(".table .list-row")).count())
           .to.eventually.equal(20);            
       });
     });
@@ -56,7 +56,7 @@
       });
 
       it("Should not load more rows on scroll", function() {
-        expect(element.all(by.css(".table-2 .list-row")).count())
+        expect(element.all(by.css(".table .list-row")).count())
           .to.eventually.equal(0);        
       });
     });    
