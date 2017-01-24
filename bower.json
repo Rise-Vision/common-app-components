@@ -25,7 +25,7 @@
   "dependencies": {
     "angular": "1.2.18",
     "angular-ui-router": "^0.2.15",
-    "common-style": "https://github.com/Rise-Vision/common-style.git",
+    "common-style": "https://github.com/Rise-Vision/common-style.git#fix/utility-namespace",
     "angular-bootstrap": "0.13.1",
     "angular-ui-flow-manager": "https://github.com/Rise-Vision/angular-ui-flow-manager.git",
     "ng-biscuit": "~0.2.1",
