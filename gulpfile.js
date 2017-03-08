@@ -42,6 +42,13 @@
       .pipe(jshint.reporter("jshint-stylish"));
   });
   
+  // Update bower, component, npm at once:
+  gulp.task("bump", function(){
+    gulp.src(["./bower.json", "./package.json"])
+    .pipe(require("gulp-bump")({type: "patch"}))
+    .pipe(gulp.dest("./"));
+  });
+  
   gulp.task("clean-dist", function (cb) {
     del(["./dist/**"], cb);
   });
