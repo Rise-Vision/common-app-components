@@ -225,12 +225,12 @@
             opts.authuser = _state.userToken;
           } else {
             opts.authuser = $http.get(
-              'https://www.googleapis.com/oauth2/v1/userinfo?access_token=' +
+              "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" +
               _state.params.access_token)
               .then(function (resp) {
                 return resp.data.email;
               }, function (err) {
-                console.log('Error retrieving userinfo');
+                $log.debug("Error retrieving userinfo");
                 return opts.authuser;
               });
           }
@@ -249,7 +249,7 @@
               gApi.auth.setToken(_state.params);
 
               gApi.auth.authorize(opts, function (authResult) {
-                $log.debug("authResult", authResult);
+                $log.debug("authResult");
                 if (authResult && !authResult.error) {
                   if (_state.params) {
                     // clear token so we don't deal with expiry
