@@ -1,5 +1,5 @@
 'use strict';
-describe.only('controller: Message Box', function() {
+describe('controller: Message Box', function() {
   var $scope, $modalInstance, title, message, button, $modalInstanceDismissSpy;
 
   beforeEach(module('risevision.common.components.message-box'));

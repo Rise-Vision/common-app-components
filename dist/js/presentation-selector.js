@@ -28,28 +28,14 @@ angular.module("risevision.common.components.presentation-selector.services")
           id: presentationId
         });
 
-        if (!presentation) {
-          presentation = {
-            id: presentationId
-          };
-
-          _presentations.push(presentation);
-
-          factory.getPresentation(presentationId);
+        if (presentation) {
+          return $q.resolve(presentation);
+        } else {
+          return _getPresentation(presentationId);
         }
-
-        return presentation;
       };
 
-      var _updatePresentationCache = function (presentation) {
-        var cachedPresentation = factory.getPresentationCached(
-          presentation.id);
-
-        cachedPresentation.name = presentation.name;
-        cachedPresentation.revisionStatus = presentation.revisionStatus;
-      };
-
-      factory.getPresentation = function (presentationId) {
+      var _getPresentation = function (presentationId) {
         var deferred = $q.defer();
 
         //show loading spinner
@@ -57,7 +43,7 @@ angular.module("risevision.common.components.presentation-selector.services")
 
         presentation.get(presentationId)
           .then(function (result) {
-            _updatePresentationCache(result.item);
+            _presentations.push(result.item);
 
             deferred.resolve(result.item);
           })
@@ -293,20 +279,24 @@ angular.module("risevision.common.components.presentation-selector")
     function (presentationFactory) {
       return {
         restrict: "A",
+        require: "?ngModel",
         scope: {
-          id: "=presentationName"
+          id: "=presentationName",
+          ngModel: "=?"
         },
-        link: function ($scope, element) {
+        link: function ($scope, element, attr, ngModel) {
           $scope.$watch("id", function (id) {
             if (id) {
-              $scope.presentation = presentationFactory.getPresentationCached(
-                $scope.id);
-            }
-          });
-
-          $scope.$watch("presentation.name", function (name) {
-            if (name) {
-              element.html(name);
+              presentationFactory.getPresentationCached(id)
+                .then(function (presentation) {
+                  if (presentation && presentation.name) {
+                    if (ngModel) {
+                      $scope.ngModel = presentation.name;
+                    } else {
+                      element.html(presentation.name);
+                    }
+                  }
+                });
             }
           });
         } //link()

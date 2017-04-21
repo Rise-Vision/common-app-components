@@ -5,20 +5,24 @@ angular.module("risevision.common.components.presentation-selector")
     function (presentationFactory) {
       return {
         restrict: "A",
+        require: "?ngModel",
         scope: {
-          id: "=presentationName"
+          id: "=presentationName",
+          ngModel: "=?"
         },
-        link: function ($scope, element) {
+        link: function ($scope, element, attr, ngModel) {
           $scope.$watch("id", function (id) {
             if (id) {
-              $scope.presentation = presentationFactory.getPresentationCached(
-                $scope.id);
-            }
-          });
-
-          $scope.$watch("presentation.name", function (name) {
-            if (name) {
-              element.html(name);
+              presentationFactory.getPresentationCached(id)
+                .then(function (presentation) {
+                  if (presentation && presentation.name) {
+                    if (ngModel) {
+                      $scope.ngModel = presentation.name;
+                    } else {
+                      element.html(presentation.name);
+                    }
+                  }
+                });
             }
           });
         } //link()

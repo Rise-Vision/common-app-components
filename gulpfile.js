@@ -87,10 +87,15 @@
     "src/**/ftr-*.js",
     "test/unit/**/*.tests.js"
   ];
-  gulp.task("test:unit", factory.testUnitAngular({testFiles: unitTestFiles}));
+  gulp.task("test:unit", factory.testUnitAngular({
+    coverageFiles: "../../src/**/*.js",
+    testFiles: unitTestFiles
+  }));
+  
+  gulp.task("coveralls", factory.coveralls());
 
   gulp.task("test",  function (cb) {
-    runSequence("build", ["test:unit", "test:e2e"], cb);
+    runSequence("build", ["test:unit", "test:e2e"], "coveralls", cb);
   });
   gulp.task("server", factory.testServer({https: false}));
   gulp.task("server-close", factory.testServerClose());

@@ -35,19 +35,17 @@ describe('service: presentationFactory: ', function() {
   });
 
   it('should exist',function(){
-    expect(presentationFactory).to.be.truely;
+    expect(presentationFactory).to.be.ok;
     
-    expect(presentationFactory.getPresentationCached).to.be.truely;
+    expect(presentationFactory.getPresentationCached).to.be.a('function');
     expect(presentationFactory.loadingPresentation).to.be.false;
-
-    expect(presentationFactory.getPresentation).to.be.a('function');
   });
-    
-  describe('getPresentation: ', function(){
+  
+  describe('getPresentationCached: ', function() {
     it('should get the presentation',function(done){
-      presentationFactory.getPresentation('presentationId')
+      presentationFactory.getPresentationCached('presentationId')
       .then(function(presentation) {
-        expect(presentation).to.be.truely;
+        expect(presentation).to.be.ok;
         expect(presentation.name).to.equal('some presentation');
 
         setTimeout(function() {
@@ -65,12 +63,12 @@ describe('service: presentationFactory: ', function() {
     it('should handle failure to get presentation correctly',function(done){
       returnPresentation = false;
       
-      presentationFactory.getPresentation()
+      presentationFactory.getPresentationCached()
       .then(function(result) {
         done(result);
       })
       .then(null, function() {
-        expect(presentationFactory.apiError).to.be.truely;
+        expect(presentationFactory.apiError).to.be.ok;
         expect(presentationFactory.apiError).to.equal('ERROR; could not get presentation');
 
         setTimeout(function() {
@@ -80,24 +78,6 @@ describe('service: presentationFactory: ', function() {
         }, 10);
       })
       .then(null,done);
-    });
-  });
-  
-  describe('getPresentationCached: ', function() {
-    it('should eventually get Presentation', function(done) {
-      var presentation = presentationFactory.getPresentationCached('presentationId');
-      
-      expect(presentation).to.be.ok;
-      expect(presentation.id).to.equal('presentationId');
-      expect(presentation.name).to.not.be.ok;
-      
-      setTimeout(function() {
-        expect(apiCalls).to.equal(1);
-        expect(presentation.name).to.be.ok;
-        expect(presentation.name).to.equal('some presentation');
-        
-        done();
-      }, 10);
     });
     
     it('should only call API once', function(done) {
