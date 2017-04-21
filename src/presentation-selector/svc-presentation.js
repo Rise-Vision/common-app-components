@@ -51,7 +51,7 @@ angular.module("risevision.common.components.presentation-selector.services")
               deferred.resolve(resp.result);
             })
             .then(null, function (e) {
-              $log.error("Failed to get list of presentations.", e);
+              console.error("Failed to get list of presentations.", e);
               deferred.reject(e);
             });
 
@@ -74,7 +74,7 @@ angular.module("risevision.common.components.presentation-selector.services")
               deferred.resolve(resp.result);
             })
             .then(null, function (e) {
-              $log.error("Failed to get presentation.", e);
+              console.error("Failed to get presentation.", e);
               deferred.reject(e);
             });
 
@@ -101,7 +101,7 @@ angular.module("risevision.common.components.presentation-selector.services")
               deferred.resolve(resp.result);
             })
             .then(null, function (e) {
-              $log.error("Failed to add presentation.", e);
+              console.error("Failed to add presentation.", e);
               deferred.reject(e);
             });
           return deferred.promise;
@@ -129,7 +129,7 @@ angular.module("risevision.common.components.presentation-selector.services")
               deferred.resolve(resp.result);
             })
             .then(null, function (e) {
-              $log.error("Failed to update presentation.", e);
+              console.error("Failed to update presentation.", e);
               deferred.reject(e);
             });
 
@@ -151,7 +151,7 @@ angular.module("risevision.common.components.presentation-selector.services")
               deferred.resolve(resp);
             })
             .then(null, function (e) {
-              $log.error("Failed to delete presentation.", e);
+              console.error("Failed to delete presentation.", e);
               deferred.reject(e);
             });
 
@@ -173,7 +173,7 @@ angular.module("risevision.common.components.presentation-selector.services")
               deferred.resolve(resp);
             })
             .then(null, function (e) {
-              $log.error("Failed to publish presentation.", e);
+              console.error("Failed to publish presentation.", e);
               deferred.reject(e);
             });
 
@@ -195,7 +195,7 @@ angular.module("risevision.common.components.presentation-selector.services")
               deferred.resolve(resp.result);
             })
             .then(null, function (e) {
-              $log.error("Failed to restore presentation.", e);
+              console.error("Failed to restore presentation.", e);
               deferred.reject(e);
             });
 
