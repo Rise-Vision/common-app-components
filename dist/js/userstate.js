@@ -119,7 +119,7 @@ angular.module("risevision.common.components.logging")
                   "risevision.company.selectedCompanyChanged");
               })
               .then(null, function (resp) {
-                $log.error("Failed to load selected company.", resp);
+                console.error("Failed to load selected company.", resp);
 
                 deferred.reject(resp);
               });

@@ -61,7 +61,7 @@ angular.module("risevision.common.components.distribution-selector.services")
               deferred.resolve(resp.result);
             })
             .then(null, function (e) {
-              $log.error("Failed to get list of displays.", e);
+              console.error("Failed to get list of displays.", e);
               deferred.reject(e);
             });
 
