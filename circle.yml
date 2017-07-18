@@ -1,6 +1,6 @@
 machine:
   node:
-    version: 6.9.1
+    version: 8.1.4
 dependencies:
   pre:
     - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
@@ -8,10 +8,7 @@ dependencies:
     - sudo apt-get update -qq
     - sudo apt-get install -y google-chrome-stable
   post:
-    - npm install
     - bower install
-    - wget http://selenium-release.storage.googleapis.com/2.44/selenium-server-standalone-2.44.0.jar
-    - nohup bash -c "java -jar selenium-server-standalone-2.44.0.jar &"
 test:
   override:
     - echo $CHROME_INSTANCES
