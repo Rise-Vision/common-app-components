@@ -32,6 +32,51 @@
     "risevision.common.loading", "risevision.ui-flow"
   ])
 
+  // Set up our mappings between URLs, templates, and controllers
+  .config(["$urlRouterProvider", "$stateProvider", "$locationProvider",
+    function storeRouteConfig($urlRouterProvider, $stateProvider,
+      $locationProvider) {
+
+      $locationProvider.html5Mode(true);
+
+      $urlRouterProvider.otherwise("/");
+
+      // Use $stateProvider to configure states.
+      $stateProvider.state("apps", {
+        template: "<div ui-view></div>"
+      })
+
+      .state("apps.launcher", {
+        abstract: true,
+        template: "<div class=\"app-launcher\" ui-view></div>"
+      })
+
+      .state("apps.launcher.unauthorized", {
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get("userstate/login.html");
+          }
+        ],
+        controller: "LoginCtrl"
+      })
+
+      .state("apps.launcher.unregistered", {
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get("userstate/signup.html");
+          }
+        ],
+        controller: "SignUpCtrl"
+      })
+
+      .state("apps.launcher.signin", {
+        url: "/signin",
+        controller: "SignInCtrl"
+      });
+
+    }
+  ])
+
   .value("CLIENT_ID", "614513768474.apps.googleusercontent.com");
 
 })(angular);

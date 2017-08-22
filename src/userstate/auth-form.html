@@ -1,0 +1,36 @@
+<form id="loginForm">
+  <div class="form-group u_margin-sm-bottom" ng-class="{'has-error': (!loginForm.username.$pristine && loginForm.username.$invalid) || loginError}" show-errors>
+    <label class="control-label">Username *</label>
+    <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username" ng-model="credentials.username" required>
+    <p class="text-danger" ng-show="!loginForm.username.$pristine && loginForm.username.$invalid">
+      Please enter a Username
+    </p>
+  </div>
+
+  <div class="form-group u_margin-sm-bottom" ng-class="{'has-error': (!loginForm.password.$pristine && loginForm.password.$invalid) || loginError}" show-errors>
+    <label class="control-label">Password *</label>
+    <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" ng-model="credentials.password" required>
+    <p class="text-danger" ng-show="!loginForm.password.$pristine && loginForm.password.$invalid">
+      Please enter a Password
+    </p>
+  </div>
+  
+  <div class="form-group">
+    <div class="checkbox">
+      <label class="control-label">
+        <input type="checkbox" ng-model="credentials.newUser"> <strong>New User</strong>
+      </label>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <button class="btn btn-primary" ng-click="customLogin('registrationComplete')">
+      <span translate="Submit"></span> <i class="fa fa-white fa-check icon-right"></i>
+    </button>
+
+    <p class="text-danger" ng-show="loginError">
+      Invalid Username/Password. Please try again.
+    </p>
+
+  </div>
+</form>

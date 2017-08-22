@@ -6,17 +6,23 @@
       "getBaseDomain",
       function ($log, $location, cookieStore, getBaseDomain) {
         var _readRvToken = function () {
-          return cookieStore.get("rv-token");
+          var token = cookieStore.get("rv-token");
+
+          try {
+            return JSON.parse(token);
+          } catch (e) {
+            return token;
+          }
         };
 
         var _writeRvToken = function (value) {
           var baseDomain = getBaseDomain();
           if (baseDomain === "localhost") {
-            cookieStore.put("rv-token", value, {
+            cookieStore.put("rv-token", JSON.stringify(value), {
               path: "/"
             });
           } else {
-            cookieStore.put("rv-token", value, {
+            cookieStore.put("rv-token", JSON.stringify(value), {
               domain: baseDomain,
               path: "/"
             });

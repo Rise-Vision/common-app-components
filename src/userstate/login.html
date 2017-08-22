@@ -1,0 +1,29 @@
+<div class="app-launcher-login">
+	<div class="container">
+		<div class="panel">
+			<div class="row">
+				<div style="border-bottom: 1px solid #CCC;">
+					<h1 class="u_remove-top" translate>common.signUp</h1>
+					<p class="lead text-muted" translate>launcher.createAccount</p>				
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4 col-xs-12">
+					<div style="text-align: center;
+					    border-right: 1px solid #CCC;
+					    padding: 20px 20px;">
+						<div ng-include="'userstate/auth-form.html'"></div>
+					</div>
+				</div>
+				<div class="col-sm-8 col-xs-12">
+					<div style="padding: 20px 20px;">
+						<button ng-click="googleLogin('registrationComplete')" class="btn btn-primary btn-hg">{{'launcher.signUpGoogle' | translate}} <i class="fa fa-google icon-right"></i></button>
+						<p><a href="https://accounts.google.com/signup" target="_blank" translate>launcher.dontHaveAccount</a></p>
+						<br>
+						<p class="text-muted">{{'launcher.haveAccount' | translate}} <a id="sign-in-link" href="#" ng-click="googleLogin('registrationComplete')">{{'common.signIn' | translate}}</a></p>
+					</div>
+				</div><!--col-->
+			</div><!--row-->					
+		</div><!--panel-->	
+	</div><!--container-->
+</div><!--app-launcher-login-->

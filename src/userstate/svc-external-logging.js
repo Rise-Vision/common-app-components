@@ -1,5 +1,7 @@
 "use strict";
 
+/*jshint camelcase: false */
+
 angular.module("risevision.common.components.logging")
   .constant("EXTERNAL_LOGGER_SERVICE_URL",
     "https://www.googleapis.com/bigquery/v2/projects/client-side-events/datasets/Apps_Events/tables/TABLE_ID/insertAll"
