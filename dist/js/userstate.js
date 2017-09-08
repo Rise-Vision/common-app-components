@@ -1162,7 +1162,7 @@ angular.module("risevision.common.components.logging")
                 .then(null, function (err) {
                   _clearUserToken();
 
-                  $log.debug("Authentication Error: " + err.message);
+                  $log.debug("Authentication Error: " + err);
 
                   authenticateDeferred.reject(err);
                 })
