@@ -12,7 +12,7 @@ dependencies:
 test:
   override:
     - echo $CHROME_INSTANCES
-    - npm run test
+    - PROSHOT_DIR=$CIRCLE_TEST_REPORTS/screenshots npm run test
 deployment:
   staging:
     branch: /(feature|fix|chore).*/
