@@ -77,6 +77,29 @@
     }
   ])
 
+  .run(["$rootScope", "$state",
+    function ($rootScope, $state) {
+
+      $rootScope.$on("risevision.user.signedOut", function () {
+        $state.go("apps.launcher.unauthorized");
+      });
+
+      var returnState;
+      $rootScope.$on("$stateChangeStart", function (event, next, current) {
+        if (next.name.indexOf("apps.launcher.un") === -1) {
+          returnState = next;
+        }
+      });
+
+      $rootScope.$on("risevision.user.authorized", function () {
+        if (returnState && $state.current.name.indexOf("apps.launcher.un") !==
+          -1) {
+          $state.go(returnState);
+        }
+      });
+    }
+  ])
+
   .value("CLIENT_ID", "614513768474.apps.googleusercontent.com");
 
 })(angular);
