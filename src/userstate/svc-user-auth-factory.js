@@ -65,6 +65,8 @@
             //token change indicates that user either signed in, or signed out, or changed account in other app
             $window.location.reload();
           } else if (_state.userToken) {
+            _authenticateDeferred = null;
+
             //make sure user is not signed out of Google account outside of the CH enabled apps
             authenticate(false).finally(function () {
               if (!_state.userToken) {
@@ -223,9 +225,8 @@
                   authenticateDeferred.reject(err);
                 })
                 .finally(function () {
-                  _authenticateDeferred = null;
-
                   $loading.stopGlobal("risevision.user.authenticate");
+
                   _logPageLoad("authenticated user");
                 });
             } else {
@@ -234,10 +235,9 @@
               //  _clearUserToken();
               authenticateDeferred.reject(msg);
 
-              _authenticateDeferred = null;
-
               objectHelper.clearObj(_state.user);
               $loading.stopGlobal("risevision.user.authenticate");
+
               _logPageLoad("unauthenticated user");
             }
           };
