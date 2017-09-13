@@ -9,7 +9,8 @@
 
   angular.module("risevision.common.config")
     .value("ENABLE_EXTERNAL_LOGGING", true)
-    .value("CORE_URL", "https://rvaserver2.appspot.com/_ah/api");
+    .value("CORE_URL", "https://rvaserver2.appspot.com/_ah/api")
+    .value("LOGIN_TEMPLATE_URL", "userstate/login.html");
 
   angular.module("risevision.common.components.util", []);
   angular.module("risevision.common.components.logging", []);
@@ -52,9 +53,9 @@
       })
 
       .state("apps.launcher.unauthorized", {
-        templateProvider: ["$templateCache",
-          function ($templateCache) {
-            return $templateCache.get("userstate/login.html");
+        templateProvider: ["$templateCache", "LOGIN_TEMPLATE_URL",
+          function ($templateCache, LOGIN_TEMPLATE_URL) {
+            return $templateCache.get(LOGIN_TEMPLATE_URL);
           }
         ],
         controller: "LoginCtrl"
@@ -86,7 +87,7 @@
 
       var returnState;
       $rootScope.$on("$stateChangeStart", function (event, next, current) {
-        if (next.name.indexOf("apps.launcher.un") === -1) {
+        if (next && next.name.indexOf("apps.launcher.un") === -1) {
           returnState = next;
         }
       });

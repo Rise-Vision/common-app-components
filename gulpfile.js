@@ -128,11 +128,11 @@
   gulp.task("concat", function () { //copy angular files
     var tasks = folders.map(function(folder) {
       return gulp.src([
-        path.join(scriptsPath, folder, "/app.js"),
-        path.join(scriptsPath, folder, "/svc-*.js"),
-        path.join(scriptsPath, folder, "/dtv-*.js"),
-        path.join(scriptsPath, folder, "/ctr-*.js"),
-        path.join(scriptsPath, folder, "/ftr-*.js"),
+        path.join(scriptsPath, folder, "**/app.js"),
+        path.join(scriptsPath, folder, "**/svc-*.js"),
+        path.join(scriptsPath, folder, "**/dtv-*.js"),
+        path.join(scriptsPath, folder, "**/ctr-*.js"),
+        path.join(scriptsPath, folder, "**/ftr-*.js"),
         path.join("./tmp/partials/", folder, "*.js")
       ])
       .pipe(concat(folder + ".js"))
