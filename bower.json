@@ -19,8 +19,7 @@
     "q": "1.0.1",
     "jquery": "1.11.0",
     "sinon": "~1.10.2",
-    "lodash": "~2.4.1",
-    "rv-gapi-mock": "https://github.com/Rise-Vision/gapi-mock.git"
+    "lodash": "~2.4.1"
   },
   "dependencies": {
     "angular": "1.2.18",

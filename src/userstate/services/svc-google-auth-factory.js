@@ -9,24 +9,10 @@
     "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
   )
     .value("GOOGLE_OAUTH2_URL", "https://accounts.google.com/o/oauth2/auth")
-    .run(["$location", "$window", "userState", "$log",
-      function ($location, $window, userState, $log) {
-        var stripLeadingSlash = function (str) {
-          if (str[0] === "/") {
-            str = str.slice(1);
-          }
-          return str;
-        };
-
-        var parseParams = function (str) {
-          var params = {};
-          str.split("&").forEach(function (fragment) {
-            var fragmentArray = fragment.split("=");
-            params[fragmentArray[0]] = fragmentArray[1];
-          });
-          return params;
-        };
-
+    .run(["$location", "$window", "userState", "$log", "stripLeadingSlash",
+      "parseParams",
+      function ($location, $window, userState, $log, stripLeadingSlash,
+        parseParams) {
         var path = $location.path();
         var params = parseParams(stripLeadingSlash(path));
         $log.debug("URL params", params);
@@ -52,17 +38,14 @@
 
       }
     ])
-    .factory("googleAuthFactory", [
-      "$q", "$log", "$location", "CLIENT_ID", "gapiLoader", "OAUTH2_SCOPES",
-      "getOAuthUserInfo", "objectHelper",
-      "$rootScope", "$interval", "$window", "GOOGLE_OAUTH2_URL",
-      "localStorageService", "$document", "uiFlowManager", "getBaseDomain",
-      "rvTokenStore", "$http", "userState",
-      function ($q, $log, $location, CLIENT_ID,
-        gapiLoader, OAUTH2_SCOPES, getOAuthUserInfo, objectHelper,
-        $rootScope, $interval, $window, GOOGLE_OAUTH2_URL,
-        localStorageService, $document, uiFlowManager, getBaseDomain,
-        rvTokenStore, $http, userState) {
+    .factory("googleAuthFactory", ["$q", "$log", "$location", "$rootScope",
+      "$interval", "$window", "$http", "gapiLoader", "getOAuthUserInfo",
+      "uiFlowManager", "getBaseDomain", "userState",
+      "CLIENT_ID", "OAUTH2_SCOPES", "GOOGLE_OAUTH2_URL",
+      function ($q, $log, $location, $rootScope, $interval, $window, $http,
+        gapiLoader, getOAuthUserInfo, uiFlowManager, getBaseDomain,
+        userState,
+        CLIENT_ID, OAUTH2_SCOPES, GOOGLE_OAUTH2_URL) {
 
         var _accessTokenRefreshHandler = null;
 
@@ -122,23 +105,25 @@
               // Setting the gapi token with the chosen user token. This is a fix for the multiple account issue.
               gApi.auth.setToken(_state.params);
 
-              gApi.auth.authorize(opts, function (authResult) {
-                $log.debug("authResult");
-                if (authResult && !authResult.error) {
-                  if (_state.params) {
-                    // clear token so we don't deal with expiry
-                    delete _state.params;
-                  }
-
-                  _scheduleAccessTokenAutoRefresh();
-
-                  deferred.resolve(authResult);
-                } else {
-                  deferred.reject(authResult.error ||
-                    "failed to authorize user");
+              return gApi.auth.authorize(opts);
+            })
+            .then(function (authResult) {
+              $log.debug("authResult");
+              if (authResult && !authResult.error) {
+                if (_state.params) {
+                  // clear token so we don't deal with expiry
+                  delete _state.params;
                 }
-              });
-            }).then(null, deferred.reject); //gapiLoader
+
+                _scheduleAccessTokenAutoRefresh();
+
+                deferred.resolve(authResult);
+              } else {
+                deferred.reject(authResult.error ||
+                  "failed to authorize user");
+              }
+            })
+            .then(null, deferred.reject); //gapiLoader
 
           return deferred.promise;
         };
@@ -177,9 +162,9 @@
 
             // Redirect to full URL path
             if ($rootScope.redirectToRoot === false) {
-              loc = $window.location.href.substr(0, $window.location.href
-                .indexOf(
-                  "#")) || $window.location.href;
+              loc = $window.location.href.substr(0, $window.location
+                .href
+                .indexOf("#")) || $window.location.href;
             }
             // Redirect to the URL root and append pathname back to the URL
             // on Authentication success
@@ -189,9 +174,9 @@
             else {
               loc = $window.location.origin + "/";
               // Remove first character (/) from path since we're adding it to loc
-              path = $window.location.pathname ? $window.location.pathname
-                .substring(
-                  1) : "";
+              path = $window.location.pathname ? $window.location
+                .pathname
+                .substring(1) : "";
               search = $window.location.search;
             }
 

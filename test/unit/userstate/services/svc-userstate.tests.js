@@ -2,558 +2,496 @@
 /*global gapi*/
 "use strict";
 
-describe("Services: auth & user state", function() {
-  var path = "";
-
+describe("Services: userState", function() {
   beforeEach(module("risevision.common.components.userstate"));
 
   beforeEach(module(function ($provide) {
     //stub services
     $provide.service("$q", function() {return Q;});
+    
+    $provide.factory("companyState", function() {
+      companyState = {};
+      
+      companyMethods.forEach(function (method) {
+        companyState[method] = sinon.spy();
+      });
+
+      return companyState;
+    })
+    
+    $provide.factory("getUserProfile", function() {
+      return function(username, refreshProfile) {
+        expect(refreshProfile).to.be.true;
+
+        if (returnResult){
+          return Q.resolve({username: username});
+        }else{
+          return Q.reject("Error retrieving profile");
+        }
+      };
+    });
+    
     $provide.value("$location", {
       search: function () {
-        return {};
+        return {
+          inRVA: "true"
+        };
       },
       path: function () {
-        return path;
-      },
-      protocol: function () {
-        return "protocol";
+        return "";
       },
       url: function() {
         return "";
       }
     });
-    $provide.service("getBaseDomain", [function() {
-      return function() {
-        return "domain";
-      };
-    }]);
+    
+    $provide.factory("localStorageService", function() {
+      return localStorageService = {
+        set: sinon.spy(),
+        get: sinon.spy(),
+        remove: sinon.spy()
+      }
+    });
 
-    $provide.factory("rvTokenStore", [function () {
-      var token;
+    $provide.factory("rvTokenStore", function () {
       return {
         read: function() {
-          return token;
-        },
-        write: function(newToken) {
-          token = newToken;
-        },
-        clear: function() {
-          token = undefined;
+          return "testToken";
         }
       };
-    }]);
-    $provide.factory("externalLogging", [function () {
-      return {
-        logEvent: function(){
-        }
-      };
-    }]);
-    $provide.value("$loading", {
-      startGlobal: function(){},
-      stopGlobal: function(){}
     });
-    $provide.factory("$http", [function () {
-      return {
-        get: function(url,data, config) {
-          return Q.resolve({data:{email:'a@b.ca'}});
-        }
-      };
-    }]);
+    
+    $provide.factory("userInfoCache", function() {
+      return userInfoCache = {
+        removeAll: sinon.spy()
+      }
+    })
   }));
   
-  it("should exist, also methods", function(done) {
-    inject(function(userState) {
-      expect(userState.authenticate).to.be.ok;
-      expect(userState.signOut).to.be.ok;
-      expect(userState.getUserCompanyId).to.be.ok;
-      ["getUserCompanyId", "getSelectedCompanyId", "getSelectedCompanyName",
-      "updateCompanySettings", "getSelectedCompanyCountry", "getUsername",
-      "getUserEmail", "getCopyOfProfile", "resetCompany",
-      "getCopyOfUserCompany", "getCopyOfSelectedCompany", "switchCompany",
-      "isSubcompanySelected", "getUserPicture", "inRVAFrame",
-      "isRiseAdmin", "isRiseStoreAdmin", "isUserAdmin", "isPurchaser",
-      "isSeller", "isRiseVisionUser", "isLoggedIn", "authenticate",
-      "authenticatePopup",
-      "signOut", "checkUsername", "updateUserProfile", "refreshProfile", 
-      "getAccessToken"].forEach(
-      function (method) {
+  var userState, companyState, userMethods, companyMethods, returnResult, 
+  localStorageService, userInfoCache;
+  
+  beforeEach(function() {
+    returnResult = true;
+
+    companyMethods = ["getUserCompanyId", "getUserCompanyName", 
+      "getSelectedCompanyId", "getSelectedCompanyName", 
+      "getSelectedCompanyCountry", "getCopyOfUserCompany", 
+      "getCopyOfSelectedCompany", "isSubcompanySelected", 
+      "isTestCompanySelected", "isRootCompany", "updateCompanySettings", 
+      "updateUserCompanySettings", "resetCompany", "switchCompany", 
+      "isSeller"];
+
+    userMethods = ["getUsername", "getUserEmail", "getCopyOfProfile", 
+      "getUserPicture", "hasRole", "inRVAFrame", "isRiseAdmin", 
+      "isRiseStoreAdmin", "isUserAdmin", "isPurchaser", "isRiseVisionUser", 
+      "isLoggedIn", "getAccessToken", "checkUsername", "updateUserProfile", 
+      "refreshProfile",
+      // private
+      "_restoreState", "_resetState", "_setUserToken", "_persistState"];
+      
+    inject(function($injector){
+      userState = $injector.get("userState");
+    });
+  });
+
+  describe("should exist, also methods: ", function() {
+    it("userState methods", function() {
+      expect(userState._state).to.be.ok;
+      expect(userState._state).to.be.an('object');
+
+      userMethods.forEach(function (method) {
+        expect(userState[method]).to.be.ok;
         expect(userState).to.have.property(method);
         expect(userState[method]).to.be.a("function");
       });
-      done();
-    });
-  });
-  
-  describe("user not logged in: ",function(){
-    var userState, rootScope, broadcastSpy,externalLoggingSpy, gapiLoaderCalled;
-
-    beforeEach(module(function ($provide) {
-      gapiLoaderCalled = 0;
-      $provide.service("gapiLoader", function () {
-        return function() {
-          gapiLoaderCalled++;
-          var deferred = Q.defer();
-          
-          deferred.resolve({
-            auth: {
-              authorize: function(opts, callback) {
-                callback({});
-              },
-              setToken: function() {}
-            }
-          });
-          
-          return deferred.promise;
-        };
-      });
-    }));
-
-    beforeEach(function() {      
-      inject(function($injector){
-        rootScope = $injector.get("$rootScope");
-        var $window = $injector.get("$window");
-        userState = $injector.get("userState");
-
-        $window.performance = {timing: {navigationStart:0}};
-        var externalLogging = $injector.get("externalLogging");
-        externalLoggingSpy = sinon.spy(externalLogging, "logEvent");
-        broadcastSpy = sinon.spy(rootScope, "$broadcast");
-      });
-    });
-    
-    it("should not be authenticated", function(done) {
-      userState.authenticate().then(done, function(msg) {
-        expect(userState.isLoggedIn()).to.be.false;
-        expect(msg).to.equal("user is not authenticated");
-        broadcastSpy.should.not.have.been.calledWith("risevision.user.authorized");
-        done();
-      })
-      .then(null,done);
     });
 
-    it("should log page speed for unauthenticated user", function(done) {
-      userState.authenticate().then(done, function() {
-        externalLoggingSpy.should.have.been.calledWith("page load time","unauthenticated user");
-        done();    
-      })
-      .then(null,done);
-    });
-    
-    
-    it("should pre-initialize gapiLoader", function(done) {
-      userState.authenticate().then(done, function() {
-        expect(gapiLoaderCalled).to.be.equal(1);
+    it("should proxy companyState functionality", function() {
+      companyMethods.forEach(function(method) {
+        expect(userState[method]).to.be.ok;
+        expect(userState).to.have.property(method);
+        expect(userState[method]).to.be.a("function");
         
-        done();
-      })
-      .then(null,done);
+        userState[method]();
+        
+        companyState[method].should.have.been.calledOnce;
+      });
     });
+    
+    it("should inititalize _state (variable): ", function() {
+      expect(userState._state).to.be.ok;
+      
+      expect(userState._state.profile).to.be.ok;
+      expect(userState._state.profile).to.be.an("object");
+      
+      expect(userState._state.user).to.be.ok;
+      expect(userState._state.user).to.be.an("object");
+
+      expect(userState._state.roleMap).to.be.ok;
+      expect(userState._state.roleMap).to.be.an("object");
+      
+      expect(userState._state.userToken).to.be.ok;
+      expect(userState._state.userToken).to.be.equal("testToken");
+
+      expect(userState._state.inRVAFrame).to.be.true;
+    });
+
   });
   
-  describe("should remember user: ", function(){
-    var userState, rootScope, broadcastSpy, externalLoggingSpy;
-    
+  describe("refreshProfile: ", function() {
     beforeEach(function() {
-      gapi.setPendingSignInUser("michael.sanchez@awesome.io");
-      gapi.auth.authorize({immediate: false}, function() {});
-
-      inject(function($injector){
-        userState = $injector.get("userState");
-        rootScope = $injector.get("$rootScope");
-        var $window = $injector.get("$window");
-        $window.performance = {timing: {navigationStart:0}};
-        var externalLogging = $injector.get("externalLogging");
-        externalLoggingSpy = sinon.spy(externalLogging, "logEvent");
-        broadcastSpy = sinon.spy(rootScope, "$broadcast");
-        // Fake user token being stored locally
-        userState._setUserToken({access_token:'token'});
-      });
+      companyState.init = sinon.spy(function() { return Q.resolve("initialized"); });
+      userState.updateUserProfile = sinon.stub();
+      
+      userState._state.user.username = "username@test.com";
     });
     
-    it("should be authenticated", function(done) {
-      userState.authenticate().then(function() {
-        expect(userState.isLoggedIn()).to.be.true;
-        expect(userState.isRiseVisionUser()).to.be.true;
-        broadcastSpy.should.have.been.calledWith("risevision.user.authorized");
-        expect(userState.getUsername()).to.equal("michael.sanchez@awesome.io");
+    it("should refresh profile", function(done) {
+      userState.refreshProfile()
+        .then(function(){
+          companyState.init.should.have.been.called;
+          userState.updateUserProfile.should.have.been.calledWith({username: "username@test.com"});
 
-        done();
-      }, function(err) {
-        done(err || "error");
-      })
-      .then(null,done);
+          done();
+        })
+        .then(null,done);
     });
 
+    it("should handle failure to refresh profile", function(done) {
+      returnResult = false;
 
-    it("should log page speed for authenticated user", function(done) {
-      userState.authenticate().then(done, function() {
-        externalLoggingSpy.should.have.been.calledWith("page load time","authenticated user");
-        done();    
-      })
-      .then(null,done);
+      userState.refreshProfile()
+        .then(function(resp) {
+          done(resp);
+        })
+        .then(null, function(error) {
+          companyState.init.should.not.have.been.called;
+          userState.updateUserProfile.should.not.have.been.called;
+
+          expect(error).to.deep.equal("Error retrieving profile");
+          done();
+        })
+        .then(null,done);
     });
+  });
+  
+  describe("get functions: ", function() {
+    it("getUsername: ", function () {
+      expect(userState.getUsername()).to.equal(null);
+      
+      userState._state.user.username = "username@test.com";
+
+      expect(userState.getUsername()).to.equal("username@test.com");
+    });
+    
+    it("getUserEmail: ", function() {
+      expect(userState.getUserEmail()).to.not.be.ok;
+      
+      userState._state.profile.email = "username@test.com";
+
+      expect(userState.getUserEmail()).to.equal("username@test.com");
+    });
+    
+    it("getCopyOfProfile: ", function() {
+      userState._state.profile.email = "username@test.com";
+
+      expect(userState.getCopyOfProfile(true)).to.deep.equal(userState._state.profile);
+      expect(userState.getCopyOfProfile(true)).to.not.equal(userState._state.profile);
+      expect(Object.getPrototypeOf(userState.getCopyOfProfile(true))).to.not.equal(userState._state.profile);
+
+      expect(userState.getCopyOfProfile()).to.deep.equal(userState._state.profile);
+      expect(userState.getCopyOfProfile()).to.not.equal(userState._state.profile);
+      expect(Object.getPrototypeOf(userState.getCopyOfProfile())).to.equal(userState._state.profile);
+    });
+    
+    it("getUserPicture: ", function() {
+      expect(userState.getUserPicture()).to.equal("http://api.randomuser.me/portraits/med/men/33.jpg");
+
+      userState._state.user.picture = "userPicture.jpg";
+      
+      expect(userState.getUserPicture()).to.equal("userPicture.jpg");
+    });
+    
+    describe("user roles: ", function() {
+      it("hasRole: ", function() {
+        userState._state.roleMap = {"sa": true, "ua": true};
         
-    it("should obtain user & company info", function(done) {
-      userState.authenticate().then(function() {
-        expect(userState.getUserEmail()).to.equal("michael.sanchez@awesome.io");
+        expect(userState.hasRole("sa")).to.be.true;
+        expect(userState.hasRole("ua")).to.be.true;
+        expect(userState.hasRole("")).to.be.false;
+        expect(userState.hasRole("ce")).to.be.false;
+      });
+      
+      it("isRiseAdmin: ", function() {
+        var isRoot = false;
+        companyState.isRootCompany = function() {
+          return isRoot;
+        };
+
         expect(userState.isRiseAdmin()).to.be.false;
+
+        userState._state.roleMap = {"ua": true};
+
+        expect(userState.isRiseAdmin()).to.be.false;
+        isRoot = true;
+        expect(userState.isRiseAdmin()).to.be.false;
+
+        userState._state.roleMap = {"sa": true, "ua": true};
+
+        expect(userState.isRiseAdmin()).to.be.true;
+        isRoot = false;
+        expect(userState.isRiseAdmin()).to.be.false;
+      });
+      
+      it("isRiseStoreAdmin: ", function() {
+        var isRoot = false;
+        companyState.isRootCompany = function() {
+          return isRoot;
+        };
+
+        expect(userState.isRiseStoreAdmin()).to.be.false;
+
+        userState._state.roleMap = {"ua": true};
+
+        expect(userState.isRiseStoreAdmin()).to.be.false;
+        isRoot = true;
+        expect(userState.isRiseStoreAdmin()).to.be.false;
+
+        userState._state.roleMap = {"ba": true, "ua": true};
+
+        expect(userState.isRiseStoreAdmin()).to.be.true;
+        isRoot = false;
+        expect(userState.isRiseStoreAdmin()).to.be.false;
+      });
+      
+      it("isUserAdmin: ", function() {
+        expect(userState.isUserAdmin()).to.be.false;
+
+        userState._state.roleMap = {"ba": true};
+
+        expect(userState.isUserAdmin()).to.be.false;
+
+        userState._state.roleMap = {"ba": true, "ua": true};
+
         expect(userState.isUserAdmin()).to.be.true;
-        expect(userState.getCopyOfProfile().firstName).to.equal("Michael");
+      });
+      
+      it("isPurchaser: ", function() {
+        expect(userState.isPurchaser()).to.be.false;
+
+        userState._state.roleMap = {"ua": true};
+
+        expect(userState.isPurchaser()).to.be.false;
+
+        userState._state.roleMap = {"pu": true, "ua": true};
+
+        expect(userState.isPurchaser()).to.be.true;
+      });
+      
+    });
+  
+    it("inRVAFrame: ", function() {
+      expect(userState.inRVAFrame()).to.be.true;
+      
+      userState._state.inRVAFrame = false;
+      
+      expect(userState.inRVAFrame()).to.be.false;
+    });
+    
+    it("isRiseVisionUser: ", function() {
+      expect(userState.isRiseVisionUser()).to.be.false;
+      
+      userState._state.profile.username = null;
+      
+      expect(userState.isRiseVisionUser()).to.be.false;
+
+      userState._state.profile.username = "another@username.com";
+
+      expect(userState.isRiseVisionUser()).to.be.true;
+    });
+
+    it("isLoggedIn: ", function() {
+      expect(userState.isLoggedIn()).to.be.false;
+      
+      userState._state.user.username = null;
+      
+      expect(userState.isLoggedIn()).to.be.false;
+
+      userState._state.user.username = "another@username.com";
+
+      expect(userState.isLoggedIn()).to.be.true;
+    });
+    
+    describe("getAccessToken: ", function() {
+      var $window;
+      beforeEach(function() {
+        inject(function($injector){
+          $window = $injector.get("$window");
+        });
+      });
+
+      it("should retrieve gapi token", function() {
+        expect(userState.getAccessToken()).to.not.be.ok;
         
-        expect(userState.getUserCompanyName()).to.equal("Rise Vision Test Co.");
-        expect(userState.getSelectedCompanyCountry()).to.equal("CA");
-        
-        done();
-      })
-      .then(null,done);
-      
-    });
-
-    it("should sign out", function(done) {
-      userState.authenticate().then(function() {
-        expect(userState.isLoggedIn()).to.be.true;
-        broadcastSpy.should.have.been.calledWith("risevision.user.authorized");
-
-        userState.signOut().then(function() {
-          expect(userState.isLoggedIn()).to.be.false;
-          expect(userState.isRiseVisionUser()).to.be.false;
-          broadcastSpy.should.have.been.calledWith("risevision.user.signedOut");
-          expect(userState.getUsername()).to.not.be.truely;
-
-          done();
-        }, function(err) {
-          done(err || "error");
-        })
-        .then(null,done);
-      })
-      .then(null,done);
-
-    });
-    
-    it("set url path for next tests", function() {
-      path = "/state=%7B%22p%22%3A%22%22%2C%22u%22%3A%22%23%2F%22%2C%22s%22%3A%22%22%7D&access_token=ya29&token_type=Bearer&expires_in=3600";
-    });
-
-  });
-  
-  describe("interpret auth result, new user: ", function(){
-    var userState, rootScope, broadcastSpy;
-    
-    beforeEach(function() {
-      gapi.setPendingSignInUser("john.doe@awesome.io");
-      gapi.auth.authorize({immediate: false}, function() {});
-
-      inject(function($injector){
-        userState = $injector.get("userState");
-        rootScope = $injector.get("$rootScope");
-        broadcastSpy = sinon.spy(rootScope, "$broadcast");
-      });
-    });
-    
-    it("should be authenticated", function(done) {
-      userState.authenticate().then(function() {
-        expect(userState.isLoggedIn()).to.be.true;
-        expect(userState.isRiseVisionUser()).to.be.false;
-        broadcastSpy.should.have.been.calledWith("risevision.user.authorized");
-        expect(userState.getUsername()).to.equal("john.doe@awesome.io");
-
-        done();
-      }, function(err) {
-        done(err || "error");
-      })
-      .then(null,done);
-    });
-  });
-  
-  describe("interpret auth result, existing user: ", function(){
-    var userState, rootScope, broadcastSpy;
-    
-    beforeEach(function() {
-      gapi.setPendingSignInUser("michael.sanchez@awesome.io");
-      gapi.auth.authorize({immediate: false}, function() {});
-
-      inject(function($injector){
-        userState = $injector.get("userState");
-        rootScope = $injector.get("$rootScope");
-        broadcastSpy = sinon.spy(rootScope, "$broadcast");
-      });
-    });
-
-    it("should be authenticated", function(done) {
-      userState.authenticate().then(function() {
-        expect(userState.isLoggedIn()).to.be.true;
-        expect(userState.isRiseVisionUser()).to.be.true;
-        broadcastSpy.should.have.been.calledWith("risevision.user.authorized");
-        expect(userState.getUsername()).to.equal("michael.sanchez@awesome.io");
-
-        done();
-      }, function(err) {
-        done(err || "error");
-      })
-      .then(null,done);
-    });
-
-  });
-  
-  describe("handle api failures: ", function() {
-    beforeEach(module(function ($provide) {
-      $provide.service("gapiLoader", function () {
-        return function() {
-          var deferred = Q.defer();
-          
-          if (failGapiLoader) {
-            deferred.reject("gapi loader failed");
+        $window.gapi = {
+          auth: {
+            getToken: function() { }
           }
-          else {
-            deferred.resolve({
-              auth: {
-                authorize: function(opts, callback) {
-                  if (failAuthorize) {
-                    callback({
-                      error: "authorize failure"
-                    });
-                  }
-                  callback({});
-                },
-                setToken: function() {}
-              }
-            });
-          }
-          
-          return deferred.promise;
         };
-      });
-      $provide.service("getOAuthUserInfo", function() {
-        return function() {
-          var deferred = Q.defer();
-      
-          if (failOAuthUser) {
-            deferred.reject("oauth failure");
-          }
-          else {
-            deferred.resolve({
-              id: 1234,
-              email: "someuser@awesome.io",
-              picture: "photo.jpg"
-            });
-          }
-          
-          return deferred.promise;
-        };
-      });
-    }));
-    
-    var failGapiLoader, failAuthorize, failOAuthUser;
-    
-    it("should throw error if gapi loader fails", function(done) {
-      failGapiLoader = true;
+        expect(userState.getAccessToken()).to.not.be.ok;
 
-      inject(function(userState,$rootScope){
-        var broadcastSpy = sinon.spy($rootScope, "$broadcast");
-        userState.authenticate().then(done, function(err) {
-          expect(userState.isLoggedIn()).to.be.false;
-          broadcastSpy.should.not.have.been.calledWith("risevision.user.authorized");
-          expect(err).to.equal("gapi loader failed");
-          
-          done();
-        })
-        .then(null,done);
+        $window.gapi.auth.getToken = function() { return "token"; };
+        expect(userState.getAccessToken()).to.equal("token");
       });
     });
-    
-    it("should throw error if gapi.auth.authorize fails", function(done) {
-      failGapiLoader = false;
-      failAuthorize = true;
-    
-      inject(function(userState,$rootScope){
-        var broadcastSpy = sinon.spy($rootScope, "$broadcast");
-        userState.authenticate().then(done, function(err) {
-          expect(userState.isLoggedIn()).to.be.false;
-          broadcastSpy.should.not.have.been.calledWith("risevision.user.authorized");
-          expect(err).to.equal("authorize failure");
-          
-          done();
-        })
-        .then(null,done);
-      });
-    });
-      
-    it("should throw error on oauth failure", function(done) {
-      failGapiLoader = false;
-      failAuthorize = false;
-      failOAuthUser = true;
-    
-      inject(function(userState,$rootScope){
-        var broadcastSpy = sinon.spy($rootScope, "$broadcast");
-        userState.authenticate().then(done, function(err) {
-          expect(userState.isLoggedIn()).to.be.false;
-          broadcastSpy.should.not.have.been.calledWith("risevision.user.authorized");
-          expect(err).to.equal("oauth failure");
-                    
-          done();
-        })
-        .then(null,done);
-      });
-    });
+
   });
-  
-  describe("force authentication: ", function() {
 
-    beforeEach( module( function($provide) {
-      $provide.service("$q", function() {return Q;});
-      $provide.value("$location", {
-        search: function () {
-          return {inRVA : ""};
-        },
-        path: function () {
-          return "";
-        },
-        protocol: function () {
-          return "protocol";
-        },
-        url: function() {}
-      });
-    }));
-    
-
-    it("should be authenticated with force", function(done) {
-      inject(function(userState,$rootScope){
-        gapi.setPendingSignInUser("michael.sanchez@awesome.io");
-        gapi.auth.authorize({immediate: true}, function() {});
-        var broadcastSpy = sinon.spy($rootScope, "$broadcast");
-        userState.authenticate(true).then(function() {
-          expect(userState.isLoggedIn()).to.be.true;
-          expect(userState.isRiseVisionUser()).to.be.true;
-          broadcastSpy.should.have.been.calledWith("risevision.user.authorized");
-          broadcastSpy.should.have.been.calledWith("risevision.user.userSignedIn");
-          expect(userState.getUsername()).to.equal("michael.sanchez@awesome.io");
-
-          done();
-        })
-          .then(null,done);
-      });
-    });
-  });
-  
-  it("authenticatePopup: should force authentication", function(done) {
-    inject(function(userState,$rootScope){
-      gapi.setPendingSignInUser("michael.sanchez@awesome.io");
-
-      var broadcastSpy = sinon.spy($rootScope, "$broadcast");
-      userState.authenticatePopup().then(function() {
-        expect(userState.isLoggedIn()).to.be.true;
-        expect(userState.isRiseVisionUser()).to.be.true;
-        broadcastSpy.should.have.been.calledWith("risevision.user.authorized");
-        broadcastSpy.should.have.been.calledWith("risevision.user.userSignedIn");
-        expect(userState.getUsername()).to.equal("michael.sanchez@awesome.io");
-
-        done();
-      })
-        .then(null,done);
-    });
-  });
-  
   describe("checkUsername: ", function() {
-    var userState;
-    
-    beforeEach(function(done) {
-      gapi.setPendingSignInUser("michael.sanchez@awesome.io");
-      gapi.auth.authorize({immediate: false}, function() {});
-
-      inject(function($injector){
-        userState = $injector.get("userState");
-        
-        done();
-      });
-    });
-    
-    beforeEach(function(done) {
-      expect(userState.checkUsername("michael.sanchez@awesome.io")).to.be.false;
-
-      userState.authenticate().then(function() {
-        done();
-      });
-    });
-    
-    it("should ignore case", function() {
-      expect(userState.checkUsername("michael.sanchez@awesome.io")).to.be.true;
-      expect(userState.checkUsername("Michael.Sanchez@awesome.io")).to.be.true;
-    });
-    
-    it("should fail gracefully", function() {
-      expect(userState.checkUsername("someone@awesome.io")).to.be.false;
+    it("should return false if username doesn't match", function() {
       expect(userState.checkUsername()).to.be.false;
+      expect(userState.checkUsername("")).to.be.false;
+      
+      userState.getUsername = sinon.spy(function() { return ""; });
+
+      expect(userState.checkUsername("username@test.com")).to.be.false;
+
+      userState.getUsername = sinon.spy(function() { return "another@username.com"; });
+      
+      expect(userState.checkUsername("username@test.com")).to.be.false;
+    });
+    
+    it("should return true if username matches, regardless of case", function() {
+      userState.getUsername = sinon.spy(function() { return "username@test.com"; });
+
+      expect(userState.checkUsername("username@test.com")).to.be.true;
+      expect(userState.checkUsername("UserName@Test.com")).to.be.true;
+
+      userState.getUsername = sinon.spy(function() { return "UserName@Test.com"; });
+      
+      expect(userState.checkUsername("username@test.com")).to.be.true;
     });
   });
   
-  describe("updateUserProfile: ", function(){
-    var userState, rootScope, broadcastSpy;
-    
-    beforeEach(function(done) {
-      gapi.setPendingSignInUser("michael.sanchez@awesome.io");
-      gapi.auth.authorize({immediate: false}, function() {});
+  describe("updateUserProfile: ", function() {
+    var $broadcastSpy;
 
+    beforeEach(function() {
       inject(function($injector){
-        userState = $injector.get("userState");
-        rootScope = $injector.get("$rootScope");
-        broadcastSpy = sinon.spy(rootScope, "$broadcast");
-        
-        done();
+        var $rootScope = $injector.get("$rootScope");
+        $broadcastSpy = sinon.spy($rootScope, "$broadcast");
       });
     });
-    
-    beforeEach(function(done) {
-      userState.authenticate().then(function() {
-        done();
-      });
-    });
-    
-    it("should get copyOfProfile", function() {
-      var profile = userState.getCopyOfProfile(true);
 
-      expect(profile).to.be.ok;
-      expect(profile.firstName).to.equal("Michael");
-      expect(userState.isPurchaser()).to.be.true;
+    it("should not update if usernames don't match", function() {
+      userState.checkUsername = sinon.spy(function() { return false; });
+
+      userState.updateUserProfile({username: "username@test.com"});
+      
+      userState.checkUsername.should.have.been.calledWith("username@test.com");
+      $broadcastSpy.should.not.have.been.called;
     });
 
-    it("should update profile", function() {
-      var profile = userState.getCopyOfProfile(true);
-
-      profile.lastName = "S.";
-      profile.roles.pop();
-      
-      userState.updateUserProfile(profile);
-      
-      var copyOfProfile = userState.getCopyOfProfile();
-      
-      expect(copyOfProfile.lastName).to.equal("S.");
-      expect(userState.isPurchaser()).to.be.false;
-      
-      setTimeout(function() {
-        broadcastSpy.should.have.been.calledWithExactly("risevision.user.updated");
-        broadcastSpy.should.have.been.once;
-      }, 10);
-    });
-    
-    it("should not update other user's profile", function() {
-      var profile = {
-        username: "someone@awesome.io",
-        firstName: "Someone",
-        lastName: "Else"
+    it("should clear and update _state.profile", function() {
+      userState._state.profile = {
+        someProp: "someValue"
       };
+      userState.checkUsername = sinon.spy(function() { return true; });
 
-      userState.updateUserProfile(profile);
+      userState.updateUserProfile({username: "username@test.com"});
       
-      var copyOfProfile = userState.getCopyOfProfile();
+      userState.checkUsername.should.have.been.calledWith("username@test.com");
+      $broadcastSpy.should.have.been.called;
+
+      expect(userState._state.profile).to.deep.equal({username: "username@test.com"});
+    });
+    
+    it("should update user roles", function() {
+      userState._state.profile = {
+        someProp: "someValue"
+      };
+      userState.checkUsername = sinon.spy(function() { return true; });
+
+      userState.updateUserProfile({username: "username@test.com"});
       
-      expect(copyOfProfile.lastName).to.equal("Sanchez");
+      userState.checkUsername.should.have.been.calledWith("username@test.com");
+      $broadcastSpy.should.have.been.called;
+
+      expect(userState._state.profile).to.deep.equal({username: "username@test.com"});
+    });
+    
+    it("should update user roles", function() {
+      userState._state.roleMap = {
+        someRole: true
+      };
+      userState.checkUsername = sinon.spy(function() { return true; });
+
+      userState.updateUserProfile({username: "username@test.com", roles: ["sa", "ua"]});
       
-      setTimeout(function() {
-        broadcastSpy.should.not.have.been.once;
-      }, 10);
+      expect(userState._state.roleMap).to.deep.equal({"sa": true, "ua": true});
     });
 
   });
+  
+  describe("private methods: ", function() {
+    it("_setUserToken: ", function() {
+      userState._setUserToken("testParams");
+      
+      expect(userState._state.params).to.equal("testParams");
+      expect(userState._state.userToken).to.equal("dummy");
+    });
+    
+    describe("_restoreState: ", function() {
+      it("should ignore if nothing to restore", function() {
+        var oldState = angular.copy(userState._state);
+
+        userState._restoreState();
+        
+        localStorageService.get.should.have.been.calledWith("risevision.common.userState");
+        localStorageService.remove.should.not.have.been.called;
+        expect(userState._state).to.deep.equal(oldState);
+      });
+
+      it("should restore state", function() {
+        var oldState = angular.copy(userState._state);
+        oldState.user.username = "username@test.com";
+        oldState.userToken = "dummy";
+
+        localStorageService.get = sinon.spy(function() { return {user: {username: "username@test.com"}, userToken: "dummy"}; });
+
+        userState._restoreState();
+        
+        localStorageService.get.should.have.been.calledWith("risevision.common.userState");
+        localStorageService.remove.should.have.been.calledWith("risevision.common.userState");
+        expect(userState._state).to.deep.equal(oldState);
+      });
+      
+    });
+    
+    it("_resetState: ", function() {
+      userState._state.user.username = "username@test.com";
+      userState._state.profile.username = "username@test.com";
+      userState._state.roleMap = { "ce": true };
+      
+      companyState.resetCompanyState = sinon.spy();
+
+      userState._resetState();
+
+      userInfoCache.removeAll.should.have.been.called;
+
+      expect(userState._state.user).to.deep.equal({});
+      expect(userState._state.profile).to.deep.equal({});
+      expect(userState._state.roleMap).to.deep.equal({});
+
+      companyState.resetCompanyState.should.have.been.called;
+    });
+
+    it("_persistState: ", function() {
+      userState._persistState();
+      localStorageService.set.should.have.been.calledWith("risevision.common.userState", userState._state);
+    });
+
+  });
+
 });

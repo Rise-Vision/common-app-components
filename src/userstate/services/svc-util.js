@@ -127,5 +127,22 @@
       };
 
     }
-  ]);
+  ])
+
+  .value("stripLeadingSlash", function (str) {
+    if (str[0] === "/") {
+      str = str.slice(1);
+    }
+    return str;
+  })
+
+  .value("parseParams", function (str) {
+    var params = {};
+    str.split("&").forEach(function (fragment) {
+      var fragmentArray = fragment.split("=");
+      params[fragmentArray[0]] = fragmentArray[1];
+    });
+    return params;
+  });
+
 })(angular);

@@ -122,4 +122,23 @@ describe("Services: util", function() {
       });
     });
   });
+  
+  it("stripLeadingSlash", function(done) {
+    inject(function(stripLeadingSlash) {
+      expect(stripLeadingSlash("/state=%7B&access_token=ya29")).to.equal("state=%7B&access_token=ya29");
+      expect(stripLeadingSlash("state=%7B&access_token=ya29")).to.equal("state=%7B&access_token=ya29")
+
+      done();
+    });
+  });
+  
+  it("parseParams", function(done) {
+    inject(function(parseParams) {
+      expect(parseParams("state=%7B&access_token=ya29")).to.deep.equal({state: "%7B", access_token: "ya29"});
+      expect(parseParams("state=%7B%22p%22%3A%22%22%2C%22u%22%3A%22%23%2F%22%2C%22s%22%3A%22%22%7D&access_token=ya29&token_type=Bearer&expires_in=3600")).to.deep.equal({"state":"%7B%22p%22%3A%22%22%2C%22u%22%3A%22%23%2F%22%2C%22s%22%3A%22%22%7D","access_token":"ya29","token_type":"Bearer","expires_in":"3600"});
+
+      done();
+    });
+  });
+
 });

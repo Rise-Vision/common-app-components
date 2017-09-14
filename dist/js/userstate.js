@@ -9,8 +9,7 @@
 
   angular.module("risevision.common.config")
     .value("ENABLE_EXTERNAL_LOGGING", true)
-    .value("CORE_URL", "https://rvaserver2.appspot.com/_ah/api")
-    .value("LOGIN_TEMPLATE_URL", "userstate/login.html");
+    .value("CORE_URL", "https://rvaserver2.appspot.com/_ah/api");
 
   angular.module("risevision.common.components.util", []);
   angular.module("risevision.common.components.logging", []);
@@ -53,9 +52,9 @@
       })
 
       .state("apps.launcher.unauthorized", {
-        templateProvider: ["$templateCache", "LOGIN_TEMPLATE_URL",
-          function ($templateCache, LOGIN_TEMPLATE_URL) {
-            return $templateCache.get(LOGIN_TEMPLATE_URL);
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get("userstate/login.html");
           }
         ],
         controller: "LoginCtrl"
@@ -131,112 +130,6 @@ angular.module("risevision.common.components.userstate")
       };
     }
   ]);
-
-(function () {
-  "use strict";
-
-  angular.module("risevision.common.components.userstate")
-    .constant("USER_AUTH_WRITABLE_FIELDS", [
-      "username", "password"
-    ])
-    .constant("TOKEN_WRITABLE_FIELDS", [
-      "username", "token"
-    ])
-    .service("auth", ["$q", "$log", "coreAPILoader", "pick",
-      "USER_AUTH_WRITABLE_FIELDS", "TOKEN_WRITABLE_FIELDS",
-      function ($q, $log, coreAPILoader, pick,
-        USER_AUTH_WRITABLE_FIELDS, TOKEN_WRITABLE_FIELDS) {
-
-        var service = {
-          add: function (username, password) {
-            var deferred = $q.defer();
-
-            var obj = {
-              "username": username,
-              "password": password
-            };
-            coreAPILoader().then(function (coreApi) {
-              return coreApi.userauth.save(obj);
-            })
-              .then(function (resp) {
-                $log.debug("added user credentials", resp);
-                deferred.resolve(resp.result);
-              })
-              .then(null, function (e) {
-                console.error("Failed to add credentials.", e);
-                deferred.reject(e);
-              });
-            return deferred.promise;
-          },
-          update: function (username, password) {
-            var deferred = $q.defer();
-
-            var obj = {
-              "username": username,
-              "password": password
-            };
-            coreAPILoader().then(function (coreApi) {
-              return coreApi.userauth.update(obj);
-            })
-              .then(function (resp) {
-                $log.debug("update user credentials resp", resp);
-                deferred.resolve(resp.result);
-              })
-              .then(null, function (e) {
-                console.error("Failed to update credentials.", e);
-                deferred.reject(e);
-              });
-
-            return deferred.promise;
-          },
-          login: function (username, password) {
-            var deferred = $q.defer();
-
-            var obj = {
-              "username": username,
-              "password": password
-            };
-            coreAPILoader().then(function (coreApi) {
-              return coreApi.userauth.login(obj);
-            })
-              .then(function (resp) {
-                $log.debug("login successful", resp);
-                deferred.resolve(resp);
-              })
-              .then(null, function (e) {
-                console.error("Failed to login user.", e);
-                deferred.reject(e);
-              });
-
-            return deferred.promise;
-          },
-          refreshToken: function (username, token) {
-            var deferred = $q.defer();
-
-            var obj = {
-              "username": username,
-              "token": token
-            };
-            coreAPILoader().then(function (coreApi) {
-              return coreApi.userauth.refreshToken(obj);
-            })
-              .then(function (resp) {
-                $log.debug("token refresh successful", resp);
-                deferred.resolve(resp);
-              })
-              .then(null, function (e) {
-                console.error("Failed to refresh token.", e);
-                deferred.reject(e);
-              });
-
-            return deferred.promise;
-          }
-        };
-
-        return service;
-      }
-    ]);
-})();
 
 "use strict";
 
@@ -418,9 +311,9 @@ angular.module("risevision.common.components.logging")
   /*jshint camelcase: false */
 
   angular.module("risevision.common.components.userstate")
-    .factory("customAuthFactory", ["$q", "$log", "$templateCache",
-      "auth", "gapiLoader", "userState",
-      function ($q, $log, $templateCache, auth, gapiLoader, userState) {
+    .factory("customAuthFactory", ["$q", "$log", "gapiLoader",
+      "userauth", "userState",
+      function ($q, $log, gapiLoader, userauth, userState) {
         var factory = {};
 
         factory.authenticate = function (credentials) {
@@ -430,11 +323,12 @@ angular.module("risevision.common.components.logging")
           if (credentials && credentials.username && credentials.password) {
             var addPromise = $q.resolve();
             if (credentials.newUser) {
-              addPromise = auth.add(credentials.username, credentials.password);
+              addPromise = userauth.add(credentials.username, credentials.password);
             }
+
             addPromise
               .then(function () {
-                return $q.all([auth.login(credentials.username,
+                return $q.all([userauth.login(credentials.username,
                   credentials.password), gapiLoader()]);
               })
               .then(function (result) {
@@ -461,11 +355,10 @@ angular.module("risevision.common.components.logging")
                 deferred.reject();
               });
           } else if (_state.userToken && _state.userToken.token) {
-            gapiLoader().
-            then(function (gApi) {
+            gapiLoader().then(function (gApi) {
               gApi.auth.setToken(_state.userToken.token);
 
-              // TODO: Verify token
+              // TODO: Validate token?
 
               deferred.resolve(_state.userToken);
             });
@@ -620,24 +513,10 @@ angular.module("risevision.common.components.logging")
     "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
   )
     .value("GOOGLE_OAUTH2_URL", "https://accounts.google.com/o/oauth2/auth")
-    .run(["$location", "$window", "userState", "$log",
-      function ($location, $window, userState, $log) {
-        var stripLeadingSlash = function (str) {
-          if (str[0] === "/") {
-            str = str.slice(1);
-          }
-          return str;
-        };
-
-        var parseParams = function (str) {
-          var params = {};
-          str.split("&").forEach(function (fragment) {
-            var fragmentArray = fragment.split("=");
-            params[fragmentArray[0]] = fragmentArray[1];
-          });
-          return params;
-        };
-
+    .run(["$location", "$window", "userState", "$log", "stripLeadingSlash",
+      "parseParams",
+      function ($location, $window, userState, $log, stripLeadingSlash,
+        parseParams) {
         var path = $location.path();
         var params = parseParams(stripLeadingSlash(path));
         $log.debug("URL params", params);
@@ -663,17 +542,14 @@ angular.module("risevision.common.components.logging")
 
       }
     ])
-    .factory("googleAuthFactory", [
-      "$q", "$log", "$location", "CLIENT_ID", "gapiLoader", "OAUTH2_SCOPES",
-      "getOAuthUserInfo", "objectHelper",
-      "$rootScope", "$interval", "$window", "GOOGLE_OAUTH2_URL",
-      "localStorageService", "$document", "uiFlowManager", "getBaseDomain",
-      "rvTokenStore", "$http", "userState",
-      function ($q, $log, $location, CLIENT_ID,
-        gapiLoader, OAUTH2_SCOPES, getOAuthUserInfo, objectHelper,
-        $rootScope, $interval, $window, GOOGLE_OAUTH2_URL,
-        localStorageService, $document, uiFlowManager, getBaseDomain,
-        rvTokenStore, $http, userState) {
+    .factory("googleAuthFactory", ["$q", "$log", "$location", "$rootScope",
+      "$interval", "$window", "$http", "gapiLoader", "getOAuthUserInfo",
+      "uiFlowManager", "getBaseDomain", "userState",
+      "CLIENT_ID", "OAUTH2_SCOPES", "GOOGLE_OAUTH2_URL",
+      function ($q, $log, $location, $rootScope, $interval, $window, $http,
+        gapiLoader, getOAuthUserInfo, uiFlowManager, getBaseDomain,
+        userState,
+        CLIENT_ID, OAUTH2_SCOPES, GOOGLE_OAUTH2_URL) {
 
         var _accessTokenRefreshHandler = null;
 
@@ -733,23 +609,25 @@ angular.module("risevision.common.components.logging")
               // Setting the gapi token with the chosen user token. This is a fix for the multiple account issue.
               gApi.auth.setToken(_state.params);
 
-              gApi.auth.authorize(opts, function (authResult) {
-                $log.debug("authResult");
-                if (authResult && !authResult.error) {
-                  if (_state.params) {
-                    // clear token so we don't deal with expiry
-                    delete _state.params;
-                  }
-
-                  _scheduleAccessTokenAutoRefresh();
-
-                  deferred.resolve(authResult);
-                } else {
-                  deferred.reject(authResult.error ||
-                    "failed to authorize user");
+              return gApi.auth.authorize(opts);
+            })
+            .then(function (authResult) {
+              $log.debug("authResult");
+              if (authResult && !authResult.error) {
+                if (_state.params) {
+                  // clear token so we don't deal with expiry
+                  delete _state.params;
                 }
-              });
-            }).then(null, deferred.reject); //gapiLoader
+
+                _scheduleAccessTokenAutoRefresh();
+
+                deferred.resolve(authResult);
+              } else {
+                deferred.reject(authResult.error ||
+                  "failed to authorize user");
+              }
+            })
+            .then(null, deferred.reject); //gapiLoader
 
           return deferred.promise;
         };
@@ -788,9 +666,9 @@ angular.module("risevision.common.components.logging")
 
             // Redirect to full URL path
             if ($rootScope.redirectToRoot === false) {
-              loc = $window.location.href.substr(0, $window.location.href
-                .indexOf(
-                  "#")) || $window.location.href;
+              loc = $window.location.href.substr(0, $window.location
+                .href
+                .indexOf("#")) || $window.location.href;
             }
             // Redirect to the URL root and append pathname back to the URL
             // on Authentication success
@@ -800,9 +678,9 @@ angular.module("risevision.common.components.logging")
             else {
               loc = $window.location.origin + "/";
               // Remove first character (/) from path since we're adding it to loc
-              path = $window.location.pathname ? $window.location.pathname
-                .substring(
-                  1) : "";
+              path = $window.location.pathname ? $window.location
+                .pathname
+                .substring(1) : "";
               search = $window.location.search;
             }
 
@@ -999,22 +877,13 @@ angular.module("risevision.common.components.logging")
   /*jshint camelcase: false */
 
   angular.module("risevision.common.components.userstate")
-    .factory("userAuthFactory", [
-      "$q", "$log", "$location", "CLIENT_ID",
-      "gapiLoader", "OAUTH2_SCOPES",
-      "getOAuthUserInfo",
-      "objectHelper", "$rootScope", "$interval", "$loading", "$window",
-      "GOOGLE_OAUTH2_URL", "localStorageService", "$document",
-      "uiFlowManager",
-      "getBaseDomain",
-      "rvTokenStore", "externalLogging", "$http",
+    .factory("userAuthFactory", ["$q", "$log", "$location",
+      "$rootScope", "$loading", "$window", "$document",
+      "gapiLoader", "objectHelper", "rvTokenStore", "externalLogging",
       "userState", "googleAuthFactory", "customAuthFactory",
-      function ($q, $log, $location, CLIENT_ID,
-        gapiLoader, OAUTH2_SCOPES,
-        getOAuthUserInfo, objectHelper,
-        $rootScope, $interval, $loading, $window, GOOGLE_OAUTH2_URL,
-        localStorageService, $document, uiFlowManager, getBaseDomain,
-        rvTokenStore, externalLogging, $http, userState, googleAuthFactory,
+      function ($q, $log, $location, $rootScope, $loading, $window,
+        $document, gapiLoader, objectHelper,
+        rvTokenStore, externalLogging, userState, googleAuthFactory,
         customAuthFactory) {
 
         var _state = userState._state;
@@ -1028,8 +897,7 @@ angular.module("risevision.common.components.logging")
             _shouldLogPageLoad = false;
             try {
               var duration = new Date().getTime() - $window.performance
-                .timing
-                .navigationStart;
+                .timing.navigationStart;
               externalLogging.logEvent("page load time", details,
                 duration,
                 userState.getUsername(), userState.getSelectedCompanyId()
@@ -1247,9 +1115,7 @@ angular.module("risevision.common.components.logging")
         };
 
         var signOut = function (signOutGoogle) {
-          var deferred = $q.defer();
-
-          gapiLoader().then(function (gApi) {
+          return gapiLoader().then(function (gApi) {
             if (signOutGoogle) {
               $window.logoutFrame.location =
                 "https://accounts.google.com/Logout";
@@ -1267,12 +1133,7 @@ angular.module("risevision.common.components.logging")
             //call google api to sign out
             $rootScope.$broadcast("risevision.user.signedOut");
             $log.debug("User is signed out.");
-            deferred.resolve();
-          }, function () {
-            deferred.reject();
           });
-
-          return deferred.promise;
         };
 
         var userAuthFactory = {
@@ -1281,6 +1142,8 @@ angular.module("risevision.common.components.logging")
             return authenticate(true);
           },
           signOut: signOut,
+          addEventListenerVisibilityAPI: _addEventListenerVisibilityAPI,
+          removeEventListenerVisibilityAPI: _removeEventListenerVisibilityAPI,
         };
 
         return userAuthFactory;
@@ -1288,6 +1151,104 @@ angular.module("risevision.common.components.logging")
     ]);
 
 })(angular);
+
+(function () {
+  "use strict";
+
+  angular.module("risevision.common.components.userstate")
+    .service("userauth", ["$q", "$log", "coreAPILoader",
+      function ($q, $log, coreAPILoader) {
+
+        var service = {
+          add: function (username, password) {
+            var deferred = $q.defer();
+
+            var obj = {
+              "username": username,
+              "password": password
+            };
+            coreAPILoader().then(function (coreApi) {
+              return coreApi.userauth.add(obj);
+            })
+              .then(function (resp) {
+                $log.debug("added user credentials", resp);
+                deferred.resolve(resp.result);
+              })
+              .then(null, function (e) {
+                console.error("Failed to add credentials.", e);
+                deferred.reject(e);
+              });
+            return deferred.promise;
+          },
+          update: function (username, password) {
+            var deferred = $q.defer();
+
+            var obj = {
+              "username": username,
+              "password": password
+            };
+            coreAPILoader().then(function (coreApi) {
+              return coreApi.userauth.update(obj);
+            })
+              .then(function (resp) {
+                $log.debug("update user credentials resp", resp);
+                deferred.resolve(resp.result);
+              })
+              .then(null, function (e) {
+                console.error("Failed to update credentials.", e);
+                deferred.reject(e);
+              });
+
+            return deferred.promise;
+          },
+          login: function (username, password) {
+            var deferred = $q.defer();
+
+            var obj = {
+              "username": username,
+              "password": password
+            };
+            coreAPILoader().then(function (coreApi) {
+              return coreApi.userauth.login(obj);
+            })
+              .then(function (resp) {
+                $log.debug("login successful", resp);
+                deferred.resolve(resp);
+              })
+              .then(null, function (e) {
+                console.error("Failed to login user.", e);
+                deferred.reject(e);
+              });
+
+            return deferred.promise;
+          },
+          refreshToken: function (username, token) {
+            var deferred = $q.defer();
+
+            var obj = {
+              "username": username,
+              "token": token
+            };
+            coreAPILoader().then(function (coreApi) {
+              return coreApi.userauth.refreshToken(obj);
+            })
+              .then(function (resp) {
+                $log.debug("token refresh successful", resp);
+                deferred.resolve(resp);
+              })
+              .then(null, function (e) {
+                console.error("Failed to refresh token.", e);
+                deferred.reject(e);
+              });
+
+            return deferred.promise;
+          }
+        };
+
+        return service;
+      }
+    ]);
+})();
 
 (function (angular) {
   "use strict";
@@ -1297,18 +1258,12 @@ angular.module("risevision.common.components.logging")
   .value("DEFAULT_PROFILE_PICTURE",
     "http://api.randomuser.me/portraits/med/men/33.jpg")
     .factory("userState", [
-      "$q", "$log", "$location",
-      "gapiLoader", "userInfoCache", "getUserProfile", "companyState",
-      "objectHelper",
-      "$rootScope", "$loading", "$window",
-      "localStorageService", "uiFlowManager",
-      "rvTokenStore", "$http", "DEFAULT_PROFILE_PICTURE",
-      function ($q, $log, $location,
-        gapiLoader, userInfoCache, getUserProfile, companyState,
-        objectHelper,
-        $rootScope, $loading, $window,
-        localStorageService, uiFlowManager,
-        rvTokenStore, $http, DEFAULT_PROFILE_PICTURE) {
+      "$q", "$rootScope", "$window", "$log", "$location", "userInfoCache",
+      "getUserProfile", "companyState", "objectHelper",
+      "localStorageService", "rvTokenStore", "DEFAULT_PROFILE_PICTURE",
+      function ($q, $rootScope, $window, $log, $location, userInfoCache,
+        getUserProfile, companyState, objectHelper,
+        localStorageService, rvTokenStore, DEFAULT_PROFILE_PICTURE) {
         //singleton factory that represents userState throughout application
 
         var _state = {
@@ -1419,8 +1374,8 @@ angular.module("risevision.common.components.logging")
           getAccessToken: getAccessToken,
           // user functions
           checkUsername: function (username) {
-            return (username || false) && (userState.getUsername() ||
-                false) &&
+            return (username || false) &&
+              (userState.getUsername() || false) &&
               username.toUpperCase() === userState.getUsername().toUpperCase();
           },
           updateUserProfile: function (user) {
@@ -1610,7 +1565,24 @@ angular.module("risevision.common.components.logging")
       };
 
     }
-  ]);
+  ])
+
+  .value("stripLeadingSlash", function (str) {
+    if (str[0] === "/") {
+      str = str.slice(1);
+    }
+    return str;
+  })
+
+  .value("parseParams", function (str) {
+    var params = {};
+    str.split("&").forEach(function (fragment) {
+      var fragmentArray = fragment.split("=");
+      params[fragmentArray[0]] = fragmentArray[1];
+    });
+    return params;
+  });
+
 })(angular);
 
 "use strict";

@@ -1,80 +1,133 @@
-'use strict';
-describe('controller: Log In', function() {
-  beforeEach(module('risevision.common.components.userstate'));
+"use strict";
+describe("controller: Log In", function() {
+  beforeEach(module("risevision.common.components.userstate"));
   beforeEach(module(function ($provide) {
-    $provide.service('userAuthFactory', function() {
+    $provide.service("userAuthFactory", function() {
       return {
-        authenticate: function(forceAuth) {
-
+        authenticate: function(forceAuth, credentials) {
           var deferred = Q.defer();
-          if(!forceAuth){
-            goToLogin = false;
-            if(isLoggedIn) {
 
-               deferred.resolve();
-            } else {
-              deferred.reject();
-            }
-          }else{
-            goToLogin = true;
+          expect(forceAuth).to.be.true;
+
+          if (credentials) {
+            expect(credentials).to.equal("credentials");
+          }
+          
+          if (loginSuccess) {
             deferred.resolve();
+          } else {
+            deferred.reject();
           }
 
           return deferred.promise;
         }
       };
     });
-    $provide.service('$state',function(){
+    $provide.service("uiFlowManager",function(){
       return {
-        _state : '',
-        go : function(state, params){
-          if (state){
-            this._state = state;
-          }
-          currentState = this._state;
-          return this._state;
-        }
-      }
+        invalidateStatus : sinon.spy()
+      };
     });
+    $provide.service("$loading",function(){
+      return {
+        startGlobal : sinon.spy(),
+        stopGlobal : sinon.spy()
+      };
+    });
+    
   }));
-  var $scope, isLoggedIn, goToLogin, currentState;
+  var $scope, $loading, loginSuccess, uiFlowManager;
   beforeEach(function () {
-    currentState = '';
-  });
-
-  it('should redirect user to home as it is already logged in',function(done){
-    isLoggedIn = true;
+    loginSuccess = false;
+    
     inject(function($injector,$rootScope, $controller){
       $scope = $rootScope.$new();
+      
+      $loading = $injector.get("$loading");
+      uiFlowManager = $injector.get("uiFlowManager");
 
-      $controller('LoginCtrl', {
-        $state: $injector.get('$state')
+      $controller("LoginCtrl", {
+        $scope: $scope,
+        $state: $injector.get("$state"),
+        $loading: $loading,
+        uiFlowManager: uiFlowManager
       });
       $scope.$digest();
+      
+      $scope.credentials = "credentials";
     });
-
-    setTimeout(function(){
-      expect(goToLogin).to.be.false;
-      expect(currentState).to.equal('apps.launcher.home');
-      done();
-    },10);
   });
 
-  it('should redirect to google auth when it is not logged in',function(done){
-    isLoggedIn = false;
-    inject(function($injector,$rootScope, $controller){
-      $scope = $rootScope.$new();
-
-      $controller('LoginCtrl', {
-        $state: $injector.get('$state')
-      });
-      $scope.$digest();
-    });
-
-    setTimeout(function(){
-      expect(goToLogin).to.be.true;
-      expect(currentState).to.not.equal('apps.launcher.home');
-      done();
-    },10);
+  it("should exist", function() {
+    expect($scope).to.be.ok;
+    expect($scope.googleLogin).to.be.a("function");
+    expect($scope.customLogin).to.be.a("function");
   });
+
+  describe("googleLogin: ", function() {
+    it("should handle successful login", function(done) {
+      loginSuccess = true;
+
+      $scope.googleLogin("endStatus");
+      
+      $loading.startGlobal.should.have.been.calledWith("auth-buttons-login");
+
+      setTimeout(function(){
+        $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
+        uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
+
+        done();
+      },10);
+    });
+    
+    it("should handle login failure", function(done) {
+      $scope.googleLogin("endStatus");
+      
+      $loading.startGlobal.should.have.been.calledWith("auth-buttons-login");
+
+      setTimeout(function(){
+        $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
+        uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
+
+        expect($scope.loginError).to.not.be.ok;
+
+        done();
+      },10);
+    });
+  });
+  
+  describe("customLogin: ", function() {
+    it("should handle successful login", function(done) {
+      loginSuccess = true;
+
+      $scope.customLogin("endStatus");
+      
+      $loading.startGlobal.should.have.been.calledWith("auth-buttons-login");
+
+      setTimeout(function(){
+        $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
+        uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
+
+        expect($scope.loginError).to.be.false;
+
+        done();
+      },10);
+    });
+    
+    it("should handle login failure", function(done) {
+      $scope.customLogin("endStatus");
+      
+      $loading.startGlobal.should.have.been.calledWith("auth-buttons-login");
+
+      setTimeout(function(){
+        $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
+        uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
+
+        expect($scope.loginError).to.be.true;
+
+        done();
+      },10);
+    });
+  });
+
 });

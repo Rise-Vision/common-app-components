@@ -2,16 +2,8 @@
   "use strict";
 
   angular.module("risevision.common.components.userstate")
-    .constant("USER_AUTH_WRITABLE_FIELDS", [
-      "username", "password"
-    ])
-    .constant("TOKEN_WRITABLE_FIELDS", [
-      "username", "token"
-    ])
-    .service("auth", ["$q", "$log", "coreAPILoader", "pick",
-      "USER_AUTH_WRITABLE_FIELDS", "TOKEN_WRITABLE_FIELDS",
-      function ($q, $log, coreAPILoader, pick,
-        USER_AUTH_WRITABLE_FIELDS, TOKEN_WRITABLE_FIELDS) {
+    .service("userauth", ["$q", "$log", "coreAPILoader",
+      function ($q, $log, coreAPILoader) {
 
         var service = {
           add: function (username, password) {
@@ -22,7 +14,7 @@
               "password": password
             };
             coreAPILoader().then(function (coreApi) {
-              return coreApi.userauth.save(obj);
+              return coreApi.userauth.add(obj);
             })
               .then(function (resp) {
                 $log.debug("added user credentials", resp);

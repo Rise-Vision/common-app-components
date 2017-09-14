@@ -4,9 +4,9 @@
   /*jshint camelcase: false */
 
   angular.module("risevision.common.components.userstate")
-    .factory("customAuthFactory", ["$q", "$log", "$templateCache",
-      "auth", "gapiLoader", "userState",
-      function ($q, $log, $templateCache, auth, gapiLoader, userState) {
+    .factory("customAuthFactory", ["$q", "$log", "gapiLoader",
+      "userauth", "userState",
+      function ($q, $log, gapiLoader, userauth, userState) {
         var factory = {};
 
         factory.authenticate = function (credentials) {
@@ -16,11 +16,12 @@
           if (credentials && credentials.username && credentials.password) {
             var addPromise = $q.resolve();
             if (credentials.newUser) {
-              addPromise = auth.add(credentials.username, credentials.password);
+              addPromise = userauth.add(credentials.username, credentials.password);
             }
+
             addPromise
               .then(function () {
-                return $q.all([auth.login(credentials.username,
+                return $q.all([userauth.login(credentials.username,
                   credentials.password), gapiLoader()]);
               })
               .then(function (result) {
@@ -47,11 +48,10 @@
                 deferred.reject();
               });
           } else if (_state.userToken && _state.userToken.token) {
-            gapiLoader().
-            then(function (gApi) {
+            gapiLoader().then(function (gApi) {
               gApi.auth.setToken(_state.userToken.token);
 
-              // TODO: Verify token
+              // TODO: Validate token?
 
               deferred.resolve(_state.userToken);
             });

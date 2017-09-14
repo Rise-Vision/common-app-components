@@ -4,22 +4,13 @@
   /*jshint camelcase: false */
 
   angular.module("risevision.common.components.userstate")
-    .factory("userAuthFactory", [
-      "$q", "$log", "$location", "CLIENT_ID",
-      "gapiLoader", "OAUTH2_SCOPES",
-      "getOAuthUserInfo",
-      "objectHelper", "$rootScope", "$interval", "$loading", "$window",
-      "GOOGLE_OAUTH2_URL", "localStorageService", "$document",
-      "uiFlowManager",
-      "getBaseDomain",
-      "rvTokenStore", "externalLogging", "$http",
+    .factory("userAuthFactory", ["$q", "$log", "$location",
+      "$rootScope", "$loading", "$window", "$document",
+      "gapiLoader", "objectHelper", "rvTokenStore", "externalLogging",
       "userState", "googleAuthFactory", "customAuthFactory",
-      function ($q, $log, $location, CLIENT_ID,
-        gapiLoader, OAUTH2_SCOPES,
-        getOAuthUserInfo, objectHelper,
-        $rootScope, $interval, $loading, $window, GOOGLE_OAUTH2_URL,
-        localStorageService, $document, uiFlowManager, getBaseDomain,
-        rvTokenStore, externalLogging, $http, userState, googleAuthFactory,
+      function ($q, $log, $location, $rootScope, $loading, $window,
+        $document, gapiLoader, objectHelper,
+        rvTokenStore, externalLogging, userState, googleAuthFactory,
         customAuthFactory) {
 
         var _state = userState._state;
@@ -33,8 +24,7 @@
             _shouldLogPageLoad = false;
             try {
               var duration = new Date().getTime() - $window.performance
-                .timing
-                .navigationStart;
+                .timing.navigationStart;
               externalLogging.logEvent("page load time", details,
                 duration,
                 userState.getUsername(), userState.getSelectedCompanyId()
@@ -252,9 +242,7 @@
         };
 
         var signOut = function (signOutGoogle) {
-          var deferred = $q.defer();
-
-          gapiLoader().then(function (gApi) {
+          return gapiLoader().then(function (gApi) {
             if (signOutGoogle) {
               $window.logoutFrame.location =
                 "https://accounts.google.com/Logout";
@@ -272,12 +260,7 @@
             //call google api to sign out
             $rootScope.$broadcast("risevision.user.signedOut");
             $log.debug("User is signed out.");
-            deferred.resolve();
-          }, function () {
-            deferred.reject();
           });
-
-          return deferred.promise;
         };
 
         var userAuthFactory = {
@@ -286,6 +269,8 @@
             return authenticate(true);
           },
           signOut: signOut,
+          addEventListenerVisibilityAPI: _addEventListenerVisibilityAPI,
+          removeEventListenerVisibilityAPI: _removeEventListenerVisibilityAPI,
         };
 
         return userAuthFactory;

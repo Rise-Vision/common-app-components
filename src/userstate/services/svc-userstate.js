@@ -6,18 +6,12 @@
   .value("DEFAULT_PROFILE_PICTURE",
     "http://api.randomuser.me/portraits/med/men/33.jpg")
     .factory("userState", [
-      "$q", "$log", "$location",
-      "gapiLoader", "userInfoCache", "getUserProfile", "companyState",
-      "objectHelper",
-      "$rootScope", "$loading", "$window",
-      "localStorageService", "uiFlowManager",
-      "rvTokenStore", "$http", "DEFAULT_PROFILE_PICTURE",
-      function ($q, $log, $location,
-        gapiLoader, userInfoCache, getUserProfile, companyState,
-        objectHelper,
-        $rootScope, $loading, $window,
-        localStorageService, uiFlowManager,
-        rvTokenStore, $http, DEFAULT_PROFILE_PICTURE) {
+      "$q", "$rootScope", "$window", "$log", "$location", "userInfoCache",
+      "getUserProfile", "companyState", "objectHelper",
+      "localStorageService", "rvTokenStore", "DEFAULT_PROFILE_PICTURE",
+      function ($q, $rootScope, $window, $log, $location, userInfoCache,
+        getUserProfile, companyState, objectHelper,
+        localStorageService, rvTokenStore, DEFAULT_PROFILE_PICTURE) {
         //singleton factory that represents userState throughout application
 
         var _state = {
@@ -128,8 +122,8 @@
           getAccessToken: getAccessToken,
           // user functions
           checkUsername: function (username) {
-            return (username || false) && (userState.getUsername() ||
-                false) &&
+            return (username || false) &&
+              (userState.getUsername() || false) &&
               username.toUpperCase() === userState.getUsername().toUpperCase();
           },
           updateUserProfile: function (user) {
