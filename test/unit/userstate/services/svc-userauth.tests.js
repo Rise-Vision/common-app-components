@@ -1,10 +1,10 @@
 "use strict";
-describe("service: auth:", function() {
+describe("service: userauth:", function() {
   beforeEach(module("risevision.common.components.userstate"));
   beforeEach(module(function ($provide) {
     $provide.service("$q", function() {return Q;});
 
-    $provide.service("coreAPILoader",function () {
+    $provide.service("riseAPILoader",function () {
       return function(){
         var deferred = Q.defer();
 

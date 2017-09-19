@@ -60,6 +60,15 @@
         controller: "LoginCtrl"
       })
 
+      .state("apps.launcher.createaccount", {
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get("userstate/create-account.html");
+          }
+        ],
+        controller: "LoginCtrl"
+      })
+
       .state("apps.launcher.unregistered", {
         templateProvider: ["$templateCache",
           function ($templateCache) {

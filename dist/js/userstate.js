@@ -60,6 +60,15 @@
         controller: "LoginCtrl"
       })
 
+      .state("apps.launcher.createaccount", {
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get("userstate/create-account.html");
+          }
+        ],
+        controller: "LoginCtrl"
+      })
+
       .state("apps.launcher.unregistered", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
@@ -1156,8 +1165,8 @@ angular.module("risevision.common.components.logging")
   "use strict";
 
   angular.module("risevision.common.components.userstate")
-    .service("userauth", ["$q", "$log", "coreAPILoader",
-      function ($q, $log, coreAPILoader) {
+    .service("userauth", ["$q", "$log", "riseAPILoader",
+      function ($q, $log, riseAPILoader) {
 
         var service = {
           add: function (username, password) {
@@ -1167,7 +1176,7 @@ angular.module("risevision.common.components.logging")
               "username": username,
               "password": password
             };
-            coreAPILoader().then(function (coreApi) {
+            riseAPILoader().then(function (coreApi) {
               return coreApi.userauth.add(obj);
             })
               .then(function (resp) {
@@ -1187,7 +1196,7 @@ angular.module("risevision.common.components.logging")
               "username": username,
               "password": password
             };
-            coreAPILoader().then(function (coreApi) {
+            riseAPILoader().then(function (coreApi) {
               return coreApi.userauth.update(obj);
             })
               .then(function (resp) {
@@ -1208,7 +1217,7 @@ angular.module("risevision.common.components.logging")
               "username": username,
               "password": password
             };
-            coreAPILoader().then(function (coreApi) {
+            riseAPILoader().then(function (coreApi) {
               return coreApi.userauth.login(obj);
             })
               .then(function (resp) {
@@ -1229,7 +1238,7 @@ angular.module("risevision.common.components.logging")
               "username": username,
               "token": token
             };
-            coreAPILoader().then(function (coreApi) {
+            riseAPILoader().then(function (coreApi) {
               return coreApi.userauth.refreshToken(obj);
             })
               .then(function (resp) {
@@ -1593,7 +1602,6 @@ angular.module("risevision.common.components.userstate")
     function ($scope, $loading, userAuthFactory, uiFlowManager) {
       $scope.credentials = {};
 
-      // Login Modal
       $scope.googleLogin = function (endStatus) {
         $loading.startGlobal("auth-buttons-login");
         userAuthFactory.authenticate(true)
@@ -1617,6 +1625,13 @@ angular.module("risevision.common.components.userstate")
             uiFlowManager.invalidateStatus(endStatus);
           });
       };
+      
+      $scope.createAccount = function (endStatus) {
+        $scope.credentials.newUser = true;
+
+        $scope.customLogin(endStatus);
+      };
+
     }
   ]);
 
@@ -1646,7 +1661,19 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('userstate/auth-form.html',
-    '<form id="loginForm"><div class="form-group u_margin-sm-bottom" ng-class="{\'has-error\': (!loginForm.username.$pristine && loginForm.username.$invalid) || loginError}" show-errors=""><label class="control-label">Username *</label> <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username" ng-model="credentials.username" required=""><p class="text-danger" ng-show="!loginForm.username.$pristine && loginForm.username.$invalid">Please enter a Username</p></div><div class="form-group u_margin-sm-bottom" ng-class="{\'has-error\': (!loginForm.password.$pristine && loginForm.password.$invalid) || loginError}" show-errors=""><label class="control-label">Password *</label> <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" ng-model="credentials.password" required=""><p class="text-danger" ng-show="!loginForm.password.$pristine && loginForm.password.$invalid">Please enter a Password</p></div><div class="form-group"><div class="checkbox"><label class="control-label"><input type="checkbox" ng-model="credentials.newUser"> <strong>New User</strong></label></div></div><div class="form-group"><button class="btn btn-primary" ng-click="customLogin(\'registrationComplete\')"><span translate="Submit"></span> <i class="fa fa-white fa-check icon-right"></i></button><p class="text-danger" ng-show="loginError">Invalid Username/Password. Please try again.</p></div></form>');
+    '<form id="loginForm" name="loginForm" role="form" novalidate=""><div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="duplicateError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>This email address is already registered. You can <a href="#">sign in</a>with this address.</span></p></div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="loginError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address (or password) is not found. <a href="#"></a></span></p></div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="unconfirmedError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address has not been confirmed.<br><a href="#">Resend Email Confirmation</a></span></p></div></div><div class="u_margin-sm-top"><div class="form-group" ng-class="{\'has-error\': (!loginForm.username.$pristine && loginForm.username.$invalid) || loginError}" show-errors=""><label class="control-label">Email</label> <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username" ng-model="credentials.username" required="" focus-me="true"><p class="text-danger" ng-show="!loginForm.username.$pristine && loginForm.username.$invalid">Please enter an Email</p></div><div class="form-group" ng-class="{\'has-error\': (!loginForm.password.$pristine && loginForm.password.$invalid) || loginError}" show-errors=""><label class="control-label">Password</label> <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" ng-model="credentials.password" required=""><p class="text-danger" ng-show="!loginForm.password.$pristine && loginForm.password.$invalid">Please enter a Password</p></div></div></form>');
+}]);
+})();
+
+(function(module) {
+try {
+  module = angular.module('risevision.common.components.userstate');
+} catch (e) {
+  module = angular.module('risevision.common.components.userstate', []);
+}
+module.run(['$templateCache', function($templateCache) {
+  $templateCache.put('userstate/create-account.html',
+    '<div class="app-launcher-login"><div class="container"><div class="panel"><div class="row"><div class="col-sm-6 col-xs-12"><div class="rise-logo"><img src="https://s3.amazonaws.com/Rise-Images/Website/rise-logo.svg"></div></div><div class="col-sm-6 col-xs-12"><h1 class="u_remove-top">Get Started For Free</h1><p class="lead text-muted">No commitments or contracts</p><div class="col-xs-12 col-md-8"><button class="btn btn-google-auth btn-hg" ng-click="googleLogin(\'registrationComplete\')"><span><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Sign up with Google</span></button></div><div class="section-divider col-xs-12 col-md-8 u_margin-md-top"><div></div><span>OR</span><div></div></div><div class="col-md-8 col-xs-12"><div ng-include="\'userstate/auth-form.html\'"></div><div class="form-group"><button class="btn btn-primary btn-hg" ng-click="createAccount(\'registrationComplete\')"><span translate="Sign Up"></span></button></div></div><br><div class="col-xs-12 u_margin-lg-top"><p class="text-muted">Already have an account? <a id="sign-in-link" href="#" ui-sref="apps.launcher.unauthorized">Sign in</a></p></div></div></div></div></div></div>');
 }]);
 })();
 
@@ -1658,7 +1685,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('userstate/login.html',
-    '<div class="app-launcher-login"><div class="container"><div class="panel"><div class="row"><div style="border-bottom: 1px solid #CCC;"><h1 class="u_remove-top" translate="">common.signUp</h1><p class="lead text-muted" translate="">launcher.createAccount</p></div></div><div class="row"><div class="col-sm-4 col-xs-12"><div style="text-align: center; border-right: 1px solid #CCC; padding: 20px 20px;"><div ng-include="\'userstate/auth-form.html\'"></div></div></div><div class="col-sm-8 col-xs-12"><div style="padding: 20px 20px;"><button ng-click="googleLogin(\'registrationComplete\')" class="btn btn-primary btn-hg">{{\'launcher.signUpGoogle\' | translate}} <i class="fa fa-google icon-right"></i></button><p><a href="https://accounts.google.com/signup" target="_blank" translate="">launcher.dontHaveAccount</a></p><br><p class="text-muted">{{\'launcher.haveAccount\' | translate}} <a id="sign-in-link" href="#" ng-click="googleLogin(\'registrationComplete\')">{{\'common.signIn\' | translate}}</a></p></div></div></div></div></div></div>');
+    '<div class="app-launcher-login"><div class="container"><div class="panel"><div class="row"><div class="col-sm-6 col-xs-12"><div class="rise-logo"><img src="https://s3.amazonaws.com/Rise-Images/Website/rise-logo.svg"></div></div><div class="col-sm-6 col-xs-12"><h1 class="u_remove-top">Sign In</h1><p class="lead text-muted">to your Rise Vision account</p><div class="col-xs-12 col-md-8"><button class="btn btn-google-auth btn-hg" ng-click="googleLogin(\'registrationComplete\')"><span><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Sign in with Google</span></button></div><div class="section-divider col-xs-12 col-md-8 u_margin-md-top"><div></div><span>OR</span><div></div></div><div class="col-md-8 col-xs-12"><div ng-include="\'userstate/auth-form.html\'"></div><div class="form-group"><button class="btn btn-primary btn-hg" ng-click="customLogin(\'registrationComplete\')"><span translate="Sign In"></span></button></div></div><br><div class="col-xs-12 u_margin-lg-top"><p class="text-muted"><a id="sign-in-link" href="#" ui-sref="apps.launcher.protoreset">Forgot your password?</a></p><p class="text-muted">Don\'t have an account? <a id="sign-in-link" href="#" ui-sref="apps.launcher.createaccount">Sign up</a></p></div></div></div></div></div></div>');
 }]);
 })();
 

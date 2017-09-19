@@ -2,8 +2,8 @@
   "use strict";
 
   angular.module("risevision.common.components.userstate")
-    .service("userauth", ["$q", "$log", "coreAPILoader",
-      function ($q, $log, coreAPILoader) {
+    .service("userauth", ["$q", "$log", "riseAPILoader",
+      function ($q, $log, riseAPILoader) {
 
         var service = {
           add: function (username, password) {
@@ -13,7 +13,7 @@
               "username": username,
               "password": password
             };
-            coreAPILoader().then(function (coreApi) {
+            riseAPILoader().then(function (coreApi) {
               return coreApi.userauth.add(obj);
             })
               .then(function (resp) {
@@ -33,7 +33,7 @@
               "username": username,
               "password": password
             };
-            coreAPILoader().then(function (coreApi) {
+            riseAPILoader().then(function (coreApi) {
               return coreApi.userauth.update(obj);
             })
               .then(function (resp) {
@@ -54,7 +54,7 @@
               "username": username,
               "password": password
             };
-            coreAPILoader().then(function (coreApi) {
+            riseAPILoader().then(function (coreApi) {
               return coreApi.userauth.login(obj);
             })
               .then(function (resp) {
@@ -75,7 +75,7 @@
               "username": username,
               "token": token
             };
-            coreAPILoader().then(function (coreApi) {
+            riseAPILoader().then(function (coreApi) {
               return coreApi.userauth.refreshToken(obj);
             })
               .then(function (resp) {

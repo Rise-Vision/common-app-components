@@ -6,7 +6,6 @@ angular.module("risevision.common.components.userstate")
     function ($scope, $loading, userAuthFactory, uiFlowManager) {
       $scope.credentials = {};
 
-      // Login Modal
       $scope.googleLogin = function (endStatus) {
         $loading.startGlobal("auth-buttons-login");
         userAuthFactory.authenticate(true)
@@ -30,5 +29,12 @@ angular.module("risevision.common.components.userstate")
             uiFlowManager.invalidateStatus(endStatus);
           });
       };
+      
+      $scope.createAccount = function (endStatus) {
+        $scope.credentials.newUser = true;
+
+        $scope.customLogin(endStatus);
+      };
+
     }
   ]);
