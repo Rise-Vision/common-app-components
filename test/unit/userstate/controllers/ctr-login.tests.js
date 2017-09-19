@@ -10,7 +10,8 @@ describe("controller: Log In", function() {
           expect(forceAuth).to.be.true;
 
           if (credentials) {
-            expect(credentials).to.equal("credentials");
+            expect(credentials).to.be.ok;
+            expect(credentials.username).to.equal("testUser");
           }
           
           if (loginSuccess) {
@@ -54,7 +55,9 @@ describe("controller: Log In", function() {
       });
       $scope.$digest();
       
-      $scope.credentials = "credentials";
+      $scope.credentials = {
+        username: "testUser"
+      };
     });
   });
 
@@ -128,6 +131,22 @@ describe("controller: Log In", function() {
         done();
       },10);
     });
+  });
+  
+  it("createAccount: ", function(done) {
+    var customLoginSpy = sinon.spy($scope, "customLogin");
+    loginSuccess = true;
+
+    $scope.createAccount("endStatus");
+    
+    expect($scope.credentials.newUser).to.be.true;
+    customLoginSpy.should.have.been.calledWith("endStatus");
+
+    setTimeout(function(){
+      expect($scope.loginError).to.be.false;
+
+      done();
+    },10);
   });
 
 });

@@ -18,21 +18,28 @@ describe("app:", function() {
       var state = $state.get("apps.launcher.unauthorized");
       expect(state).to.be.ok;
       expect(state.url).to.not.be.ok;
-      expect(state.controller).to.be.ok;
+      expect(state.controller).to.equal("LoginCtrl");
+    });
+    
+    it("apps.launcher.createaccount", function() {
+      var state = $state.get("apps.launcher.createaccount");
+      expect(state).to.be.ok;
+      expect(state.url).to.not.be.ok;
+      expect(state.controller).to.equal("LoginCtrl");
     });
     
     it("apps.launcher.unregistered", function() {
       var state = $state.get("apps.launcher.unregistered");
       expect(state).to.be.ok;
       expect(state.url).to.not.be.ok;
-      expect(state.controller).to.be.ok;
+      expect(state.controller).to.equal("SignUpCtrl");
     });
 
     it("apps.launcher.signin", function() {
       var state = $state.get("apps.launcher.signin");
       expect(state).to.be.ok;
       expect(state.url).to.equal("/signin");
-      expect(state.controller).to.be.ok;
+      expect(state.controller).to.equal("SignInCtrl");
     });
 
   });

@@ -6,6 +6,20 @@ describe("service: customAuthFactory:", function() {
     $provide.service("$q", function() {return Q;});
     $provide.service("userauth", function() {
       return {
+        add: function(username, password){
+          var deferred = Q.defer();
+          
+          expect(username).to.equal("testUser");
+          expect(password).to.equal("testPass");
+
+          if (addResult) {
+            deferred.resolve(addResult);
+          } else {
+            deferred.reject("not auth");
+          }
+          
+          return deferred.promise;
+        },
         login: function(username, password){
           var deferred = Q.defer();
           
@@ -39,9 +53,9 @@ describe("service: customAuthFactory:", function() {
     });
   }));
   
-  var customAuthFactory, userState, gapiLoader, gapiAuth, authenticateResult;
+  var customAuthFactory, userState, gapiLoader, gapiAuth, authenticateResult, addResult;
   beforeEach(function(){
-    authenticateResult = true;
+    authenticateResult = addResult = true;
 
     inject(function($injector){
       customAuthFactory = $injector.get("customAuthFactory");
@@ -111,17 +125,60 @@ describe("service: customAuthFactory:", function() {
           done("error");
         });
     });
+    
+    it("should add user if newUser variable is true",function(done){
+      authenticateResult = { 
+        result: {
+          item: "newToken"
+        }
+      };
+
+      customAuthFactory.authenticate({username: "testUser", password: "testPass", newUser: true})
+        .then(function(userToken){
+          var token = {
+            access_token: "newToken",
+            expires_in: "3600",
+            token_type: "Bearer"
+          };
+
+          gapiLoader.should.have.been.called;
+          gapiAuth.setToken.should.have.been.calledWith(token);
+
+          expect(userToken).to.deep.equal({
+            email: "testUser",
+            token: token
+          });
+
+          done();
+        })
+        .then(null, function() {
+          done("error");
+        });
+    });
+
+    it("should handle failure to add user if newUser variable is true",function(done){
+      addResult = false;
+
+      customAuthFactory.authenticate({username: "testUser", password: "testPass", newUser: true})
+        .then(function() {
+          done("authenticated");
+        })
+        .then(null, function() {
+          done();
+        });
+    });
+
 
     it("should reject if authenticate call fails",function(done){
       authenticateResult = false;
 
       customAuthFactory.authenticate({username: "testUser", password: "testPass"})
-      .then(function() {
-        done("authenticated");
-      })
-      .then(null, function() {
-        done();
-      });
+        .then(function() {
+          done("authenticated");
+        })
+        .then(null, function() {
+          done();
+        });
     });
     
     it("should reject if no token is provided",function(done){
@@ -130,12 +187,12 @@ describe("service: customAuthFactory:", function() {
       };
 
       customAuthFactory.authenticate({username: "testUser", password: "testPass"})
-      .then(function() {
-        done("authenticated");
-      })
-      .then(null, function() {
-        done();
-      });
+        .then(function() {
+          done("authenticated");
+        })
+        .then(null, function() {
+          done();
+        });
     });
         
   });
