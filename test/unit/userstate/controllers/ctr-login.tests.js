@@ -24,6 +24,25 @@ describe("controller: Log In", function() {
         }
       };
     });
+    $provide.service("customAuthFactory", function() {
+      return {
+        addUser: function(credentials) {
+          var deferred = Q.defer();
+
+          expect(credentials).to.be.ok;
+          expect(credentials.username).to.equal("testUser");
+          
+          if (loginSuccess) {
+            deferred.resolve();
+          } else {
+            deferred.reject();
+          }
+
+          return deferred.promise;
+        }
+      };
+    });
+
     $provide.service("uiFlowManager",function(){
       return {
         invalidateStatus : sinon.spy()
@@ -57,6 +76,11 @@ describe("controller: Log In", function() {
       
       $scope.credentials = {
         username: "testUser"
+      };
+      $scope.forms = {
+        loginForm: {
+          $valid: true
+        }  
       };
     });
   });
@@ -92,14 +116,34 @@ describe("controller: Log In", function() {
         $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
         uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
 
-        expect($scope.loginError).to.not.be.ok;
-
         done();
       },10);
     });
   });
   
   describe("customLogin: ", function() {
+    it("should clear previous errors", function() {
+      $scope.errors = {
+        someError: true
+      };
+      $scope.customLogin("endStatus");
+
+      expect($scope.errors.someError).to.not.be.ok;
+    });
+
+    it("should not submit if form is invalid", function(done) {
+      $scope.forms.loginForm.$valid = false;
+      $scope.customLogin("endStatus");
+      
+      $loading.startGlobal.should.not.have.been.called;
+
+      setTimeout(function(){
+        expect($scope.errors.loginError).to.not.be.ok;
+
+        done();
+      },10);
+    });
+
     it("should handle successful login", function(done) {
       loginSuccess = true;
 
@@ -111,7 +155,7 @@ describe("controller: Log In", function() {
         $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
         uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
 
-        expect($scope.loginError).to.be.false;
+        expect($scope.errors.loginError).to.not.be.ok;
 
         done();
       },10);
@@ -126,27 +170,61 @@ describe("controller: Log In", function() {
         $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
         uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
 
-        expect($scope.loginError).to.be.true;
+        expect($scope.errors.loginError).to.be.true;
 
         done();
       },10);
     });
   });
   
-  it("createAccount: ", function(done) {
-    var customLoginSpy = sinon.spy($scope, "customLogin");
-    loginSuccess = true;
+  describe("createAccount: ", function() {
+    it("should clear previous errors", function() {
+      $scope.errors = {
+        someError: true
+      };
+      $scope.createAccount("endStatus");
 
-    $scope.createAccount("endStatus");
+      expect($scope.errors.someError).to.not.be.ok;
+    });
     
-    expect($scope.credentials.newUser).to.be.true;
-    customLoginSpy.should.have.been.calledWith("endStatus");
+    it("should not submit if form is invalid", function() {
+      $scope.forms.loginForm.$valid = false;
+      $scope.createAccount("endStatus");
+      
+      $loading.startGlobal.should.not.have.been.called;
+    });
 
-    setTimeout(function(){
-      expect($scope.loginError).to.be.false;
+    it("should create account", function(done) {
+      loginSuccess = true;
 
-      done();
-    },10);
+      $scope.createAccount("endStatus");
+      
+      $loading.startGlobal.should.have.been.calledWith("auth-buttons-login");
+
+      setTimeout(function(){
+        $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
+        uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
+
+        expect($scope.errors.confirmationRequired).to.be.true;
+
+        done();
+      },10);
+    });
+
+    it("should handle failure to create account", function(done) {
+      $scope.createAccount("endStatus");
+      
+      $loading.startGlobal.should.have.been.calledWith("auth-buttons-login");
+
+      setTimeout(function(){
+        $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
+        uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
+
+        expect($scope.errors.duplicateError).to.be.true;
+
+        done();
+      },10);
+    });
   });
 
 });

@@ -14,19 +14,11 @@
           var _state = userState._state;
 
           if (credentials && credentials.username && credentials.password) {
-            var addPromise = $q.resolve();
-            if (credentials.newUser) {
-              addPromise = userauth.add(credentials.username, credentials.password);
-            }
-
-            addPromise
-              .then(function () {
-                return $q.all([userauth.login(credentials.username,
-                  credentials.password), gapiLoader()]);
-              })
+            $q.all([gapiLoader(), userauth.login(credentials.username,
+              credentials.password)])
               .then(function (result) {
-                var loginInfo = result[0] && result[0].result;
-                var gApi = result[1];
+                var gApi = result[0];
+                var loginInfo = result[1] && result[1].result;
 
                 if (loginInfo && loginInfo.item) {
                   var token = {
@@ -55,6 +47,24 @@
 
               deferred.resolve(_state.userToken);
             });
+          } else {
+            deferred.reject();
+          }
+
+          return deferred.promise;
+        };
+
+        factory.addUser = function (credentials) {
+          var deferred = $q.defer();
+
+          if (credentials && credentials.username && credentials.password) {
+            userauth.add(credentials.username, credentials.password)
+              .then(function (result) {
+                deferred.resolve();
+              })
+              .then(null, function () {
+                deferred.reject();
+              });
           } else {
             deferred.reject();
           }

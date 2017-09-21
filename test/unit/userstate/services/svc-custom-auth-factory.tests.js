@@ -9,11 +9,11 @@ describe("service: customAuthFactory:", function() {
         add: function(username, password){
           var deferred = Q.defer();
           
-          expect(username).to.equal("testUser");
-          expect(password).to.equal("testPass");
+          expect(username).to.equal("newUser");
+          expect(password).to.equal("newPass");
 
-          if (addResult) {
-            deferred.resolve(addResult);
+          if (authenticateResult) {
+            deferred.resolve(authenticateResult);
           } else {
             deferred.reject("not auth");
           }
@@ -53,9 +53,9 @@ describe("service: customAuthFactory:", function() {
     });
   }));
   
-  var customAuthFactory, userState, gapiLoader, gapiAuth, authenticateResult, addResult;
+  var customAuthFactory, userState, gapiLoader, gapiAuth, authenticateResult;
   beforeEach(function(){
-    authenticateResult = addResult = true;
+    authenticateResult = true;
 
     inject(function($injector){
       customAuthFactory = $injector.get("customAuthFactory");
@@ -65,6 +65,7 @@ describe("service: customAuthFactory:", function() {
   it("should exist",function(){
     expect(customAuthFactory).to.be.ok;
     expect(customAuthFactory.authenticate).to.be.a("function");
+    expect(customAuthFactory.addUser).to.be.a("function");
   });
   
   describe("authenticate", function() {
@@ -104,7 +105,7 @@ describe("service: customAuthFactory:", function() {
       };
 
       customAuthFactory.authenticate({username: "testUser", password: "testPass"})
-        .then(function(userToken){
+        .then(function(userToken) {
           var token = {
             access_token: "newToken",
             expires_in: "3600",
@@ -126,49 +127,6 @@ describe("service: customAuthFactory:", function() {
         });
     });
     
-    it("should add user if newUser variable is true",function(done){
-      authenticateResult = { 
-        result: {
-          item: "newToken"
-        }
-      };
-
-      customAuthFactory.authenticate({username: "testUser", password: "testPass", newUser: true})
-        .then(function(userToken){
-          var token = {
-            access_token: "newToken",
-            expires_in: "3600",
-            token_type: "Bearer"
-          };
-
-          gapiLoader.should.have.been.called;
-          gapiAuth.setToken.should.have.been.calledWith(token);
-
-          expect(userToken).to.deep.equal({
-            email: "testUser",
-            token: token
-          });
-
-          done();
-        })
-        .then(null, function() {
-          done("error");
-        });
-    });
-
-    it("should handle failure to add user if newUser variable is true",function(done){
-      addResult = false;
-
-      customAuthFactory.authenticate({username: "testUser", password: "testPass", newUser: true})
-        .then(function() {
-          done("authenticated");
-        })
-        .then(null, function() {
-          done();
-        });
-    });
-
-
     it("should reject if authenticate call fails",function(done){
       authenticateResult = false;
 
@@ -195,6 +153,40 @@ describe("service: customAuthFactory:", function() {
         });
     });
         
+  });
+  
+  describe("addUser: ", function() {
+    it("should reject if no username/password are provided",function(done){
+      customAuthFactory.addUser({username: "newUser"})
+        .then(function() {
+          done("authenticated");
+        })
+        .then(null, function() {
+          done();
+        });
+    });
+
+    it("should add user", function(done) {
+      customAuthFactory.addUser({username: "newUser", password: "newPass"})
+        .then(function(){
+          done();
+        })
+        .then(null, function() {
+          done("error");
+        });
+    });
+
+    it("should handle failure to add user if newUser variable is true",function(done){
+      authenticateResult = false;
+
+      customAuthFactory.addUser({username: "newUser", password: "newPass"})
+        .then(function() {
+          done("authenticated");
+        })
+        .then(null, function() {
+          done();
+        });
+    });
   });
 
 });

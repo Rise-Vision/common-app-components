@@ -96,7 +96,7 @@ describe("service: access:", function() {
       expect(newState).to.equal("apps.launcher.unauthorized");
 
       done();
-    });  
+    });
   });
   
   it("should reject if user is not authenticated",function(done){
