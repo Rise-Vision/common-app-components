@@ -86,7 +86,7 @@ describe("Services: googleAuthFactory", function() {
     });
   }));
   
-  var googleAuthFactory, userState, $rootScope, $http, $window, inRVAFrame,
+  var googleAuthFactory, userState, $http, $window, inRVAFrame,
     authorizeResponse, gapiLoader, gapiAuth, failOAuthUser;
   
   describe("authenticate: ", function() {
@@ -208,7 +208,6 @@ describe("Services: googleAuthFactory", function() {
       inRVAFrame = false;
 
       inject(function($injector){
-        $rootScope = $injector.get("$rootScope");
         $window = $injector.get("$window");
         googleAuthFactory = $injector.get("googleAuthFactory");
       });
@@ -235,25 +234,6 @@ describe("Services: googleAuthFactory", function() {
           "&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F" + 
           "&prompt=select_account" +
           "&state=%257B%2522p%2522%253A%2522editor%252Flist%2522%252C%2522u%2522%253A%2522%2522%252C%2522s%2522%253A%2522%253Fcid%253DcompanyId%2522%257D"
-        );
-
-        done();
-      }, 10);
-    });
-    
-    it("should redirect correctly if redirectToRoot is false", function(done) {
-      $rootScope.redirectToRoot = false;
-
-      googleAuthFactory.authenticate(true);
-      
-      setTimeout(function() {
-        expect($window.location.href).to.equal("https://accounts.google.com/o/oauth2/auth" +
-          "?response_type=token" +
-          "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile" +
-          "&client_id=614513768474.apps.googleusercontent.com" +
-          "&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Feditor%2Flist%3Fcid%3DcompanyId" + 
-          "&prompt=select_account" +
-          "&state=%257B%2522u%2522%253A%2522%2522%257D"
         );
 
         done();

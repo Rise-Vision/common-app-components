@@ -14,9 +14,9 @@ angular.module("risevision.common.components.userstate")
         })
           .then(null, function () {
             if (userState.isLoggedIn()) {
-              $state.go("apps.launcher.unregistered");
+              $state.go("common.auth.unregistered");
             } else {
-              $state.go("apps.launcher.unauthorized");
+              $state.go("common.auth.unauthorized");
             }
             deferred.reject();
           });

@@ -9,42 +9,27 @@
     "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
   )
     .value("GOOGLE_OAUTH2_URL", "https://accounts.google.com/o/oauth2/auth")
-    .run(["$location", "$window", "userState", "$log", "stripLeadingSlash",
-      "parseParams",
-      function ($location, $window, userState, $log, stripLeadingSlash,
-        parseParams) {
+    .run(["$location", "$log", "userState", "urlStateService", "parseParams",
+      function ($location, $log, userState, urlStateService, parseParams) {
         var path = $location.path();
-        var params = parseParams(stripLeadingSlash(path));
+        var params = parseParams(path);
         $log.debug("URL params", params);
         userState._restoreState();
         if (params.access_token) {
           userState._setUserToken(params);
         }
         if (params.state) {
-          var state = JSON.parse(decodeURIComponent(params.state));
-          if (state.p || state.s) {
-            userState._persistState();
-
-            $window.location.replace(state.p +
-              state.s +
-              state.u
-            );
-          } else if ($location.$$html5) { // HTML5 mode, clear path
-            $location.path("");
-          } else { // non HTML5 mode, set hash
-            $window.location.hash = state.u;
-          }
+          urlStateService.redirectToState(params.state);
         }
-
       }
     ])
-    .factory("googleAuthFactory", ["$q", "$log", "$location", "$rootScope",
+    .factory("googleAuthFactory", ["$q", "$log", "$location",
       "$interval", "$window", "$http", "gapiLoader", "getOAuthUserInfo",
-      "uiFlowManager", "getBaseDomain", "userState",
+      "uiFlowManager", "getBaseDomain", "userState", "urlStateService",
       "CLIENT_ID", "OAUTH2_SCOPES", "GOOGLE_OAUTH2_URL",
-      function ($q, $log, $location, $rootScope, $interval, $window, $http,
+      function ($q, $log, $location, $interval, $window, $http,
         gapiLoader, getOAuthUserInfo, uiFlowManager, getBaseDomain,
-        userState,
+        userState, urlStateService,
         CLIENT_ID, OAUTH2_SCOPES, GOOGLE_OAUTH2_URL) {
 
         var _accessTokenRefreshHandler = null;
@@ -158,34 +143,17 @@
           if (!forceAuth) {
             return authenticate(forceAuth);
           } else {
-            var loc, path, search, state;
+            var loc, state;
 
-            // Redirect to full URL path
-            if ($rootScope.redirectToRoot === false) {
-              loc = $window.location.href.substr(0, $window.location
-                .href
-                .indexOf("#")) || $window.location.href;
-            }
             // Redirect to the URL root and append pathname back to the URL
             // on Authentication success
             // This prevents Domain authentication errors for sub-folders
             // Warning: Root folder must have CH available for this to work,
             // otherwise no redirect is performed!
-            else {
-              loc = $window.location.origin + "/";
-              // Remove first character (/) from path since we're adding it to loc
-              path = $window.location.pathname ? $window.location
-                .pathname
-                .substring(1) : "";
-              search = $window.location.search;
-            }
+            loc = $window.location.origin + "/";
 
             // double encode since response gets decoded once!
-            state = encodeURIComponent(encodeURIComponent(JSON.stringify({
-              p: path,
-              u: $window.location.hash,
-              s: search
-            })));
+            state = encodeURIComponent(urlStateService.get());
 
             userState._persistState();
             uiFlowManager.persist();
@@ -199,10 +167,9 @@
             "&prompt=select_account" +
               "&state=" + state;
 
-            var deferred = $q.defer();
             // returns a promise that never get fulfilled since we are redirecting
             // to that google oauth2 page
-            return deferred.promise;
+            return $q.resolve();
           }
         };
 

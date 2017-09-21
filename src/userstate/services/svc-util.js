@@ -129,15 +129,13 @@
     }
   ])
 
-  .value("stripLeadingSlash", function (str) {
+  .value("parseParams", function (str) {
+    var params = {};
+
     if (str[0] === "/") {
       str = str.slice(1);
     }
-    return str;
-  })
 
-  .value("parseParams", function (str) {
-    var params = {};
     str.split("&").forEach(function (fragment) {
       var fragmentArray = fragment.split("=");
       params[fragmentArray[0]] = fragmentArray[1];

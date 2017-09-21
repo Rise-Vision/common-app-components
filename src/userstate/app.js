@@ -42,16 +42,16 @@
       $urlRouterProvider.otherwise("/");
 
       // Use $stateProvider to configure states.
-      $stateProvider.state("apps", {
+      $stateProvider.state("common", {
         template: "<div ui-view></div>"
       })
 
-      .state("apps.launcher", {
+      .state("common.auth", {
         abstract: true,
         template: "<div class=\"app-launcher\" ui-view></div>"
       })
 
-      .state("apps.launcher.unauthorized", {
+      .state("common.auth.unauthorized", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/login.html");
@@ -60,7 +60,7 @@
         controller: "LoginCtrl"
       })
 
-      .state("apps.launcher.createaccount", {
+      .state("common.auth.createaccount", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/create-account.html");
@@ -69,18 +69,13 @@
         controller: "LoginCtrl"
       })
 
-      .state("apps.launcher.unregistered", {
+      .state("common.auth.unregistered", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/signup.html");
           }
         ],
         controller: "SignUpCtrl"
-      })
-
-      .state("apps.launcher.signin", {
-        url: "/signin",
-        controller: "SignInCtrl"
       });
 
     }
@@ -90,18 +85,18 @@
     function ($rootScope, $state) {
 
       $rootScope.$on("risevision.user.signedOut", function () {
-        $state.go("apps.launcher.unauthorized");
+        $state.go("common.auth.unauthorized");
       });
 
       var returnState;
       $rootScope.$on("$stateChangeStart", function (event, next, current) {
-        if (next && next.name.indexOf("apps.launcher.un") === -1) {
+        if (next && next.name.indexOf("common.auth") === -1) {
           returnState = next;
         }
       });
 
       $rootScope.$on("risevision.user.authorized", function () {
-        if (returnState && $state.current.name.indexOf("apps.launcher.un") !==
+        if (returnState && $state.current.name.indexOf("common.auth") !==
           -1) {
           $state.go(returnState);
         }

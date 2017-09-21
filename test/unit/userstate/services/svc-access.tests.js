@@ -77,7 +77,7 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      expect(newState).to.equal("apps.launcher.unregistered");
+      expect(newState).to.equal("common.auth.unregistered");
 
       done();
     });  
@@ -93,7 +93,7 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      expect(newState).to.equal("apps.launcher.unauthorized");
+      expect(newState).to.equal("common.auth.unauthorized");
 
       done();
     });
@@ -109,7 +109,7 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      expect(newState).to.equal("apps.launcher.unauthorized");
+      expect(newState).to.equal("common.auth.unauthorized");
 
       done();
     });  
