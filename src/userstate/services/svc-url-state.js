@@ -8,7 +8,6 @@
         var urlStateService = {};
 
         urlStateService.get = function () {
-          // var loc;
           var path, search, state;
 
           // Redirect to the URL root and append pathname back to the URL
@@ -34,17 +33,22 @@
 
         urlStateService.redirectToState = function (stateString) {
           var state = JSON.parse(decodeURIComponent(stateString));
-          if (state.p || state.s) {
-            userState._persistState();
 
-            $window.location.replace(state.p +
-              state.s +
-              state.u
-            );
-          } else if ($location.$$html5) { // HTML5 mode, clear path
-            $location.path("");
-          } else { // non HTML5 mode, set hash
-            $window.location.hash = state.u;
+          if (state.u || !$location.$$html5) { // hash found, assume non HTML5 mode
+            if (state.p || state.s) { // requires redirect
+              userState._persistState();
+
+              $window.location.replace(state.p +
+                state.s +
+                state.u
+              );
+            } else {
+              $window.location.hash = state.u;
+            }
+          } else { // HTML5 mode
+            state.p = state.p || "/";
+            $location.url(state.p + state.s);
+            $location.replace();
           }
         };
 

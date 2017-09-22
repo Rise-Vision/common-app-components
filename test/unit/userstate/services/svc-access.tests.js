@@ -33,15 +33,18 @@ describe("service: access:", function() {
       }
     });
     $provide.service("$state", function() {
-      return {
-        go: function(state) {
-          newState = state;
-        }
+      return $state = {
+        go: sinon.spy()
+      };
+    });
+    $provide.service("$location", function() {
+      return $location = {
+        replace: sinon.spy()
       };
     });
   }));
   
-  var canAccessApps, authenticate, isRiseVisionUser, isLoggedIn, newState;
+  var canAccessApps, $location, $state, authenticate, isRiseVisionUser, isLoggedIn;
   beforeEach(function(){
     isRiseVisionUser = true;
     authenticate = true;
@@ -77,7 +80,11 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      expect(newState).to.equal("common.auth.unregistered");
+      $state.go.should.have.been.calledWith("common.auth.unregistered", null, {
+        reload: true
+      });
+
+      $location.replace.should.have.been.called;
 
       done();
     });  
@@ -93,7 +100,11 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      expect(newState).to.equal("common.auth.unauthorized");
+      $state.go.should.have.been.calledWith("common.auth.unauthorized", null, {
+        reload: true
+      });
+
+      $location.replace.should.have.been.called;
 
       done();
     });
@@ -109,7 +120,11 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      expect(newState).to.equal("common.auth.unauthorized");
+      $state.go.should.have.been.calledWith("common.auth.unauthorized", null, {
+        reload: true
+      });
+
+      $location.replace.should.have.been.called;
 
       done();
     });  

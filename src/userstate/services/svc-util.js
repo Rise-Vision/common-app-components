@@ -127,20 +127,6 @@
       };
 
     }
-  ])
-
-  .value("parseParams", function (str) {
-    var params = {};
-
-    if (str[0] === "/") {
-      str = str.slice(1);
-    }
-
-    str.split("&").forEach(function (fragment) {
-      var fragmentArray = fragment.split("=");
-      params[fragmentArray[0]] = fragmentArray[1];
-    });
-    return params;
-  });
+  ]);
 
 })(angular);

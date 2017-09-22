@@ -9,27 +9,14 @@
     "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
   )
     .value("GOOGLE_OAUTH2_URL", "https://accounts.google.com/o/oauth2/auth")
-    .run(["$location", "$log", "userState", "urlStateService", "parseParams",
-      function ($location, $log, userState, urlStateService, parseParams) {
-        var path = $location.path();
-        var params = parseParams(path);
-        $log.debug("URL params", params);
-        userState._restoreState();
-        if (params.access_token) {
-          userState._setUserToken(params);
-        }
-        if (params.state) {
-          urlStateService.redirectToState(params.state);
-        }
-      }
-    ])
     .factory("googleAuthFactory", ["$q", "$log", "$location",
-      "$interval", "$window", "$http", "gapiLoader", "getOAuthUserInfo",
-      "uiFlowManager", "getBaseDomain", "userState", "urlStateService",
+      "$interval", "$window", "$http", "$stateParams", "gapiLoader",
+      "getOAuthUserInfo", "uiFlowManager", "getBaseDomain", "userState",
       "CLIENT_ID", "OAUTH2_SCOPES", "GOOGLE_OAUTH2_URL",
       function ($q, $log, $location, $interval, $window, $http,
+        $stateParams,
         gapiLoader, getOAuthUserInfo, uiFlowManager, getBaseDomain,
-        userState, urlStateService,
+        userState,
         CLIENT_ID, OAUTH2_SCOPES, GOOGLE_OAUTH2_URL) {
 
         var _accessTokenRefreshHandler = null;
@@ -153,7 +140,7 @@
             loc = $window.location.origin + "/";
 
             // double encode since response gets decoded once!
-            state = encodeURIComponent(urlStateService.get());
+            state = encodeURIComponent($stateParams.state);
 
             userState._persistState();
             uiFlowManager.persist();

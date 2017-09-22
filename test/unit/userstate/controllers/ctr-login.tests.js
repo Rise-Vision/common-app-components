@@ -42,6 +42,15 @@ describe("controller: Log In", function() {
         }
       };
     });
+    
+    $provide.service("urlStateService", function() {
+      return urlStateService = {
+        redirectToState: sinon.spy()
+      };
+    });
+    $provide.value("$stateParams", {
+      state: "currentState"
+    });
 
     $provide.service("uiFlowManager",function(){
       return {
@@ -56,7 +65,7 @@ describe("controller: Log In", function() {
     });
     
   }));
-  var $scope, $loading, loginSuccess, uiFlowManager;
+  var $scope, $loading, loginSuccess, uiFlowManager, urlStateService;
   beforeEach(function () {
     loginSuccess = false;
     
@@ -152,6 +161,8 @@ describe("controller: Log In", function() {
       $loading.startGlobal.should.have.been.calledWith("auth-buttons-login");
 
       setTimeout(function(){
+        urlStateService.redirectToState.should.have.been.calledWith("currentState");
+
         $loading.stopGlobal.should.have.been.calledWith("auth-buttons-login");
         uiFlowManager.invalidateStatus.should.have.been.calledWith("endStatus");
 
