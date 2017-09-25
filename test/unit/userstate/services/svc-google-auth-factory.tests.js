@@ -25,6 +25,9 @@ describe("Services: googleAuthFactory", function() {
       },
       $$html5: true
     });
+    $provide.value("$stateParams", {
+      state: "someState"
+    });
     $provide.service("getBaseDomain", function() {
       return function() {
         return "domain";
@@ -233,34 +236,13 @@ describe("Services: googleAuthFactory", function() {
           "&client_id=614513768474.apps.googleusercontent.com" +
           "&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F" + 
           "&prompt=select_account" +
-          "&state=%257B%2522p%2522%253A%2522editor%252Flist%2522%252C%2522u%2522%253A%2522%2522%252C%2522s%2522%253A%2522%253Fcid%253DcompanyId%2522%257D"
+          "&state=someState"
         );
 
         done();
       }, 10);
     });
 
-  });
-
-  describe("interpret auth result: ", function() {
-    var $location;
-
-    beforeEach(function() {
-      path = "/state=%7B%22p%22%3A%22%22%2C%22u%22%3A%22%23%2F%22%2C%22s%22%3A%22%22%7D&access_token=ya29&token_type=Bearer&expires_in=3600";
-      inRVAFrame = false;
-
-      inject(function($injector){
-        $location = $injector.get("$location");
-        googleAuthFactory = $injector.get("googleAuthFactory");
-      });
-    });
-    
-    it("should parse params from url", function() {
-      userState._restoreState.should.have.been.called;
-      userState._setUserToken.should.have.been.calledWith({"state":"%7B%22p%22%3A%22%22%2C%22u%22%3A%22%23%2F%22%2C%22s%22%3A%22%22%7D","access_token":"ya29","token_type":"Bearer","expires_in":"3600"});
-      
-      $location.path.should.have.been.calledWith("");
-    })
   });
 
 });

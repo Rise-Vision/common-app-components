@@ -46,59 +46,75 @@
         template: "<div ui-view></div>"
       })
 
+      .state("common.googleresult", {
+        url: "/state=:state&access_token=:access_token&token_type=:token_type&expires_in=:expires_in",
+        controller: "GoogleResultCtrl"
+      })
+
       .state("common.auth", {
         abstract: true,
         template: "<div class=\"app-launcher\" ui-view></div>"
       })
 
       .state("common.auth.unauthorized", {
+        controller: "UrlStateCtrl",
+        template: "<div ui-view></div>"
+      })
+
+      .state("common.auth.unauthorized.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/login.html");
           }
         ],
+        url: "/unauthorized/:state",
         controller: "LoginCtrl"
       })
 
       .state("common.auth.createaccount", {
+        controller: "UrlStateCtrl",
+        template: "<div ui-view></div>"
+      })
+
+      .state("common.auth.createaccount.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/create-account.html");
           }
         ],
+        url: "/createaccount/:state",
         controller: "LoginCtrl"
       })
 
       .state("common.auth.unregistered", {
+        controller: "UrlStateCtrl",
+        template: "<div ui-view></div>"
+      })
+
+      .state("common.auth.unregistered.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/signup.html");
           }
         ],
+        url: "/unregistered/:state",
         controller: "SignUpCtrl"
       });
 
     }
   ])
 
-  .run(["$rootScope", "$state",
-    function ($rootScope, $state) {
+  .run(["$rootScope", "$state", "$stateParams", "urlStateService",
+    function ($rootScope, $state, $stateParams, urlStateService) {
 
       $rootScope.$on("risevision.user.signedOut", function () {
         $state.go("common.auth.unauthorized");
       });
 
-      var returnState;
-      $rootScope.$on("$stateChangeStart", function (event, next, current) {
-        if (next && next.name.indexOf("common.auth") === -1) {
-          returnState = next;
-        }
-      });
-
       $rootScope.$on("risevision.user.authorized", function () {
-        if (returnState && $state.current.name.indexOf("common.auth") !==
-          -1) {
-          $state.go(returnState);
+        if ($stateParams.state &&
+          $state.current.name.indexOf("common.auth") !== -1) {
+          urlStateService.redirectToState($stateParams.state);
         }
       });
     }
@@ -111,8 +127,9 @@
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .factory("canAccessApps", ["$q", "userState", "userAuthFactory", "$state",
-    function ($q, userState, userAuthFactory, $state) {
+  .factory("canAccessApps", ["$q", "$state", "$location",
+    "userState", "userAuthFactory",
+    function ($q, $state, $location, userState, userAuthFactory) {
       return function () {
         var deferred = $q.defer();
         userAuthFactory.authenticate(false).then(function () {
@@ -124,10 +141,17 @@ angular.module("risevision.common.components.userstate")
         })
           .then(null, function () {
             if (userState.isLoggedIn()) {
-              $state.go("common.auth.unregistered");
+              $state.go("common.auth.unregistered", null, {
+                reload: true
+              });
             } else {
-              $state.go("common.auth.unauthorized");
+              $state.go("common.auth.unauthorized", null, {
+                reload: true
+              });
             }
+
+            $location.replace();
+
             deferred.reject();
           });
         return deferred.promise;
@@ -527,27 +551,14 @@ angular.module("risevision.common.components.logging")
     "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
   )
     .value("GOOGLE_OAUTH2_URL", "https://accounts.google.com/o/oauth2/auth")
-    .run(["$location", "$log", "userState", "urlStateService", "parseParams",
-      function ($location, $log, userState, urlStateService, parseParams) {
-        var path = $location.path();
-        var params = parseParams(path);
-        $log.debug("URL params", params);
-        userState._restoreState();
-        if (params.access_token) {
-          userState._setUserToken(params);
-        }
-        if (params.state) {
-          urlStateService.redirectToState(params.state);
-        }
-      }
-    ])
     .factory("googleAuthFactory", ["$q", "$log", "$location",
-      "$interval", "$window", "$http", "gapiLoader", "getOAuthUserInfo",
-      "uiFlowManager", "getBaseDomain", "userState", "urlStateService",
+      "$interval", "$window", "$http", "$stateParams", "gapiLoader",
+      "getOAuthUserInfo", "uiFlowManager", "getBaseDomain", "userState",
       "CLIENT_ID", "OAUTH2_SCOPES", "GOOGLE_OAUTH2_URL",
       function ($q, $log, $location, $interval, $window, $http,
+        $stateParams,
         gapiLoader, getOAuthUserInfo, uiFlowManager, getBaseDomain,
-        userState, urlStateService,
+        userState,
         CLIENT_ID, OAUTH2_SCOPES, GOOGLE_OAUTH2_URL) {
 
         var _accessTokenRefreshHandler = null;
@@ -671,7 +682,7 @@ angular.module("risevision.common.components.logging")
             loc = $window.location.origin + "/";
 
             // double encode since response gets decoded once!
-            state = encodeURIComponent(urlStateService.get());
+            state = encodeURIComponent($stateParams.state);
 
             userState._persistState();
             uiFlowManager.persist();
@@ -862,7 +873,6 @@ angular.module("risevision.common.components.logging")
         var urlStateService = {};
 
         urlStateService.get = function () {
-          // var loc;
           var path, search, state;
 
           // Redirect to the URL root and append pathname back to the URL
@@ -888,17 +898,22 @@ angular.module("risevision.common.components.logging")
 
         urlStateService.redirectToState = function (stateString) {
           var state = JSON.parse(decodeURIComponent(stateString));
-          if (state.p || state.s) {
-            userState._persistState();
 
-            $window.location.replace(state.p +
-              state.s +
-              state.u
-            );
-          } else if ($location.$$html5) { // HTML5 mode, clear path
-            $location.path("");
-          } else { // non HTML5 mode, set hash
-            $window.location.hash = state.u;
+          if (state.u || !$location.$$html5) { // hash found, assume non HTML5 mode
+            if (state.p || state.s) { // requires redirect
+              userState._persistState();
+
+              $window.location.replace(state.p +
+                state.s +
+                state.u
+              );
+            } else {
+              $window.location.hash = state.u;
+            }
+          } else { // HTML5 mode
+            state.p = state.p || "/";
+            $location.url(state.p + state.s);
+            $location.replace();
           }
         };
 
@@ -910,8 +925,6 @@ angular.module("risevision.common.components.logging")
 
 (function (angular) {
   "use strict";
-
-  /*jshint camelcase: false */
 
   angular.module("risevision.common.components.userstate")
     .factory("userAuthFactory", ["$q", "$log", "$location",
@@ -1602,31 +1615,39 @@ angular.module("risevision.common.components.logging")
       };
 
     }
-  ])
-
-  .value("parseParams", function (str) {
-    var params = {};
-
-    if (str[0] === "/") {
-      str = str.slice(1);
-    }
-
-    str.split("&").forEach(function (fragment) {
-      var fragmentArray = fragment.split("=");
-      params[fragmentArray[0]] = fragmentArray[1];
-    });
-    return params;
-  });
+  ]);
 
 })(angular);
 
 "use strict";
 
+/*jshint camelcase: false */
+
 angular.module("risevision.common.components.userstate")
-  .controller("LoginCtrl", ["$scope", "$loading", "userAuthFactory",
-    "customAuthFactory", "uiFlowManager",
-    function ($scope, $loading, userAuthFactory, customAuthFactory,
-      uiFlowManager) {
+  .controller("GoogleResultCtrl", ["$log", "$stateParams", "userState",
+    "urlStateService",
+    function ($log, $stateParams, userState, urlStateService) {
+      $log.debug("URL params", $stateParams);
+
+      userState._restoreState();
+      if ($stateParams.access_token) {
+        userState._setUserToken($stateParams);
+      }
+
+      if ($stateParams.state) {
+        urlStateService.redirectToState($stateParams.state);
+      }
+    }
+  ]);
+
+"use strict";
+
+angular.module("risevision.common.components.userstate")
+  .controller("LoginCtrl", ["$scope", "$loading", "$stateParams",
+    "userAuthFactory", "customAuthFactory", "uiFlowManager",
+    "urlStateService",
+    function ($scope, $loading, $stateParams, userAuthFactory,
+      customAuthFactory, uiFlowManager, urlStateService) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
@@ -1648,7 +1669,9 @@ angular.module("risevision.common.components.userstate")
 
           userAuthFactory.authenticate(true, $scope.credentials)
             .then(function () {
-              //
+              if ($stateParams.state) {
+                urlStateService.redirectToState($stateParams.state);
+              }
             })
             .then(null, function () {
               $scope.errors.loginError = true;
@@ -1701,6 +1724,22 @@ angular.module("risevision.common.components.userstate")
     }
   ]);
 
+"use strict";
+
+angular.module("risevision.common.components.userstate")
+  .controller("UrlStateCtrl", ["$state", "urlStateService",
+    function ($state, urlStateService) {
+      if ($state.current.name.indexOf(".final") === -1) {
+        var stateString = urlStateService.get();
+        var newState = $state.current.name + ".final";
+
+        $state.go(newState, {
+          state: stateString
+        });
+      }
+    }
+  ]);
+
 (function(module) {
 try {
   module = angular.module('risevision.common.components.userstate');
@@ -1709,7 +1748,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('userstate/auth-form.html',
-    '<form id="forms.loginForm" name="forms.loginForm" role="form" novalidate=""><div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.duplicateError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>This email address is already registered. You can <a href="#">sign in</a>with this address.</span></p></div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.loginError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address (or password) is not found. <a href="#"></a></span></p></div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.unconfirmedError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address has not been confirmed.<br><a href="#">Resend Email Confirmation</a></span></p></div><div class="panel-body bg-info u_margin-sm-top" style="display: block;" ng-show="errors.confirmationRequired"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>We\'ve sent a confirmation email to {{credentials.username}}.<br>Please check your inbox to complete your account registration.</span></p></div></div><div class="u_margin-sm-top"><div class="form-group" ng-class="{\'has-error\': (forms.loginForm.$submitted && forms.loginForm.username.$invalid)}" show-errors=""><label class="control-label">Email</label> <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username" ng-model="credentials.username" required="" focus-me="true"><p class="text-danger" ng-show="forms.loginForm.$submitted && forms.loginForm.username.$invalid">Please enter an Email</p></div><div class="form-group" ng-class="{\'has-error\': (forms.loginForm.$submitted && forms.loginForm.password.$invalid)}" show-errors=""><label class="control-label">Password</label> <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" ng-model="credentials.password" required=""><p class="text-danger" ng-show="forms.loginForm.$submitted && forms.loginForm.password.$invalid">Please enter a Password</p></div></div></form>');
+    '<form id="forms.loginForm" name="forms.loginForm" role="form" novalidate=""><div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.duplicateError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>This email address is already registered. You can <a href="#">sign in</a>with this address.</span></p></div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.loginError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address/password combination is incorrect.</span></p></div><div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.unconfirmedError"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address has not been confirmed.<br><a href="#">Resend Email Confirmation</a></span></p></div><div class="panel-body bg-info u_margin-sm-top" style="display: block;" ng-show="errors.confirmationRequired"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>We\'ve sent a confirmation email to {{credentials.username}}.<br>Please check your inbox to complete your account registration.</span></p></div></div><div class="u_margin-sm-top"><div class="form-group" ng-class="{\'has-error\': (forms.loginForm.$submitted && forms.loginForm.username.$invalid)}" show-errors=""><label class="control-label">Email</label> <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username" ng-model="credentials.username" required="" focus-me="true"><p class="text-danger" ng-show="forms.loginForm.$submitted && forms.loginForm.username.$invalid">Please enter an Email</p></div><div class="form-group" ng-class="{\'has-error\': (forms.loginForm.$submitted && forms.loginForm.password.$invalid)}" show-errors=""><label class="control-label">Password</label> <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" ng-model="credentials.password" required=""><p class="text-danger" ng-show="forms.loginForm.$submitted && forms.loginForm.password.$invalid">Please enter a Password</p></div></div></form>');
 }]);
 })();
 

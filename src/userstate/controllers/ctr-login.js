@@ -1,10 +1,11 @@
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("LoginCtrl", ["$scope", "$loading", "userAuthFactory",
-    "customAuthFactory", "uiFlowManager",
-    function ($scope, $loading, userAuthFactory, customAuthFactory,
-      uiFlowManager) {
+  .controller("LoginCtrl", ["$scope", "$loading", "$stateParams",
+    "userAuthFactory", "customAuthFactory", "uiFlowManager",
+    "urlStateService",
+    function ($scope, $loading, $stateParams, userAuthFactory,
+      customAuthFactory, uiFlowManager, urlStateService) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
@@ -26,7 +27,9 @@ angular.module("risevision.common.components.userstate")
 
           userAuthFactory.authenticate(true, $scope.credentials)
             .then(function () {
-              //
+              if ($stateParams.state) {
+                urlStateService.redirectToState($stateParams.state);
+              }
             })
             .then(null, function () {
               $scope.errors.loginError = true;

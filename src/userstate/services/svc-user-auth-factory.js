@@ -1,8 +1,6 @@
 (function (angular) {
   "use strict";
 
-  /*jshint camelcase: false */
-
   angular.module("risevision.common.components.userstate")
     .factory("userAuthFactory", ["$q", "$log", "$location",
       "$rootScope", "$loading", "$window", "$document",

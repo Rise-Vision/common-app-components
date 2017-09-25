@@ -46,59 +46,75 @@
         template: "<div ui-view></div>"
       })
 
+      .state("common.googleresult", {
+        url: "/state=:state&access_token=:access_token&token_type=:token_type&expires_in=:expires_in",
+        controller: "GoogleResultCtrl"
+      })
+
       .state("common.auth", {
         abstract: true,
         template: "<div class=\"app-launcher\" ui-view></div>"
       })
 
       .state("common.auth.unauthorized", {
+        controller: "UrlStateCtrl",
+        template: "<div ui-view></div>"
+      })
+
+      .state("common.auth.unauthorized.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/login.html");
           }
         ],
+        url: "/unauthorized/:state",
         controller: "LoginCtrl"
       })
 
       .state("common.auth.createaccount", {
+        controller: "UrlStateCtrl",
+        template: "<div ui-view></div>"
+      })
+
+      .state("common.auth.createaccount.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/create-account.html");
           }
         ],
+        url: "/createaccount/:state",
         controller: "LoginCtrl"
       })
 
       .state("common.auth.unregistered", {
+        controller: "UrlStateCtrl",
+        template: "<div ui-view></div>"
+      })
+
+      .state("common.auth.unregistered.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/signup.html");
           }
         ],
+        url: "/unregistered/:state",
         controller: "SignUpCtrl"
       });
 
     }
   ])
 
-  .run(["$rootScope", "$state",
-    function ($rootScope, $state) {
+  .run(["$rootScope", "$state", "$stateParams", "urlStateService",
+    function ($rootScope, $state, $stateParams, urlStateService) {
 
       $rootScope.$on("risevision.user.signedOut", function () {
         $state.go("common.auth.unauthorized");
       });
 
-      var returnState;
-      $rootScope.$on("$stateChangeStart", function (event, next, current) {
-        if (next && next.name.indexOf("common.auth") === -1) {
-          returnState = next;
-        }
-      });
-
       $rootScope.$on("risevision.user.authorized", function () {
-        if (returnState && $state.current.name.indexOf("common.auth") !==
-          -1) {
-          $state.go(returnState);
+        if ($stateParams.state &&
+          $state.current.name.indexOf("common.auth") !== -1) {
+          urlStateService.redirectToState($stateParams.state);
         }
       });
     }
