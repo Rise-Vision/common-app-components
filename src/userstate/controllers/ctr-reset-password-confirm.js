@@ -9,10 +9,8 @@ angular.module("risevision.common.components.userstate")
       $scope.errors = {};
 
       function _resetErrorStates() {
-        $scope.emailConfirmSent = false;
         $scope.emailResetSent = false;
         $scope.invalidToken = false;
-        $scope.emailNotConfirmed = false;
         $scope.notMatchingPassword = false;
       }
 
@@ -36,30 +34,12 @@ angular.module("risevision.common.components.userstate")
 
             if (error === "Password reset token does not match") {
               $scope.invalidToken = true;
-            } else if (error === "User email not confirmed") {
-              $scope.emailNotConfirmed = true;
             } else {
               console.log(err);
             }
           })
           .finally(function () {
             $loading.stopGlobal("auth-reset-password");
-          });
-      };
-
-      $scope.requestConfirmationEmail = function () {
-        _resetErrorStates();
-
-        $loading.startGlobal("auth-request-confirmation-email");
-        userauth.requestConfirmationEmail($stateParams.user)
-          .then(function () {
-            $scope.emailConfirmSent = true;
-          })
-          .catch(function (err) {
-            console.log(err);
-          })
-          .finally(function () {
-            $loading.stopGlobal("auth-request-confirmation-email");
           });
       };
 
