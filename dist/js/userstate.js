@@ -1757,7 +1757,7 @@ angular.module("risevision.common.components.userstate")
         })
         .finally(function () {
           $loading.stopGlobal("auth-confirm-account");
-          $state.go("common.auth.unauthorized");
+          $state.go("common.auth.unauthorized.final");
         });
     }
   ]);
@@ -1909,7 +1909,7 @@ angular.module("risevision.common.components.userstate")
           .newPassword)
           .then(function () {
             console.log("Password updated");
-            $state.go("common.auth.unauthorized");
+            $state.go("common.auth.unauthorized.final");
           })
           .catch(function (err) {
             var error = err.result && err.result.error && err.result.error.message;
