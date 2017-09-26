@@ -86,6 +86,39 @@
         controller: "LoginCtrl"
       })
 
+      .state("common.auth.confirmaccount", {
+        controller: "ConfirmAccountCtrl",
+        template: "<div ui-view></div>",
+        url: "/confirmaccount/:user/:token"
+      })
+
+      .state("common.auth.requestpasswordreset", {
+        controller: "UrlStateCtrl",
+        template: "<div ui-view></div>"
+      })
+
+      .state("common.auth.requestpasswordreset.final", {
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get(
+              "userstate/request-password-reset.html");
+          }
+        ],
+        url: "/requestpasswordreset/:state",
+        controller: "RequestPasswordResetCtrl"
+      })
+
+      .state("common.auth.resetpassword", {
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get(
+              "userstate/reset-password-confirm.html");
+          }
+        ],
+        url: "/resetpassword/:user/:token",
+        controller: "ResetPasswordConfirmCtrl"
+      })
+
       .state("common.auth.unregistered", {
         controller: "UrlStateCtrl",
         template: "<div ui-view></div>"
