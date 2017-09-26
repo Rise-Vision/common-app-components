@@ -1347,6 +1347,28 @@ angular.module("risevision.common.components.logging")
 
             return deferred.promise;
           },
+          requestConfirmationEmail: function (username) {
+            var deferred = $q.defer();
+
+            var obj = {
+              "username": username
+            };
+            riseAPILoader().then(function (coreApi) {
+              return coreApi.userauth.requestConfirmationEmail(obj);
+            })
+              .then(function (resp) {
+                $log.debug("Request confirmation email successful",
+                  resp);
+                deferred.resolve(resp);
+              })
+              .then(null, function (e) {
+                console.error("Failed to request confirmation email.",
+                  e);
+                deferred.reject(e);
+              });
+
+            return deferred.promise;
+          },
           requestPasswordReset: function (username) {
             var deferred = $q.defer();
 
@@ -1823,7 +1845,6 @@ angular.module("risevision.common.components.userstate")
             });
         }
       };
-
     }
   ]);
 
@@ -1867,10 +1888,16 @@ angular.module("risevision.common.components.userstate")
       $scope.credentials = {};
       $scope.errors = {};
 
-      $scope.resetPassword = function () {
+      function _resetErrorStates() {
+        $scope.emailConfirmSent = false;
+        $scope.emailResetSent = false;
         $scope.invalidToken = false;
         $scope.emailNotConfirmed = false;
         $scope.notMatchingPassword = false;
+      }
+
+      $scope.resetPassword = function () {
+        _resetErrorStates();
 
         if ($scope.credentials.newPassword !== $scope.credentials.confirmPassword) {
           $scope.notMatchingPassword = true;
@@ -1885,8 +1912,15 @@ angular.module("risevision.common.components.userstate")
             $state.go("common.auth.unauthorized");
           })
           .catch(function (err) {
-            console.log(err);
-            $scope.invalidToken = true;
+            var error = err.result && err.result.error && err.result.error.message;
+
+            if (error === "Password reset token does not match") {
+              $scope.invalidToken = true;
+            } else if (error === "User email not confirmed") {
+              $scope.emailNotConfirmed = true;
+            } else {
+              console.log(err);
+            }
           })
           .finally(function () {
             $loading.stopGlobal("auth-reset-password");
@@ -1894,18 +1928,34 @@ angular.module("risevision.common.components.userstate")
       };
 
       $scope.requestConfirmationEmail = function () {
-        $scope.emailSent = false;
+        _resetErrorStates();
+
         $loading.startGlobal("auth-request-confirmation-email");
-        userauth.resetPassword($stateParams.user, $stateParams.token, $scope.credentials
-          .newPassword)
+        userauth.requestConfirmationEmail($stateParams.user)
           .then(function () {
-            $scope.emailSent = true;
+            $scope.emailConfirmSent = true;
           })
           .catch(function (err) {
             console.log(err);
           })
           .finally(function () {
             $loading.stopGlobal("auth-request-confirmation-email");
+          });
+      };
+
+      $scope.requestPasswordReset = function () {
+        _resetErrorStates();
+
+        $loading.startGlobal("auth-request-password-reset");
+        userauth.requestPasswordReset($stateParams.user)
+          .then(function () {
+            $scope.emailResetSent = true;
+          })
+          .catch(function (err) {
+            console.log(err);
+          })
+          .finally(function () {
+            $loading.stopGlobal("auth-request-password-reset");
           });
       };
     }
@@ -2001,7 +2051,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('userstate/reset-password-confirm.html',
-    '<div class="app-launcher-login"><div class="container"><div class="panel"><div class="row"><div class="col-sm-6 col-xs-12"><div class="rise-logo"><img src="https://s3.amazonaws.com/Rise-Images/Website/rise-logo.svg"></div></div><div class="col-sm-6 col-xs-12"><h1 class="u_remove-top">Password Confirmation</h1><div><div class="panel-body bg-info u_margin-lg-top" ng-show="emailSent"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>An email with confirmation instructions has been sent to your email inbox (if it exists in our system).</span></p></div><div class="panel-body bg-danger u_margin-lg-top" ng-show="notMatchingPassword"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>New Password and Confirm Password must match.</span></p></div><div class="panel-body bg-danger u_margin-lg-top" ng-show="invalidToken"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address (or password reset token) is not found. <a href="#" ng-click="requestConfirmationEmail()">Resend Email Confirmation</a></span></p></div><div class="panel-body bg-danger u_margin-lg-top" ng-show="emailNotConfirmed"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address has not been confirmed.<br><a href="#" ng-click="requestConfirmationEmail()">Resend Email Confirmation</a></span></p></div></div><form id="resetPasswordForm" role="form" name="forms.resetPasswordForm" novalidate="" ng-show="!emailSent"><div class="col-md-8 col-xs-12 u_margin-md-top"><div class="form-group" ng-class="{\'has-error\': (forms.resetPasswordForm.$submitted && forms.resetPasswordForm.newPassword.$invalid)}" show-errors=""><label class="control-label">New Password</label> <input type="password" class="form-control" name="name" ng-model="credentials.newPassword" required="" focus-me="true"></div><div class="form-group" ng-class="{\'has-error\': (forms.resetPasswordForm.$submitted && forms.resetPasswordForm.confirmPassword.$invalid)}" show-errors=""><label class="control-label">Confirm Password</label> <input type="password" class="form-control" name="name" ng-model="credentials.confirmPassword" required=""></div><button id="startError" class="btn btn-primary btn-hg" ng-disabled="forms.resetPasswordForm.$invalid" ng-click="resetPassword()">Update Password</button></div></form></div></div></div></div></div>');
+    '<div class="app-launcher-login"><div class="container"><div class="panel"><div class="row"><div class="col-sm-6 col-xs-12"><div class="rise-logo"><img src="https://s3.amazonaws.com/Rise-Images/Website/rise-logo.svg"></div></div><div class="col-sm-6 col-xs-12"><h1 class="u_remove-top">Password Confirmation</h1><div><div class="panel-body bg-info u_margin-lg-top" ng-show="emailConfirmSent"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>An email with confirmation instructions has been sent to your email inbox.</span></p></div><div class="panel-body bg-info u_margin-lg-top" ng-show="emailResetSent"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>An email with password reset instructions has been sent to your email inbox.</span></p></div><div class="panel-body bg-danger u_margin-lg-top" ng-show="notMatchingPassword"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>New Password and Confirm Password must match.</span></p></div><div class="panel-body bg-danger u_margin-lg-top" ng-show="invalidToken"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>The password reset token is not valid. <a href="#" ng-click="requestPasswordReset()">Request Password Reset</a></span></p></div><div class="panel-body bg-danger u_margin-lg-top" ng-show="emailNotConfirmed"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>Your email address has not been confirmed.<br><a href="#" ng-click="requestConfirmationEmail()">Resend Email Confirmation</a></span></p></div></div><form id="resetPasswordForm" role="form" name="forms.resetPasswordForm" novalidate="" ng-show="!emailConfirmSent && !emailResetSent"><div class="col-md-8 col-xs-12 u_margin-md-top"><div class="form-group" ng-class="{\'has-error\': (forms.resetPasswordForm.$submitted && forms.resetPasswordForm.newPassword.$invalid)}" show-errors=""><label class="control-label">New Password</label> <input type="password" class="form-control" name="name" ng-model="credentials.newPassword" required="" focus-me="true"></div><div class="form-group" ng-class="{\'has-error\': (forms.resetPasswordForm.$submitted && forms.resetPasswordForm.confirmPassword.$invalid)}" show-errors=""><label class="control-label">Confirm Password</label> <input type="password" class="form-control" name="name" ng-model="credentials.confirmPassword" required=""></div><button id="startError" class="btn btn-primary btn-hg" ng-disabled="forms.resetPasswordForm.$invalid" ng-click="resetPassword()">Update Password</button></div></form></div></div></div></div></div>');
 }]);
 })();
 

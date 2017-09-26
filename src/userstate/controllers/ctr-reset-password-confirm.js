@@ -8,10 +8,16 @@ angular.module("risevision.common.components.userstate")
       $scope.credentials = {};
       $scope.errors = {};
 
-      $scope.resetPassword = function () {
+      function _resetErrorStates() {
+        $scope.emailConfirmSent = false;
+        $scope.emailResetSent = false;
         $scope.invalidToken = false;
         $scope.emailNotConfirmed = false;
         $scope.notMatchingPassword = false;
+      }
+
+      $scope.resetPassword = function () {
+        _resetErrorStates();
 
         if ($scope.credentials.newPassword !== $scope.credentials.confirmPassword) {
           $scope.notMatchingPassword = true;
@@ -26,8 +32,15 @@ angular.module("risevision.common.components.userstate")
             $state.go("common.auth.unauthorized");
           })
           .catch(function (err) {
-            console.log(err);
-            $scope.invalidToken = true;
+            var error = err.result && err.result.error && err.result.error.message;
+
+            if (error === "Password reset token does not match") {
+              $scope.invalidToken = true;
+            } else if (error === "User email not confirmed") {
+              $scope.emailNotConfirmed = true;
+            } else {
+              console.log(err);
+            }
           })
           .finally(function () {
             $loading.stopGlobal("auth-reset-password");
@@ -35,18 +48,34 @@ angular.module("risevision.common.components.userstate")
       };
 
       $scope.requestConfirmationEmail = function () {
-        $scope.emailSent = false;
+        _resetErrorStates();
+
         $loading.startGlobal("auth-request-confirmation-email");
-        userauth.resetPassword($stateParams.user, $stateParams.token, $scope.credentials
-          .newPassword)
+        userauth.requestConfirmationEmail($stateParams.user)
           .then(function () {
-            $scope.emailSent = true;
+            $scope.emailConfirmSent = true;
           })
           .catch(function (err) {
             console.log(err);
           })
           .finally(function () {
             $loading.stopGlobal("auth-request-confirmation-email");
+          });
+      };
+
+      $scope.requestPasswordReset = function () {
+        _resetErrorStates();
+
+        $loading.startGlobal("auth-request-password-reset");
+        userauth.requestPasswordReset($stateParams.user)
+          .then(function () {
+            $scope.emailResetSent = true;
+          })
+          .catch(function (err) {
+            console.log(err);
+          })
+          .finally(function () {
+            $loading.stopGlobal("auth-request-password-reset");
           });
       };
     }
