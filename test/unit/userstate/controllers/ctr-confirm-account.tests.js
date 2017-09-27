@@ -4,17 +4,7 @@ describe("controller: Confirm Account", function() {
   beforeEach(module(function ($provide) {
     $provide.service("userauth", function() {
       return {
-        confirmUserCreation: function(username, confirmationToken) {
-          var deferred = Q.defer();
-
-          if (confirmUserCreationSuccess) {
-            deferred.resolve();
-          } else {
-            deferred.reject();
-          }
-
-          return deferred.promise;
-        }
+        confirmUserCreation: function() {}
       };
     });
     $provide.service("$loading",function() {
@@ -36,7 +26,7 @@ describe("controller: Confirm Account", function() {
     });
   }));
 
-  var $scope, $loading, $log, $state, userauth, confirmUserCreationSuccess, sandbox, initializeController;
+  var $scope, $loading, $log, $state, userauth, sandbox, initializeController;
 
   beforeEach(function () {
     sandbox = sinon.sandbox.create();
@@ -54,7 +44,7 @@ describe("controller: Confirm Account", function() {
           $scope: $scope,
           $log: $log,
           $state: $state,
-          $stateParams: $injector.get("$stateParams"),
+          $stateParams: { user: "username", token: "token" },
           userauth: userauth
         });
 
@@ -73,10 +63,11 @@ describe("controller: Confirm Account", function() {
 
   describe("customLogin: ", function() {
     it("should redirect to login on success", function(done) {
-      confirmUserCreationSuccess = true;
+      sandbox.stub(userauth, "confirmUserCreation").returns(Q.resolve());
       initializeController();
 
       setTimeout(function() {
+        expect(userauth.confirmUserCreation).to.have.been.calledWith("username", "token");
         expect($state.go).to.have.been.calledWith("common.auth.unauthorized.final");
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
@@ -87,10 +78,11 @@ describe("controller: Confirm Account", function() {
     });
 
     it("should redirect to login on error", function(done) {
-      confirmUserCreationSuccess = false;
+      sandbox.stub(userauth, "confirmUserCreation").returns(Q.reject());
       initializeController();
 
       setTimeout(function() {
+        expect(userauth.confirmUserCreation).to.have.been.calledWith("username", "token");
         expect($state.go).to.have.been.calledWith("common.auth.unauthorized.final");
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
