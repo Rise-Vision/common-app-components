@@ -1,9 +1,8 @@
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("RequestPasswordResetCtrl", ["$scope", "$loading", "$stateParams",
-    "userauth",
-    function ($scope, $loading, $stateParams, userauth) {
+  .controller("RequestPasswordResetCtrl", ["$scope", "$loading", "userauth",
+    function ($scope, $loading, userauth) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};

@@ -1742,10 +1742,8 @@ angular.module("risevision.common.components.logging")
 
 angular.module("risevision.common.components.userstate")
   .controller("ConfirmAccountCtrl", ["$scope", "$loading", "$state",
-    "$stateParams",
-    "userauth", "urlStateService",
-    function ($scope, $loading, $state, $stateParams, userauth,
-      urlStateService) {
+    "$stateParams", "userauth",
+    function ($scope, $loading, $state, $stateParams, userauth) {
       $loading.startGlobal("auth-confirm-account");
 
       userauth.confirmUserCreation($stateParams.user, $stateParams.token)
@@ -1851,9 +1849,8 @@ angular.module("risevision.common.components.userstate")
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("RequestPasswordResetCtrl", ["$scope", "$loading", "$stateParams",
-    "userauth",
-    function ($scope, $loading, $stateParams, userauth) {
+  .controller("RequestPasswordResetCtrl", ["$scope", "$loading", "userauth",
+    function ($scope, $loading, userauth) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
