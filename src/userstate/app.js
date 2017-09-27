@@ -93,18 +93,13 @@
       })
 
       .state("common.auth.requestpasswordreset", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.requestpasswordreset.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get(
               "userstate/request-password-reset.html");
           }
         ],
-        url: "/requestpasswordreset/:state",
+        url: "/requestpasswordreset",
         controller: "RequestPasswordResetCtrl"
       })
 
