@@ -2,10 +2,8 @@
 
 angular.module("risevision.common.components.userstate")
   .controller("ConfirmAccountCtrl", ["$scope", "$loading", "$state",
-    "$stateParams",
-    "userauth", "urlStateService",
-    function ($scope, $loading, $state, $stateParams, userauth,
-      urlStateService) {
+    "$stateParams", "userauth",
+    function ($scope, $loading, $state, $stateParams, userauth) {
       $loading.startGlobal("auth-confirm-account");
 
       userauth.confirmUserCreation($stateParams.user, $stateParams.token)
