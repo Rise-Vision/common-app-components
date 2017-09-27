@@ -1,17 +1,17 @@
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("ConfirmAccountCtrl", ["$scope", "$loading", "$state",
-    "$stateParams", "userauth",
-    function ($scope, $loading, $state, $stateParams, userauth) {
+  .controller("ConfirmAccountCtrl", ["$scope", "$loading", "$log", "$state",
+  "$stateParams", "userauth",
+    function ($scope, $loading, $log, $state, $stateParams, userauth) {
       $loading.startGlobal("auth-confirm-account");
 
       userauth.confirmUserCreation($stateParams.user, $stateParams.token)
         .then(function () {
-          console.log("User confirmed");
+          $log.log("User confirmed");
         })
         .catch(function (err) {
-          console.log(err);
+          $log.error(err);
         })
         .finally(function () {
           $loading.stopGlobal("auth-confirm-account");
