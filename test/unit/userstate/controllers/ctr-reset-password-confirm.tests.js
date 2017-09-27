@@ -1,5 +1,5 @@
 "use strict";
-describe.only("controller: Reset Password Confirm", function() {
+describe("controller: Reset Password Confirm", function() {
   beforeEach(module("risevision.common.components.userstate"));
   beforeEach(module(function ($provide) {
     $provide.service("$loading",function() {
