@@ -52,8 +52,8 @@ describe("controller: Request Password Reset", function() {
     expect($scope).to.be.ok;
   });
 
-  describe("customLogin: ", function() {
-    it("should redirect to login on success", function(done) {
+  describe("requestPasswordReset: ", function() {
+    it("should show email sent message on success", function(done) {
       sandbox.stub(userauth, "requestPasswordReset").returns(Q.resolve());
       $scope.requestPasswordReset();
 
@@ -68,7 +68,7 @@ describe("controller: Request Password Reset", function() {
       }, 0);
     });
 
-    it("should redirect to login on error", function(done) {
+    it("should show email sent message on error", function(done) {
       sandbox.stub(userauth, "requestPasswordReset").returns(Q.reject());
       $scope.requestPasswordReset();
 
