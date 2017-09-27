@@ -2,11 +2,6 @@
 describe("controller: Confirm Account", function() {
   beforeEach(module("risevision.common.components.userstate"));
   beforeEach(module(function ($provide) {
-    $provide.service("userauth", function() {
-      return {
-        confirmUserCreation: function() {}
-      };
-    });
     $provide.service("$loading",function() {
       return {
         startGlobal: sandbox.spy(),
@@ -61,7 +56,7 @@ describe("controller: Confirm Account", function() {
     expect($scope).to.be.ok;
   });
 
-  describe("customLogin: ", function() {
+  describe("confirmUserCreation: ", function() {
     it("should redirect to login on success", function(done) {
       sandbox.stub(userauth, "confirmUserCreation").returns(Q.resolve());
       initializeController();

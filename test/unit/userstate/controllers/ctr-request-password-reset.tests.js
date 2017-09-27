@@ -2,11 +2,6 @@
 describe("controller: Request Password Reset", function() {
   beforeEach(module("risevision.common.components.userstate"));
   beforeEach(module(function ($provide) {
-    $provide.service("userauth", function() {
-      return {
-        requestPasswordReset: function() {}
-      };
-    });
     $provide.service("$loading",function() {
       return {
         startGlobal: sandbox.spy(),

@@ -1,7 +1,8 @@
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("ResetPasswordConfirmCtrl", ["$scope", "$loading", "$log", "$state",
+  .controller("ResetPasswordConfirmCtrl", ["$scope", "$loading", "$log",
+    "$state",
     "$stateParams", "userauth",
     function ($scope, $loading, $log, $state, $stateParams, userauth) {
       $scope.forms = {};
@@ -23,7 +24,8 @@ angular.module("risevision.common.components.userstate")
         }
 
         $loading.startGlobal("auth-reset-password");
-        userauth.resetPassword($stateParams.user, $stateParams.token, $scope.credentials.newPassword)
+        userauth.resetPassword($stateParams.user, $stateParams.token, $scope.credentials
+          .newPassword)
           .then(function () {
             $log.log("Password updated");
             $state.go("common.auth.unauthorized.final");

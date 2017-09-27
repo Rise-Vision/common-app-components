@@ -2,12 +2,6 @@
 describe.only("controller: Reset Password Confirm", function() {
   beforeEach(module("risevision.common.components.userstate"));
   beforeEach(module(function ($provide) {
-    $provide.service("userauth", function() {
-      return {
-        resetPassword: function() {},
-        requestPasswordReset: function() {}
-      };
-    });
     $provide.service("$loading",function() {
       return {
         startGlobal: sandbox.spy(),

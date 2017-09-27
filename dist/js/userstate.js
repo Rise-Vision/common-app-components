@@ -1736,17 +1736,17 @@ angular.module("risevision.common.components.logging")
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("ConfirmAccountCtrl", ["$scope", "$loading", "$state",
+  .controller("ConfirmAccountCtrl", ["$scope", "$loading", "$log", "$state",
     "$stateParams", "userauth",
-    function ($scope, $loading, $state, $stateParams, userauth) {
+    function ($scope, $loading, $log, $state, $stateParams, userauth) {
       $loading.startGlobal("auth-confirm-account");
 
       userauth.confirmUserCreation($stateParams.user, $stateParams.token)
         .then(function () {
-          console.log("User confirmed");
+          $log.log("User confirmed");
         })
         .catch(function (err) {
-          console.log(err);
+          $log.error(err);
         })
         .finally(function () {
           $loading.stopGlobal("auth-confirm-account");
@@ -1844,8 +1844,9 @@ angular.module("risevision.common.components.userstate")
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("RequestPasswordResetCtrl", ["$scope", "$loading", "userauth",
-    function ($scope, $loading, userauth) {
+  .controller("RequestPasswordResetCtrl", ["$scope", "$loading", "$log",
+    "userauth",
+    function ($scope, $loading, $log, userauth) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
@@ -1857,10 +1858,10 @@ angular.module("risevision.common.components.userstate")
 
         userauth.requestPasswordReset($scope.credentials.username)
           .then(function () {
-            console.log("Reset password request sent");
+            $log.log("Reset password request sent");
           })
           .catch(function (err) {
-            console.log(err);
+            $log.error(err);
           })
           .finally(function () {
             $loading.stopGlobal("auth-request-password-reset");
@@ -1873,9 +1874,10 @@ angular.module("risevision.common.components.userstate")
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("ResetPasswordConfirmCtrl", ["$scope", "$loading", "$state",
+  .controller("ResetPasswordConfirmCtrl", ["$scope", "$loading", "$log",
+    "$state",
     "$stateParams", "userauth",
-    function ($scope, $loading, $state, $stateParams, userauth) {
+    function ($scope, $loading, $log, $state, $stateParams, userauth) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
@@ -1898,7 +1900,7 @@ angular.module("risevision.common.components.userstate")
         userauth.resetPassword($stateParams.user, $stateParams.token, $scope.credentials
           .newPassword)
           .then(function () {
-            console.log("Password updated");
+            $log.log("Password updated");
             $state.go("common.auth.unauthorized.final");
           })
           .catch(function (err) {
@@ -1907,7 +1909,7 @@ angular.module("risevision.common.components.userstate")
             if (error === "Password reset token does not match") {
               $scope.invalidToken = true;
             } else {
-              console.log(err);
+              $log.error(err);
             }
           })
           .finally(function () {
@@ -1921,10 +1923,11 @@ angular.module("risevision.common.components.userstate")
         $loading.startGlobal("auth-request-password-reset");
         userauth.requestPasswordReset($stateParams.user)
           .then(function () {
+            $log.log("Email sent");
             $scope.emailResetSent = true;
           })
           .catch(function (err) {
-            console.log(err);
+            $log.error(err);
           })
           .finally(function () {
             $loading.stopGlobal("auth-request-password-reset");
