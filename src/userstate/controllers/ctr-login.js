@@ -60,6 +60,5 @@ angular.module("risevision.common.components.userstate")
             });
         }
       };
-
     }
   ]);
