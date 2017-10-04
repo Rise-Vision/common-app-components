@@ -1441,6 +1441,7 @@ angular.module("risevision.common.components.logging")
               return companyState.init();
             })
             .then(function () {
+              $rootScope.$broadcast("risevision.profile.refreshed");
               deferred.resolve();
             }, deferred.reject);
 
