@@ -22,9 +22,6 @@ describe("service: access:", function() {
     });
     $provide.service("userState",function(){
       return {
-        isRiseVisionUser : function(){
-          return isRiseVisionUser;
-        },
         isLoggedIn: function() {
           return isLoggedIn;
         },
@@ -43,10 +40,9 @@ describe("service: access:", function() {
       };
     });
   }));
-  
-  var canAccessApps, $location, $state, authenticate, isRiseVisionUser, isLoggedIn;
+
+  var canAccessApps, $location, $state, authenticate, isLoggedIn;
   beforeEach(function(){
-    isRiseVisionUser = true;
     authenticate = true;
     isLoggedIn = true;
 
@@ -59,7 +55,7 @@ describe("service: access:", function() {
     expect(canAccessApps).to.be.truely;
     expect(canAccessApps).to.be.a("function");
   });
-  
+
   it("should return resolve if authenticated",function(done){
     canAccessApps()
     .then(function(){
@@ -69,10 +65,9 @@ describe("service: access:", function() {
       done("error");
     });
   });
-  
-  it("should reject if user is not Rise Vision User",function(done){
-    isRiseVisionUser = false;
-    authenticate = true;
+
+  it("should reject if user is logged in but not registered",function(done){
+    authenticate = false;
     isLoggedIn = true;
 
     canAccessApps()
@@ -89,29 +84,8 @@ describe("service: access:", function() {
       done();
     });  
   });
-  
-  it("should reject if user is not Rise Vision User",function(done){
-    isRiseVisionUser = false;
-    authenticate = true;
-    isLoggedIn = false;
 
-    canAccessApps()
-    .then(function() {
-      done("authenticated");
-    })
-    .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.unauthorized", null, {
-        reload: true
-      });
-
-      $location.replace.should.have.been.called;
-
-      done();
-    });
-  });
-  
   it("should reject if user is not authenticated",function(done){
-    isRiseVisionUser = true;
     authenticate = false;
     isLoggedIn = false;
 
@@ -129,5 +103,4 @@ describe("service: access:", function() {
       done();
     });  
   });
-
 });

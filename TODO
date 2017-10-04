@@ -1,0 +1,31 @@
+Rise Vision:
+  What I did yesterday:
+    ✔ Standup
+    ✔ Scrum of Scrums
+  What I will work on today:
+    ☐ Validate common-app-components changes are enough (canAccessApps)
+    ☐ Validate Storage and Store endpoints updates
+    ☐ Add password validation logic
+  Retrospection:
+    **My role in the company: 2/5** | Same
+    - (+) Backend code is pretty stable at this point, with good test coverage
+    - (-) Unexpected issues with basic building blocks in the frontend
+    - (-) Bad effort estimations affect the whole epic
+
+    -----
+
+    **The company: 3/5** | Same
+
+    - (+) Finished Peer Reviews
+    - (-) Authentication epic taking longer than expected
+    - (-) Repository explosion. Wondering if some repositories actually make sense on their own (common-app-components looks like it could be part of common-header)
+
+    -----
+
+    **Improvements**
+
+    - Evaluate Docker for simplifying dev environment setup/deployment
+    - Evaluate Yarn/NPM 4, mainly for version locks (to avoid transitive dependency updates, which cause unexpected breaks)
+    
+  Authentication:
+    
