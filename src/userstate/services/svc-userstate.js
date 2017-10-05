@@ -35,7 +35,6 @@
               return companyState.init();
             })
             .then(function () {
-              $rootScope.$broadcast("risevision.profile.refreshed");
               deferred.resolve();
             }, deferred.reject);
 
@@ -181,8 +180,8 @@
               _state);
           },
           _state: _state,
-          _setIsRiseAuthUser: function(isRiseAuthUser) {
-            _state.isRiseAuthUser = isRiseAuthUser
+          _setIsRiseAuthUser: function (isRiseAuthUser) {
+            _state.isRiseAuthUser = isRiseAuthUser;
           }
         };
 

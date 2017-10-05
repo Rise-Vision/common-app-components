@@ -1447,7 +1447,6 @@ angular.module("risevision.common.components.logging")
               return companyState.init();
             })
             .then(function () {
-              $rootScope.$broadcast("risevision.profile.refreshed");
               deferred.resolve();
             }, deferred.reject);
 
@@ -1593,8 +1592,8 @@ angular.module("risevision.common.components.logging")
               _state);
           },
           _state: _state,
-          _setIsRiseAuthUser: function(isRiseAuthUser) {
-            _state.isRiseAuthUser = isRiseAuthUser
+          _setIsRiseAuthUser: function (isRiseAuthUser) {
+            _state.isRiseAuthUser = isRiseAuthUser;
           }
         };
 
