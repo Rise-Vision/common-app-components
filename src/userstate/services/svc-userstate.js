@@ -19,7 +19,8 @@
           user: {}, //Google user
           roleMap: {},
           userToken: rvTokenStore.read(),
-          inRVAFrame: angular.isDefined($location.search().inRVA)
+          inRVAFrame: angular.isDefined($location.search().inRVA),
+          isRiseAuthUser: false
         };
 
         var refreshProfile = function () {
@@ -117,6 +118,9 @@
           isPurchaser: function () {
             return hasRole("pu");
           },
+          isRiseAuthUser: function () {
+            return _state.isRiseAuthUser;
+          },
           isSeller: companyState.isSeller,
           isRiseVisionUser: isRiseVisionUser,
           isLoggedIn: isLoggedIn,
@@ -176,7 +180,10 @@
             localStorageService.set("risevision.common.userState",
               _state);
           },
-          _state: _state
+          _state: _state,
+          _setIsRiseAuthUser: function(isRiseAuthUser) {
+            _state.isRiseAuthUser = isRiseAuthUser
+          }
         };
 
         return userState;

@@ -47,8 +47,12 @@ describe("Services: userAuthFactory", function() {
           return "companyId";
         },
         refreshProfile: sinon.spy(function() { return Q.resolve(); }),
+        isRiseAuthUser: function() {
+          return isRiseAuthUser;
+        },
         _resetState: sinon.spy(),
-        _restoreState: function() {}
+        _restoreState: function() {},
+        _setIsRiseAuthUser: sinon.spy()
       };
     });
 
@@ -90,13 +94,14 @@ describe("Services: userAuthFactory", function() {
 
   }));
   
-  var userAuthFactory, userState, $loading, gapiLoader, gapiAuth, 
+  var userAuthFactory, userState, isRiseAuthUser, $loading, gapiLoader, gapiAuth, 
   googleAuthFactory, customAuthFactory, rvTokenStore, $broadcastSpy, 
   externalLogging, $window;
 
   beforeEach(function() {      
     inject(function($injector){
       userAuthFactory = $injector.get("userAuthFactory");
+      isRiseAuthUser = false;
 
       var $rootScope = $injector.get("$rootScope");
       $window = $injector.get("$window");
@@ -342,8 +347,28 @@ describe("Services: userAuthFactory", function() {
     it("should return a promise", function() {
       expect(userAuthFactory.signOut().then).to.be.a("function");
     });
-    
-    it("should sign out user", function(done) {
+
+    it("should sign out Rise user", function(done) {
+      isRiseAuthUser = true;
+
+      userAuthFactory.signOut().then(function() {
+        gapiLoader.should.have.been.called;
+        gapiAuth.signOut.should.not.have.been.called;
+
+        // _clearUserToken
+        expect(userState._state.userToken).to.be.null;
+        rvTokenStore.clear.should.have.been.called;
+
+        userState._resetState.should.have.been.called;
+
+        $broadcastSpy.should.have.been.calledWith("risevision.user.signedOut");
+
+        done();
+      })
+      .then(null,done);
+    });
+
+    it("should sign out Google user", function(done) {
       userAuthFactory.signOut().then(function() {
         gapiLoader.should.have.been.called;
         gapiAuth.signOut.should.have.been.called;
@@ -361,7 +386,7 @@ describe("Services: userAuthFactory", function() {
       .then(null,done);
     });
 
-    it("should log user out of their google account", function(done) {
+    it("should log user out of their Google account", function(done) {
       $window.logoutFrame = {};
       userAuthFactory.signOut(true).then(function() {
         expect($window.logoutFrame.location).to.equal("https://accounts.google.com/Logout");

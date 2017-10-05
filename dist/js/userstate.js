@@ -1106,6 +1106,7 @@ angular.module("risevision.common.components.logging")
 
         var authenticate = function (forceAuth, credentials) {
           var authenticateDeferred;
+          var isRiseAuthUser = false;
 
           // Clear User state
           if (forceAuth) {
@@ -1137,6 +1138,7 @@ angular.module("risevision.common.components.logging")
 
               // Credentials or Token provided; assume authenticated
               if (credentials || _state.userToken && _state.userToken.token) {
+                isRiseAuthUser = true;
                 authenticationPromise = customAuthFactory.authenticate(
                   credentials);
               } else {
@@ -1147,6 +1149,7 @@ angular.module("risevision.common.components.logging")
               authenticationPromise
                 .then(_authorize)
                 .then(function () {
+                  userState._setIsRiseAuthUser(isRiseAuthUser);
                   authenticateDeferred.resolve();
                 })
                 .then(null, function (err) {
@@ -1185,11 +1188,13 @@ angular.module("risevision.common.components.logging")
 
         var signOut = function (signOutGoogle) {
           return gapiLoader().then(function (gApi) {
-            if (signOutGoogle) {
-              $window.logoutFrame.location =
-                "https://accounts.google.com/Logout";
+            if (!userState.isRiseAuthUser()) {
+              if (signOutGoogle) {
+                $window.logoutFrame.location =
+                  "https://accounts.google.com/Logout";
+              }
+              gApi.auth.signOut();
             }
-            gApi.auth.signOut();
 
             _authenticateDeferred = null;
 
@@ -1426,7 +1431,8 @@ angular.module("risevision.common.components.logging")
           user: {}, //Google user
           roleMap: {},
           userToken: rvTokenStore.read(),
-          inRVAFrame: angular.isDefined($location.search().inRVA)
+          inRVAFrame: angular.isDefined($location.search().inRVA),
+          isRiseAuthUser: false
         };
 
         var refreshProfile = function () {
@@ -1524,6 +1530,9 @@ angular.module("risevision.common.components.logging")
           isPurchaser: function () {
             return hasRole("pu");
           },
+          isRiseAuthUser: function () {
+            return _state.isRiseAuthUser;
+          },
           isSeller: companyState.isSeller,
           isRiseVisionUser: isRiseVisionUser,
           isLoggedIn: isLoggedIn,
@@ -1583,7 +1592,10 @@ angular.module("risevision.common.components.logging")
             localStorageService.set("risevision.common.userState",
               _state);
           },
-          _state: _state
+          _state: _state,
+          _setIsRiseAuthUser: function(isRiseAuthUser) {
+            _state.isRiseAuthUser = isRiseAuthUser
+          }
         };
 
         return userState;
