@@ -266,12 +266,18 @@
           });
         };
 
+        var isPasswordValid = function (password) {
+          return (typeof password === "string") && password.trim().length >=
+            4;
+        };
+
         var userAuthFactory = {
           authenticate: authenticate,
           authenticatePopup: function () {
             return authenticate(true);
           },
           signOut: signOut,
+          isPasswordValid: isPasswordValid,
           addEventListenerVisibilityAPI: _addEventListenerVisibilityAPI,
           removeEventListenerVisibilityAPI: _removeEventListenerVisibilityAPI,
         };

@@ -41,10 +41,14 @@ angular.module("risevision.common.components.userstate")
         }
       };
 
+      $scope.isPasswordValid = function () {
+        return userAuthFactory.isPasswordValid($scope.credentials.password);
+      };
+
       $scope.createAccount = function (endStatus) {
         $scope.errors = {};
 
-        if ($scope.forms.loginForm.$valid) {
+        if ($scope.forms.loginForm.$valid && $scope.isPasswordValid()) {
           $loading.startGlobal("auth-buttons-login");
 
           customAuthFactory.addUser($scope.credentials)

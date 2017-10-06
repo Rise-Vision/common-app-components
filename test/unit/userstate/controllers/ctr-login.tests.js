@@ -21,6 +21,9 @@ describe("controller: Log In", function() {
           }
 
           return deferred.promise;
+        },
+        isPasswordValid: function() {
+          return true;
         }
       };
     });
@@ -65,7 +68,7 @@ describe("controller: Log In", function() {
     });
     
   }));
-  var $scope, $loading, loginSuccess, uiFlowManager, urlStateService;
+  var $scope, $loading, loginSuccess, uiFlowManager, urlStateService, userAuthFactory;
   beforeEach(function () {
     loginSuccess = false;
     
@@ -74,6 +77,7 @@ describe("controller: Log In", function() {
       
       $loading = $injector.get("$loading");
       uiFlowManager = $injector.get("uiFlowManager");
+      userAuthFactory = $injector.get("userAuthFactory");
 
       $controller("LoginCtrl", {
         $scope: $scope,
@@ -202,6 +206,14 @@ describe("controller: Log In", function() {
       $scope.forms.loginForm.$valid = false;
       $scope.createAccount("endStatus");
       
+      $loading.startGlobal.should.not.have.been.called;
+    });
+
+    it("should not submit if password is invalid", function() {
+      sinon.stub(userAuthFactory, "isPasswordValid").returns(false);
+      $scope.forms.loginForm.$valid = true;
+      $scope.createAccount("endStatus");
+
       $loading.startGlobal.should.not.have.been.called;
     });
 

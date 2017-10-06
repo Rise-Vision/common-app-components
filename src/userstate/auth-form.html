@@ -38,17 +38,20 @@
   
     <div class="form-group" ng-class="{'has-error': (forms.loginForm.$submitted && forms.loginForm.username.$invalid)}" show-errors>
       <label class="control-label">Email</label>
-      <input type="text" class="form-control" placeholder="Enter Username" id="username" name="username" ng-model="credentials.username" required focus-me="true">
+      <input type="email" class="form-control" placeholder="Enter Username" id="username" name="username" ng-model="credentials.username" required focus-me="true">
       <p class="text-danger" ng-show="forms.loginForm.$submitted && forms.loginForm.username.$invalid">
         Please enter an Email
       </p>
     </div>
 
-    <div class="form-group" ng-class="{'has-error': (forms.loginForm.$submitted && forms.loginForm.password.$invalid)}" show-errors>
+    <div class="form-group" ng-class="{'has-error': (forms.loginForm.$submitted && !isPasswordValid()), 'has-message': isPasswordValid()}" show-errors>
       <label class="control-label">Password</label>
       <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" ng-model="credentials.password" required>
-      <p class="text-danger" ng-show="forms.loginForm.$submitted && forms.loginForm.password.$invalid">
-        Please enter a Password
+      <p class="text-danger" ng-show="forms.loginForm.$submitted && !isPasswordValid()">
+        Please enter a valid Password
+      </p>
+      <p class="text-warning" ng-show="isPasswordValid()">
+        A strong password is at least 8 characters, includes uppercase/lowercase letters, and one or more numbers.
       </p>
     </div>
 
