@@ -83,7 +83,8 @@ describe("controller: Log In", function() {
         $scope: $scope,
         $state: $injector.get("$state"),
         $loading: $loading,
-        uiFlowManager: uiFlowManager
+        uiFlowManager: uiFlowManager,
+        isSignUp: false
       });
       $scope.$digest();
       

@@ -68,7 +68,12 @@
           }
         ],
         url: "/unauthorized/:state",
-        controller: "LoginCtrl"
+        controller: "LoginCtrl",
+        resolve: {
+          isSignUp: function () {
+            return false;
+          }
+        }
       })
 
       .state("common.auth.createaccount", {
@@ -83,7 +88,12 @@
           }
         ],
         url: "/createaccount/:state",
-        controller: "LoginCtrl"
+        controller: "LoginCtrl",
+        resolve: {
+          isSignUp: function () {
+            return true;
+          }
+        }
       })
 
       .state("common.auth.confirmaccount", {

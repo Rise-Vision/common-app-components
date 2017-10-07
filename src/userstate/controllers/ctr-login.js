@@ -3,12 +3,13 @@
 angular.module("risevision.common.components.userstate")
   .controller("LoginCtrl", ["$scope", "$loading", "$stateParams",
     "userAuthFactory", "customAuthFactory", "uiFlowManager",
-    "urlStateService",
+    "urlStateService", "isSignUp",
     function ($scope, $loading, $stateParams, userAuthFactory,
-      customAuthFactory, uiFlowManager, urlStateService) {
+      customAuthFactory, uiFlowManager, urlStateService, isSignUp) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
+      $scope.isSignUp = isSignUp;
 
       $scope.googleLogin = function (endStatus) {
         $loading.startGlobal("auth-buttons-login");

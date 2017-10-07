@@ -44,13 +44,13 @@
       </p>
     </div>
 
-    <div class="form-group" ng-class="{'has-error': (forms.loginForm.$submitted && !isPasswordValid()), 'has-message': isPasswordValid()}" show-errors>
+    <div class="form-group" ng-class="{'has-error': (forms.loginForm.$submitted && !isPasswordValid() && isSignUp), 'has-message': isPasswordValid() && isSignUp}" show-errors>
       <label class="control-label">Password</label>
       <input type="password" class="form-control" placeholder="Enter Password" id="password" name="password" ng-model="credentials.password" required>
-      <p class="text-danger" ng-show="forms.loginForm.$submitted && !isPasswordValid()">
+      <p class="text-danger" ng-show="forms.loginForm.$submitted && !isPasswordValid() && isSignUp">
         Please enter a valid Password
       </p>
-      <p class="text-warning" ng-show="isPasswordValid()">
+      <p class="text-warning" ng-show="isPasswordValid() && isSignUp">
         A strong password is at least 8 characters, includes uppercase/lowercase letters, and one or more numbers.
       </p>
     </div>
