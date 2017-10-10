@@ -7,7 +7,7 @@ angular.module("risevision.common.components.userstate")
       return function () {
         return userAuthFactory.authenticate(false)
           .catch(function (err) {
-            $state.go("common.auth.unauthorized", null, {
+            $state.go("common.auth.createaccount", null, {
               reload: true
             });
 

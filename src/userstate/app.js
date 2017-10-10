@@ -123,7 +123,7 @@
         ],
         url: "/resetpassword/:user/:token",
         controller: "ResetPasswordConfirmCtrl"
-      })
+      });
     }
   ])
 
