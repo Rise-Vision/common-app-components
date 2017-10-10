@@ -66,25 +66,6 @@ describe("service: access:", function() {
     });
   });
 
-  it("should reject if user is logged in but not registered",function(done){
-    authenticate = false;
-    isLoggedIn = true;
-
-    canAccessApps()
-    .then(function() {
-      done("authenticated");
-    })
-    .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.unregistered", null, {
-        reload: true
-      });
-
-      $location.replace.should.have.been.called;
-
-      done();
-    });  
-  });
-
   it("should reject if user is not authenticated",function(done){
     authenticate = false;
     isLoggedIn = false;

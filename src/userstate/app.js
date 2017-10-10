@@ -124,22 +124,6 @@
         url: "/resetpassword/:user/:token",
         controller: "ResetPasswordConfirmCtrl"
       })
-
-      .state("common.auth.unregistered", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.unregistered.final", {
-        templateProvider: ["$templateCache",
-          function ($templateCache) {
-            return $templateCache.get("userstate/signup.html");
-          }
-        ],
-        url: "/unregistered/:state",
-        controller: "SignUpCtrl"
-      });
-
     }
   ])
 

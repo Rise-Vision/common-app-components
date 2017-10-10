@@ -48,14 +48,6 @@ describe("app:", function() {
       expect(state.url).to.equal("/createaccount/:state");
       expect(state.controller).to.equal("LoginCtrl");
     });
-    
-    it("common.auth.unregistered.final", function() {
-      var state = $state.get("common.auth.unregistered.final");
-      expect(state).to.be.ok;
-      expect(state.url).to.equal("/unregistered/:state");
-      expect(state.controller).to.equal("SignUpCtrl");
-    });
-
   });
 
   describe("listeners: ", function() {

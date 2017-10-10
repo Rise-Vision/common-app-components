@@ -124,22 +124,6 @@
         url: "/resetpassword/:user/:token",
         controller: "ResetPasswordConfirmCtrl"
       })
-
-      .state("common.auth.unregistered", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.unregistered.final", {
-        templateProvider: ["$templateCache",
-          function ($templateCache) {
-            return $templateCache.get("userstate/signup.html");
-          }
-        ],
-        url: "/unregistered/:state",
-        controller: "SignUpCtrl"
-      });
-
     }
   ])
 
@@ -172,15 +156,9 @@ angular.module("risevision.common.components.userstate")
       return function () {
         return userAuthFactory.authenticate(false)
           .catch(function (err) {
-            if (userState.isLoggedIn()) {
-              $state.go("common.auth.unregistered", null, {
-                reload: true
-              });
-            } else {
-              $state.go("common.auth.unauthorized", null, {
-                reload: true
-              });
-            }
+            $state.go("common.auth.unauthorized", null, {
+              reload: true
+            });
 
             $location.replace();
             return $q.reject();
@@ -1973,24 +1951,6 @@ angular.module("risevision.common.components.userstate")
 "use strict";
 
 angular.module("risevision.common.components.userstate")
-  .controller("SignUpCtrl", ["$scope", "userAuthFactory", "uiFlowManager",
-    "$loading",
-    function ($scope, userAuthFactory, uiFlowManager, $loading) {
-
-      // Login Modal
-      $scope.login = function (endStatus) {
-        $loading.startGlobal("auth-buttons-login");
-        userAuthFactory.authenticate(true).then().finally(function () {
-          $loading.stopGlobal("auth-buttons-login");
-          uiFlowManager.invalidateStatus(endStatus);
-        });
-      };
-    }
-  ]);
-
-"use strict";
-
-angular.module("risevision.common.components.userstate")
   .controller("UrlStateCtrl", ["$state", "urlStateService",
     function ($state, urlStateService) {
       if ($state.current.name.indexOf(".final") === -1) {
@@ -2061,17 +2021,5 @@ try {
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('userstate/reset-password-confirm.html',
     '<div class="app-launcher-login"><div class="container"><div class="panel"><div class="row"><div class="col-sm-6 col-xs-12"><div class="rise-logo"><img src="https://s3.amazonaws.com/Rise-Images/Website/rise-logo.svg"></div></div><div class="col-sm-6 col-xs-12"><h1 class="u_remove-top">Password Confirmation</h1><div><div class="panel-body bg-info u_margin-lg-top" ng-show="emailResetSent"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>An email with password reset instructions has been sent to your email inbox.</span></p></div><div class="panel-body bg-danger u_margin-lg-top" ng-show="notMatchingPassword"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>New Password and Confirm Password must match.</span></p></div><div class="panel-body bg-danger u_margin-lg-top" ng-show="invalidToken"><p class="u_remove-bottom"><i class="fa fa-warning icon-left"></i> <span>The password reset token is not valid. <a href="#" ng-click="requestPasswordReset()">Request Password Reset</a></span></p></div></div><form id="resetPasswordForm" role="form" name="forms.resetPasswordForm" novalidate="" ng-show="!emailResetSent"><div class="col-md-8 col-xs-12 u_margin-md-top"><div class="form-group" ng-class="{\'has-error\': (forms.resetPasswordForm.$submitted && forms.resetPasswordForm.newPassword.$invalid)}" show-errors=""><label class="control-label">New Password</label> <input type="password" class="form-control" name="name" ng-model="credentials.newPassword" required="" focus-me="true"></div><div class="form-group" ng-class="{\'has-error\': (forms.resetPasswordForm.$submitted && forms.resetPasswordForm.confirmPassword.$invalid)}" show-errors=""><label class="control-label">Confirm Password</label> <input type="password" class="form-control" name="name" ng-model="credentials.confirmPassword" required=""></div><button id="startError" class="btn btn-primary btn-hg" ng-disabled="forms.resetPasswordForm.$invalid" ng-click="resetPassword()">Update Password</button></div></form></div></div></div></div></div>');
-}]);
-})();
-
-(function(module) {
-try {
-  module = angular.module('risevision.common.components.userstate');
-} catch (e) {
-  module = angular.module('risevision.common.components.userstate', []);
-}
-module.run(['$templateCache', function($templateCache) {
-  $templateCache.put('userstate/signup.html',
-    '<div class="app-launcher-login"><div class="container"><div class="panel"><div class="row"><div class="col-sm-4 col-xs-12"><div class="rise-logo"><img src="https://s3.amazonaws.com/Rise-Images/Website/rise-logo.svg"></div></div><div class="col-sm-8 col-xs-12"><h1 class="u_remove-top" translate="">common.signUp</h1><p class="lead text-muted" translate="">launcher.createAccount</p><button ng-controller="RegisterButtonCtrl" ng-click="register()" class="btn btn-danger btn-hg u_margin-md-bottom" translate="">common.completeRegistration</button><br><p class="text-muted u_margin-md-top"><a id="sign-in-link" href="" ng-controller="SignOutButtonCtrl" ng-click="logout()" translate="">common.signOut</a></p></div></div></div></div></div>');
 }]);
 })();
