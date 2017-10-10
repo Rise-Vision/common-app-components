@@ -21,6 +21,7 @@
 
   angular.module("risevision.common.components.userstate", [
     "ui.router",
+    "angular-md5",
     "risevision.common.components.util",
     "risevision.common.components.rvtokenstore",
     "risevision.common.components.logging",

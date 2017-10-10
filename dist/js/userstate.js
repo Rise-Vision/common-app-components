@@ -21,6 +21,7 @@
 
   angular.module("risevision.common.components.userstate", [
     "ui.router",
+    "angular-md5",
     "risevision.common.components.util",
     "risevision.common.components.rvtokenstore",
     "risevision.common.components.logging",
@@ -1432,15 +1433,15 @@ angular.module("risevision.common.components.logging")
 
   angular.module("risevision.common.components.userstate")
   // constants (you can override them in your app as needed)
-  .value("DEFAULT_PROFILE_PICTURE",
-    "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm")
+  .value("PROFILE_PICTURE_URL",
+    "https://www.gravatar.com/avatar/{emailMD5}?d=mm")
     .factory("userState", [
       "$q", "$rootScope", "$window", "$log", "$location", "userInfoCache",
       "getUserProfile", "companyState", "objectHelper",
-      "localStorageService", "rvTokenStore", "DEFAULT_PROFILE_PICTURE",
+      "localStorageService", "rvTokenStore", "md5", "PROFILE_PICTURE_URL",
       function ($q, $rootScope, $window, $log, $location, userInfoCache,
         getUserProfile, companyState, objectHelper,
-        localStorageService, rvTokenStore, DEFAULT_PROFILE_PICTURE) {
+        localStorageService, rvTokenStore, md5, PROFILE_PICTURE_URL) {
         //singleton factory that represents userState throughout application
 
         var _state = {
@@ -1513,6 +1514,13 @@ angular.module("risevision.common.components.logging")
           $log.debug("User state has been reset.");
         };
 
+        var _getEmailMD5 = function () {
+          var emailHash = userState.getUsername() && md5.createHash(
+            userState.getUsername());
+          var gravatarId = emailHash || "0";
+          return PROFILE_PICTURE_URL.replace("{emailMD5}", gravatarId);
+        };
+
         var userState = {
           // user getters
           getUsername: function () {
@@ -1529,7 +1537,7 @@ angular.module("risevision.common.components.logging")
             }
           },
           getUserPicture: function () {
-            return _state.user.picture || DEFAULT_PROFILE_PICTURE;
+            return _state.user.picture || _getEmailMD5();
           },
           hasRole: hasRole,
           inRVAFrame: function () {

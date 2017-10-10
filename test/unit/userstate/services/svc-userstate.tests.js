@@ -210,7 +210,7 @@ describe("Services: userState", function() {
     });
     
     it("getUserPicture: ", function() {
-      expect(userState.getUserPicture()).to.equal("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm");
+      expect(userState.getUserPicture()).to.equal("https://www.gravatar.com/avatar/0?d=mm");
 
       userState._state.user.picture = "userPicture.jpg";
       
