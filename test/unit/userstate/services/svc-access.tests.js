@@ -75,7 +75,7 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.unauthorized", null, {
+      $state.go.should.have.been.calledWith("common.auth.createaccount", null, {
         reload: true
       });
 
