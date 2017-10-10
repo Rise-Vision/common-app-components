@@ -2,9 +2,9 @@
 
 angular.module("risevision.common.components.userstate")
   .controller("ResetPasswordConfirmCtrl", ["$scope", "$loading", "$log",
-    "$state",
-    "$stateParams", "userauth",
-    function ($scope, $loading, $log, $state, $stateParams, userauth) {
+    "$state", "$stateParams", "userauth", "userAuthFactory",
+    function ($scope, $loading, $log, $state, $stateParams, userauth,
+      userAuthFactory) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
@@ -12,13 +12,17 @@ angular.module("risevision.common.components.userstate")
       function _resetErrorStates() {
         $scope.emailResetSent = false;
         $scope.invalidToken = false;
+        $scope.invalidPassword = false;
         $scope.notMatchingPassword = false;
       }
 
       $scope.resetPassword = function () {
         _resetErrorStates();
 
-        if ($scope.credentials.newPassword !== $scope.credentials.confirmPassword) {
+        if (!userAuthFactory.isPasswordValid($scope.credentials.newPassword)) {
+          $scope.invalidPassword = true;
+          return;
+        } else if ($scope.credentials.newPassword !== $scope.credentials.confirmPassword) {
           $scope.notMatchingPassword = true;
           return;
         }
