@@ -26,15 +26,16 @@
               });
             return deferred.promise;
           },
-          update: function (username, password) {
+          updatePassword: function (username, oldPassword, newPassword) {
             var deferred = $q.defer();
 
             var obj = {
               "username": username,
-              "password": password
+              "oldPassword": oldPassword,
+              "newPassword": newPassword
             };
             riseAPILoader().then(function (coreApi) {
-              return coreApi.userauth.update(obj);
+              return coreApi.userauth.updatePassword(obj);
             })
               .then(function (resp) {
                 $log.debug("update user credentials resp", resp);
