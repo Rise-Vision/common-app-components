@@ -28,9 +28,7 @@ angular.module("risevision.common.components.userstate")
 
           userAuthFactory.authenticate(true, $scope.credentials)
             .then(function () {
-              if ($stateParams.state) {
-                urlStateService.redirectToState($stateParams.state);
-              }
+              urlStateService.redirectToState($stateParams.state);
             })
             .then(null, function () {
               $scope.errors.loginError = true;
