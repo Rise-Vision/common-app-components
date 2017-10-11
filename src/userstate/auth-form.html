@@ -34,7 +34,7 @@
     </div>
   </div>
 
-  <div class="u_margin-sm-top">
+  <div class="u_margin-sm-top" ng-show="!errors.confirmationRequired">
   
     <div class="form-group" ng-class="{'has-error': (forms.loginForm.$submitted && forms.loginForm.username.$invalid)}" show-errors>
       <label class="control-label">Email</label>
