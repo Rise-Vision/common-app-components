@@ -1794,9 +1794,10 @@ angular.module("risevision.common.components.userstate")
 angular.module("risevision.common.components.userstate")
   .controller("LoginCtrl", ["$scope", "$loading", "$stateParams",
     "$state", "userAuthFactory", "customAuthFactory", "uiFlowManager",
-    "urlStateService", "isSignUp",
+    "urlStateService", "userState", "$window", "isSignUp",
     function ($scope, $loading, $stateParams, $state, userAuthFactory,
-      customAuthFactory, uiFlowManager, urlStateService, isSignUp) {
+      customAuthFactory, uiFlowManager, urlStateService, userState, $window,
+      isSignUp) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
@@ -1820,6 +1821,10 @@ angular.module("risevision.common.components.userstate")
           userAuthFactory.authenticate(true, $scope.credentials)
             .then(function () {
               urlStateService.redirectToState($stateParams.state);
+
+              if (!userState.isRiseVisionUser()) {
+                $window.location.reload();
+              }
             })
             .then(null, function () {
               $scope.errors.loginError = true;
