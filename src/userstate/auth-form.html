@@ -2,15 +2,15 @@
   <div>
 
     <!-- ERROR PANEL 1 -->
-    <div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.duplicateError">
+    <div class="panel-body bg-danger u_margin-sm-top" ng-show="errors.duplicateError">
       <p class="u_remove-bottom">
         <i class="fa fa-warning icon-left"></i>
         <span>This email address is already registered.  You can <a href="#" ng-click="showSignIn()">sign in </a>with this address.</span> 
       </p> 
     </div>
-              
+
     <!-- ERROR PANEL 2 -->
-    <div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.loginError">
+    <div class="panel-body bg-danger u_margin-sm-top" ng-show="errors.loginError">
       <p class="u_remove-bottom">
         <i class="fa fa-warning icon-left"></i>
         <span>Your email address/password combination is incorrect.</span> 
@@ -18,7 +18,7 @@
     </div>
 
     <!-- ERROR PANEL 3 -->
-    <div class="panel-body bg-danger u_margin-sm-top" style="display: block;" ng-show="errors.unconfirmedError">
+    <div class="panel-body bg-danger u_margin-sm-top" ng-show="errors.unconfirmedError">
       <p class="u_remove-bottom">
         <i class="fa fa-warning icon-left"></i>
         <span>Your email address has not been confirmed. <br/> <a href="#">Resend Email Confirmation</a></span> 
@@ -26,10 +26,26 @@
     </div>
 
     <!-- INFO PANEL 1 -->
-    <div class="panel-body bg-info u_margin-sm-top" style="display: block;" ng-show="errors.confirmationRequired">
+    <div class="panel-body bg-info u_margin-sm-top" ng-show="errors.confirmationRequired">
       <p class="u_remove-bottom">
         <i class="fa fa-warning icon-left"></i>
         <span>We've sent a confirmation email to {{credentials.username}}. <br/> Please check your inbox to complete your account registration.</span> 
+      </p>
+    </div>
+
+    <!-- MESSAGE PANEL 1 -->
+    <div class="panel-body bg-info u_margin-sm-top" ng-show="messages.passwordReset">
+      <p class="u_remove-bottom">
+        <i class="fa fa-warning icon-left"></i>
+        <span>Password successfully updated. <br/> Please sign in to proceed.</span>
+      </p>
+    </div>
+
+    <!-- MESSAGE PANEL 2 -->
+    <div class="panel-body bg-info u_margin-sm-top" ng-show="messages.accountConfirmed">
+      <p class="u_remove-bottom">
+        <i class="fa fa-warning icon-left"></i>
+        <span>Account successfully confirmed. <br/> Please sign in to proceed.</span>
       </p>
     </div>
   </div>

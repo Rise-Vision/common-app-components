@@ -15,7 +15,9 @@ angular.module("risevision.common.components.userstate")
         })
         .finally(function () {
           $loading.stopGlobal("auth-confirm-account");
-          $state.go("common.auth.unauthorized.final");
+          $state.go("common.auth.unauthorized.final", {
+            accountConfirmed: true
+          });
         });
     }
   ]);
