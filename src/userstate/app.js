@@ -21,6 +21,7 @@
 
   angular.module("risevision.common.components.userstate", [
     "ui.router",
+    "angular-md5",
     "risevision.common.components.util",
     "risevision.common.components.rvtokenstore",
     "risevision.common.components.logging",
@@ -68,7 +69,12 @@
           }
         ],
         url: "/unauthorized/:state",
-        controller: "LoginCtrl"
+        controller: "LoginCtrl",
+        resolve: {
+          isSignUp: function () {
+            return false;
+          }
+        }
       })
 
       .state("common.auth.createaccount", {
@@ -83,7 +89,12 @@
           }
         ],
         url: "/createaccount/:state",
-        controller: "LoginCtrl"
+        controller: "LoginCtrl",
+        resolve: {
+          isSignUp: function () {
+            return true;
+          }
+        }
       })
 
       .state("common.auth.confirmaccount", {
@@ -112,23 +123,7 @@
         ],
         url: "/resetpassword/:user/:token",
         controller: "ResetPasswordConfirmCtrl"
-      })
-
-      .state("common.auth.unregistered", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.unregistered.final", {
-        templateProvider: ["$templateCache",
-          function ($templateCache) {
-            return $templateCache.get("userstate/signup.html");
-          }
-        ],
-        url: "/unregistered/:state",
-        controller: "SignUpCtrl"
       });
-
     }
   ])
 

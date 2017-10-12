@@ -74,6 +74,7 @@
     "bower_components/ng-gapi-loader/src/js/*.js",
     "bower_components/ng-core-api-client/src/js/*.js",
     "bower_components/angular-local-storage/dist/angular-local-storage.js",
+    "bower_components/angular-md5/angular-md5.js",
     "src/config.js",
     "src/**/app.js",
     "src/**/svc-*.js",

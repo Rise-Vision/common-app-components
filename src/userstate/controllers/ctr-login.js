@@ -2,13 +2,15 @@
 
 angular.module("risevision.common.components.userstate")
   .controller("LoginCtrl", ["$scope", "$loading", "$stateParams",
-    "userAuthFactory", "customAuthFactory", "uiFlowManager",
-    "urlStateService",
-    function ($scope, $loading, $stateParams, userAuthFactory,
-      customAuthFactory, uiFlowManager, urlStateService) {
+    "$state", "userAuthFactory", "customAuthFactory", "uiFlowManager",
+    "urlStateService", "userState", "$window", "isSignUp",
+    function ($scope, $loading, $stateParams, $state, userAuthFactory,
+      customAuthFactory, uiFlowManager, urlStateService, userState, $window,
+      isSignUp) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.errors = {};
+      $scope.isSignUp = isSignUp;
 
       $scope.googleLogin = function (endStatus) {
         $loading.startGlobal("auth-buttons-login");
@@ -27,8 +29,10 @@ angular.module("risevision.common.components.userstate")
 
           userAuthFactory.authenticate(true, $scope.credentials)
             .then(function () {
-              if ($stateParams.state) {
-                urlStateService.redirectToState($stateParams.state);
+              urlStateService.redirectToState($stateParams.state);
+
+              if (!userState.isRiseVisionUser()) {
+                $window.location.reload();
               }
             })
             .then(null, function () {
@@ -41,10 +45,30 @@ angular.module("risevision.common.components.userstate")
         }
       };
 
+      $scope.isPasswordValid = function () {
+        return userAuthFactory.isPasswordValid($scope.credentials.password);
+      };
+
+      $scope.showSignUp = function () {
+        var stateString = urlStateService.get();
+
+        $state.go("common.auth.createaccount.final", {
+          state: $stateParams.state
+        });
+      };
+
+      $scope.showSignIn = function () {
+        var stateString = urlStateService.get();
+
+        $state.go("common.auth.unauthorized.final", {
+          state: $stateParams.state
+        });
+      };
+
       $scope.createAccount = function (endStatus) {
         $scope.errors = {};
 
-        if ($scope.forms.loginForm.$valid) {
+        if ($scope.forms.loginForm.$valid && $scope.isPasswordValid()) {
           $loading.startGlobal("auth-buttons-login");
 
           customAuthFactory.addUser($scope.credentials)

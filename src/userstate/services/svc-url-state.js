@@ -32,7 +32,13 @@
         };
 
         urlStateService.redirectToState = function (stateString) {
-          var state = JSON.parse(decodeURIComponent(stateString));
+          var state = {};
+
+          try {
+            state = JSON.parse(decodeURIComponent(stateString));
+          } catch (err) {
+            // Parse failed
+          }
 
           if (state.u || !$location.$$html5) { // hash found, assume non HTML5 mode
             if (state.p || state.s) { // requires redirect

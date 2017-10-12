@@ -162,6 +162,7 @@
 
         var authenticate = function (forceAuth, credentials) {
           var authenticateDeferred;
+          var isRiseAuthUser = false;
 
           // Clear User state
           if (forceAuth) {
@@ -193,6 +194,7 @@
 
               // Credentials or Token provided; assume authenticated
               if (credentials || _state.userToken && _state.userToken.token) {
+                isRiseAuthUser = true;
                 authenticationPromise = customAuthFactory.authenticate(
                   credentials);
               } else {
@@ -203,6 +205,7 @@
               authenticationPromise
                 .then(_authorize)
                 .then(function () {
+                  userState._setIsRiseAuthUser(isRiseAuthUser);
                   authenticateDeferred.resolve();
                 })
                 .then(null, function (err) {
@@ -241,11 +244,13 @@
 
         var signOut = function (signOutGoogle) {
           return gapiLoader().then(function (gApi) {
-            if (signOutGoogle) {
-              $window.logoutFrame.location =
-                "https://accounts.google.com/Logout";
+            if (!userState.isRiseAuthUser()) {
+              if (signOutGoogle) {
+                $window.logoutFrame.location =
+                  "https://accounts.google.com/Logout";
+              }
+              gApi.auth.signOut();
             }
-            gApi.auth.signOut();
 
             _authenticateDeferred = null;
 
@@ -261,12 +266,18 @@
           });
         };
 
+        var isPasswordValid = function (password) {
+          return (typeof password === "string") && password.trim().length >=
+            4;
+        };
+
         var userAuthFactory = {
           authenticate: authenticate,
           authenticatePopup: function () {
             return authenticate(true);
           },
           signOut: signOut,
+          isPasswordValid: isPasswordValid,
           addEventListenerVisibilityAPI: _addEventListenerVisibilityAPI,
           removeEventListenerVisibilityAPI: _removeEventListenerVisibilityAPI,
         };

@@ -23,10 +23,11 @@ describe("service: userauth:", function() {
                 return Q.reject("API Failed");
               }
             },
-            update: function(obj) {
+            updatePassword: function(obj) {
               expect(obj).to.be.ok;
               expect(obj.username).to.be.ok;
-              expect(obj.password).to.be.ok;
+              expect(obj.oldPassword).to.be.ok;
+              expect(obj.newPassword).to.be.ok;
 
               if (returnResult) {
                 return Q.resolve({
@@ -118,7 +119,7 @@ describe("service: userauth:", function() {
   it("should exist",function(){
     expect(userauth).to.be.ok;
     expect(userauth.add).to.be.a("function");
-    expect(userauth.update).to.be.a("function");
+    expect(userauth.updatePassword).to.be.a("function");
     expect(userauth.login).to.be.a("function");
     expect(userauth.refreshToken).to.be.a("function");
   });
@@ -149,9 +150,9 @@ describe("service: userauth:", function() {
     });
   });  
 
-  describe("update:",function(){
+  describe("update password:",function(){
     it("should update user auth",function(done){
-      userauth.update("username", "newpass")
+      userauth.updatePassword("username", "oldpass", "newpass")
         .then(function(resp){
           expect(resp).to.be.ok;
           expect(resp).to.equal("username");
@@ -163,7 +164,7 @@ describe("service: userauth:", function() {
 
     it("should handle failure to update user auth",function(done){
       returnResult = false;
-      userauth.update("username", "newpass")
+      userauth.updatePassword("username", "oldpass", "newpass")
         .then(function(resp) {
           done(resp);
         })

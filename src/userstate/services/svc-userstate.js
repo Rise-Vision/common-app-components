@@ -3,15 +3,15 @@
 
   angular.module("risevision.common.components.userstate")
   // constants (you can override them in your app as needed)
-  .value("DEFAULT_PROFILE_PICTURE",
-    "http://api.randomuser.me/portraits/med/men/33.jpg")
+  .value("PROFILE_PICTURE_URL",
+    "https://www.gravatar.com/avatar/{emailMD5}?d=mm")
     .factory("userState", [
       "$q", "$rootScope", "$window", "$log", "$location", "userInfoCache",
       "getUserProfile", "companyState", "objectHelper",
-      "localStorageService", "rvTokenStore", "DEFAULT_PROFILE_PICTURE",
+      "localStorageService", "rvTokenStore", "md5", "PROFILE_PICTURE_URL",
       function ($q, $rootScope, $window, $log, $location, userInfoCache,
         getUserProfile, companyState, objectHelper,
-        localStorageService, rvTokenStore, DEFAULT_PROFILE_PICTURE) {
+        localStorageService, rvTokenStore, md5, PROFILE_PICTURE_URL) {
         //singleton factory that represents userState throughout application
 
         var _state = {
@@ -19,7 +19,8 @@
           user: {}, //Google user
           roleMap: {},
           userToken: rvTokenStore.read(),
-          inRVAFrame: angular.isDefined($location.search().inRVA)
+          inRVAFrame: angular.isDefined($location.search().inRVA),
+          isRiseAuthUser: false
         };
 
         var refreshProfile = function () {
@@ -34,6 +35,7 @@
               return companyState.init();
             })
             .then(function () {
+              $rootScope.$broadcast("risevision.profile.refreshed");
               deferred.resolve();
             }, deferred.reject);
 
@@ -82,6 +84,13 @@
           $log.debug("User state has been reset.");
         };
 
+        var _getEmailMD5 = function () {
+          var emailHash = userState.getUsername() && md5.createHash(
+            userState.getUsername());
+          var gravatarId = emailHash || "0";
+          return PROFILE_PICTURE_URL.replace("{emailMD5}", gravatarId);
+        };
+
         var userState = {
           // user getters
           getUsername: function () {
@@ -98,7 +107,7 @@
             }
           },
           getUserPicture: function () {
-            return _state.user.picture || DEFAULT_PROFILE_PICTURE;
+            return _state.user.picture || _getEmailMD5();
           },
           hasRole: hasRole,
           inRVAFrame: function () {
@@ -115,6 +124,9 @@
           },
           isPurchaser: function () {
             return hasRole("pu");
+          },
+          isRiseAuthUser: function () {
+            return _state.isRiseAuthUser;
           },
           isSeller: companyState.isSeller,
           isRiseVisionUser: isRiseVisionUser,
@@ -175,7 +187,10 @@
             localStorageService.set("risevision.common.userState",
               _state);
           },
-          _state: _state
+          _state: _state,
+          _setIsRiseAuthUser: function (isRiseAuthUser) {
+            _state.isRiseAuthUser = isRiseAuthUser;
+          }
         };
 
         return userState;

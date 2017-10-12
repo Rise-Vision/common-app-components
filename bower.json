@@ -32,7 +32,8 @@
     "ng-gapi-loader": "https://github.com/Rise-Vision/ng-gapi-loader.git",
     "rv-loading": "https://github.com/Rise-Vision/rv-loading.git",
     "rv-common-i18n": "https://github.com/Rise-Vision/common-i18n.git",
-    "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#1.0.4"
+    "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#1.0.4",
+    "angular-md5": "^0.1.10"
   },
   "resolutions": {
     "angular": "~1.3.0",

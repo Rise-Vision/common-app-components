@@ -69,7 +69,7 @@ describe("Services: userState", function() {
   }));
   
   var userState, companyState, userMethods, companyMethods, returnResult, 
-  localStorageService, userInfoCache;
+  localStorageService, userInfoCache, $broadcastSpy;
   
   beforeEach(function() {
     returnResult = true;
@@ -91,7 +91,9 @@ describe("Services: userState", function() {
       "_restoreState", "_resetState", "_setUserToken", "_persistState"];
       
     inject(function($injector){
+      var $rootScope = $injector.get("$rootScope");
       userState = $injector.get("userState");
+      $broadcastSpy = sinon.spy($rootScope, "$broadcast");
     });
   });
 
@@ -152,6 +154,7 @@ describe("Services: userState", function() {
         .then(function(){
           companyState.init.should.have.been.called;
           userState.updateUserProfile.should.have.been.calledWith({username: "username@test.com"});
+          $broadcastSpy.should.have.been.calledWith("risevision.profile.refreshed");
 
           done();
         })
@@ -168,6 +171,7 @@ describe("Services: userState", function() {
         .then(null, function(error) {
           companyState.init.should.not.have.been.called;
           userState.updateUserProfile.should.not.have.been.called;
+          $broadcastSpy.should.not.have.been.calledWith("risevision.profile.refreshed");
 
           expect(error).to.deep.equal("Error retrieving profile");
           done();
@@ -206,7 +210,7 @@ describe("Services: userState", function() {
     });
     
     it("getUserPicture: ", function() {
-      expect(userState.getUserPicture()).to.equal("http://api.randomuser.me/portraits/med/men/33.jpg");
+      expect(userState.getUserPicture()).to.equal("https://www.gravatar.com/avatar/0?d=mm");
 
       userState._state.user.picture = "userPicture.jpg";
       
@@ -375,15 +379,6 @@ describe("Services: userState", function() {
   });
   
   describe("updateUserProfile: ", function() {
-    var $broadcastSpy;
-
-    beforeEach(function() {
-      inject(function($injector){
-        var $rootScope = $injector.get("$rootScope");
-        $broadcastSpy = sinon.spy($rootScope, "$broadcast");
-      });
-    });
-
     it("should not update if usernames don't match", function() {
       userState.checkUsername = sinon.spy(function() { return false; });
 
