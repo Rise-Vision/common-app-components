@@ -9,8 +9,12 @@ angular.module("risevision.common.components.userstate")
       isSignUp) {
       $scope.forms = {};
       $scope.credentials = {};
+      $scope.messages = {};
       $scope.errors = {};
       $scope.isSignUp = isSignUp;
+
+      $scope.messages.passwordReset = $stateParams.passwordReset;
+      $scope.messages.accountConfirmed = $stateParams.accountConfirmed;
 
       $scope.googleLogin = function (endStatus) {
         $loading.startGlobal("auth-buttons-login");

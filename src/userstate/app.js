@@ -70,6 +70,10 @@
         ],
         url: "/unauthorized/:state",
         controller: "LoginCtrl",
+        params: {
+          passwordReset: null,
+          accountConfirmed: null
+        },
         resolve: {
           isSignUp: function () {
             return false;
