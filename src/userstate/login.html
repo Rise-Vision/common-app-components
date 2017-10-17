@@ -1,51 +1,36 @@
-<div class="app-launcher-login">
-	<div class="container">
-		<div class="panel">
-			<div class="row">
-				<div class="col-sm-6 col-xs-12">
-					<div class="rise-logo"><img src="https://s3.amazonaws.com/Rise-Images/Website/rise-logo.svg"></div>
-				</div>
-				<div class="col-sm-6 col-xs-12">
-					<h1 class="u_remove-top">Sign In</h1>
-					<p class="lead text-muted">to your Rise Vision account</p>
-					
-					<!-- GOOGLE API -->
-					<div class="col-xs-12 col-md-8">
-					  <button class="btn btn-google-auth btn-hg" ng-click="googleLogin('registrationComplete')">
-					    <span>
-					      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
-					      Sign in with Google
-					    </span>
-					  </button>
-					</div>
+<h1 class="u_remove-top">Sign In</h1>
+<p class="lead text-muted">to your Rise Vision account</p>
 
-					<div class="section-divider col-xs-12 col-md-8 u_margin-md-top">				
-					  <div></div>
-					    <span>OR</span>
-					    <div></div>
-					</div>
+<!-- GOOGLE API -->
+<div class="col-xs-12 col-md-8">
+  <button class="btn btn-google-auth btn-hg" ng-click="googleLogin('registrationComplete')">
+    <span>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
+      Sign in with Google
+    </span>
+  </button>
+</div>
 
-					<!-- CUSTOM LOGIN -->
-					<div class="col-md-8 col-xs-12">
-						<div ng-include="'userstate/auth-form.html'"></div>
+<div class="section-divider col-xs-12 col-md-8 u_margin-md-top">				
+  <div></div>
+    <span>OR</span>
+    <div></div>
+</div>
 
-						<div class="form-group">
-				      <button class="btn btn-primary btn-hg" type="submit" form="forms.loginForm" ng-click="customLogin('registrationComplete')">
-				        <span translate="Sign In"></span>
-				      </button>
-				    </div>
-					</div>
+<!-- CUSTOM LOGIN -->
+<div class="col-md-8 col-xs-12">
+	<div ng-include="'userstate/auth-form.html'"></div>
 
-					<br>
+	<div class="form-group">
+    <button class="btn btn-primary btn-hg" type="submit" form="forms.loginForm" ng-click="customLogin('registrationComplete')">
+      <span translate="Sign In"></span>
+    </button>
+  </div>
+</div>
 
-					<div class="col-xs-12 u_margin-lg-top">
-						<p class="text-muted"> <a id="sign-in-link" href="#" ui-sref="common.auth.requestpasswordreset">Forgot your password?</a></p>
-						<p class="text-muted"> Don't have an account? <a id="sign-in-link" href="#" ng-click="showSignUp()">Sign up</a></p>
-					</div>
+<br>
 
-				</div><!--col-->
-			</div><!--row-->					
-		</div><!--panel-->	
-
-	</div><!--container-->
-</div><!--app-launcher-login-->
+<div class="col-xs-12 u_margin-lg-top">
+	<p class="text-muted"> <a id="sign-in-link" href="#" ui-sref="common.auth.requestpasswordreset">Forgot your password?</a></p>
+	<p class="text-muted"> Don't have an account? <a id="sign-in-link" href="#" ng-click="showSignUp()">Sign up</a></p>
+</div>

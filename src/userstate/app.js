@@ -44,7 +44,7 @@
 
       // Use $stateProvider to configure states.
       $stateProvider.state("common", {
-        template: "<div ui-view></div>"
+        template: "<div class=\"app-launcher\" ui-view></div>"
       })
 
       .state("common.googleresult", {
@@ -54,7 +54,11 @@
 
       .state("common.auth", {
         abstract: true,
-        template: "<div class=\"app-launcher\" ui-view></div>"
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get("userstate/auth-common.html");
+          }
+        ]
       })
 
       .state("common.auth.unauthorized", {

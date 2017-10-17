@@ -1,50 +1,35 @@
-<div class="app-launcher-login">
-	<div class="container">
-		<div class="panel">
-			<div class="row">
-				<div class="col-sm-6 col-xs-12">
-					<div class="rise-logo"><img src="https://s3.amazonaws.com/Rise-Images/Website/rise-logo.svg"></div>
-				</div>
-				<div class="col-sm-6 col-xs-12">
-					<h1 class="u_remove-top" >Get Started For Free</h1>					
-					<p class="lead text-muted" >No commitments or contracts</p>
+<h1 class="u_remove-top" >Get Started For Free</h1>					
+<p class="lead text-muted" >No commitments or contracts</p>
 
-					<!-- GOOGLE API -->
-					<div class="col-xs-12 col-md-8" ng-show="!errors.confirmationRequired">
-					  <button class="btn btn-google-auth btn-hg" ng-click="googleLogin('registrationComplete')">
-					    <span>
-					      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
-					      Sign up with Google
-					    </span>
-					  </button>
-					</div>
+<!-- GOOGLE API -->
+<div class="col-xs-12 col-md-8" ng-show="!errors.confirmationRequired">
+  <button class="btn btn-google-auth btn-hg" ng-click="googleLogin('registrationComplete')">
+    <span>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
+      Sign up with Google
+    </span>
+  </button>
+</div>
 
-					<div class="section-divider col-xs-12 col-md-8 u_margin-md-top" ng-show="!errors.confirmationRequired">
-					  <div></div>
-					    <span>OR</span>
-					    <div></div>
-					</div>
+<div class="section-divider col-xs-12 col-md-8 u_margin-md-top" ng-show="!errors.confirmationRequired">
+  <div></div>
+    <span>OR</span>
+    <div></div>
+</div>
 
-					<!-- CUSTOM LOGIN -->
-					<div class="col-md-8 col-xs-12">
-						<div ng-include="'userstate/auth-form.html'"></div>
+<!-- CUSTOM LOGIN -->
+<div class="col-md-8 col-xs-12">
+	<div ng-include="'userstate/auth-form.html'"></div>
 
-						<div class="form-group" ng-show="!errors.confirmationRequired">
-							<button class="btn btn-primary btn-hg" type="submit" form="forms.loginForm" ng-click="createAccount('registrationComplete')">
-								<span translate="Sign Up"></span>
-							</button>
-						</div>
-					</div>
+	<div class="form-group" ng-show="!errors.confirmationRequired">
+		<button class="btn btn-primary btn-hg" type="submit" form="forms.loginForm" ng-click="createAccount('registrationComplete')">
+			<span translate="Sign Up"></span>
+		</button>
+	</div>
+</div>
 
-					<br>
+<br>
 
-					<div class="col-xs-12 u_margin-lg-top">
-						<p class="text-muted">Already have an account? <a id="sign-in-link" href="#" ng-click="showSignIn()">Sign in</a></p>
-					</div>
-
-				</div><!--col-->
-			</div><!--row-->					
-		</div><!--panel-->	
-
-	</div><!--container-->
-</div><!--app-launcher-login-->
+<div class="col-xs-12 u_margin-lg-top">
+	<p class="text-muted">Already have an account? <a id="sign-in-link" href="#" ng-click="showSignIn()">Sign in</a></p>
+</div>
