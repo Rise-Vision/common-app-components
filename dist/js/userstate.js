@@ -62,11 +62,6 @@
       })
 
       .state("common.auth.unauthorized", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.unauthorized.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/login.html");
@@ -86,11 +81,6 @@
       })
 
       .state("common.auth.createaccount", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.createaccount.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/create-account.html");
@@ -142,6 +132,19 @@
         $state.go("common.auth.unauthorized");
       });
 
+      $rootScope.$on("$stateChangeStart", function (event, toState,
+        toParams, fromState, fromParams) {
+        if ((toState.name === "common.auth.unauthorized" ||
+          toState.name === "common.auth.unregistered" ||
+          toState.name === "common.auth.createaccount") && !toParams.state) {
+          event.preventDefault();
+
+          $state.go(toState.name, {
+            state: fromParams.state || urlStateService.get()
+          });
+        }
+      });
+
       $rootScope.$on("risevision.user.authorized", function () {
         if ($stateParams.state &&
           $state.current.name.indexOf("common.auth") !== -1) {
@@ -162,15 +165,34 @@ angular.module("risevision.common.components.userstate")
     "userState", "userAuthFactory",
     function ($q, $state, $location, userState, userAuthFactory) {
       return function () {
-        return userAuthFactory.authenticate(false)
-          .catch(function (err) {
-            $state.go("common.auth.createaccount", null, {
-              reload: true
-            });
-
-            $location.replace();
+        var deferred = $q.defer();
+        userAuthFactory.authenticate(false).then(function () {
+          if (userState.isRiseVisionUser()) {
+            deferred.resolve();
+          } else {
             return $q.reject();
+          }
+        })
+          .then(null, function () {
+            var newState;
+
+            if (!userState.isLoggedIn()) {
+              newState = "common.auth.unauthorized";
+            } else if ($state.get("common.auth.unregistered")) {
+              newState = "common.auth.unregistered";
+            }
+
+            if (newState) {
+              $state.go(newState, null, {
+                reload: true
+              });
+
+              $location.replace();
+            }
+
+            deferred.reject();
           });
+        return deferred.promise;
       };
     }
   ]);
@@ -1457,7 +1479,6 @@ angular.module("risevision.common.components.logging")
               return companyState.init();
             })
             .then(function () {
-              $rootScope.$broadcast("risevision.profile.refreshed");
               deferred.resolve();
             }, deferred.reject);
 
@@ -2041,7 +2062,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('userstate/create-account.html',
-    '<h1 class="u_remove-top">Get Started For Free</h1><p class="lead text-muted">No commitments or contracts</p><div class="col-xs-12 col-md-8" ng-show="!errors.confirmationRequired"><button class="btn btn-google-auth btn-hg" ng-click="googleLogin(\'registrationComplete\')"><span><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Sign up with Google</span></button></div><div class="section-divider col-xs-12 col-md-8 u_margin-md-top" ng-show="!errors.confirmationRequired"><div></div><span>OR</span><div></div></div><div class="col-md-8 col-xs-12"><div ng-include="\'userstate/auth-form.html\'"></div><div class="form-group" ng-show="!errors.confirmationRequired"><button class="btn btn-primary btn-hg" type="submit" form="forms.loginForm" ng-click="createAccount(\'registrationComplete\')"><span translate="Sign Up"></span></button></div></div><br><div class="col-xs-12 u_margin-lg-top"><p class="text-muted">Already have an account? <a id="sign-in-link" href="#" ng-click="showSignIn()">Sign in</a></p></div>');
+    '<h1 class="u_remove-top">Get Started For Free</h1><p class="lead text-muted">No commitments or contracts</p><div class="col-xs-12 col-md-8" ng-show="!errors.confirmationRequired"><button class="btn btn-google-auth btn-hg" ng-click="googleLogin(\'registrationComplete\')"><span><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Sign up with Google</span></button></div><div class="section-divider col-xs-12 col-md-8 u_margin-md-top" ng-show="!errors.confirmationRequired"><div></div><span>OR</span><div></div></div><div class="col-md-8 col-xs-12"><div ng-include="\'userstate/auth-form.html\'"></div><div class="form-group" ng-show="!errors.confirmationRequired"><button class="btn btn-primary btn-hg" type="submit" form="forms.loginForm" ng-click="createAccount(\'registrationComplete\')"><span translate="Sign Up"></span></button></div></div><br><div class="col-xs-12 u_margin-lg-top"><p class="text-muted">Already have an account? <a id="sign-in-link" ui-sref="common.auth.unauthorized">Sign in</a></p></div>');
 }]);
 })();
 
@@ -2053,7 +2074,7 @@ try {
 }
 module.run(['$templateCache', function($templateCache) {
   $templateCache.put('userstate/login.html',
-    '<h1 class="u_remove-top">Sign In</h1><p class="lead text-muted">to your Rise Vision account</p><div class="col-xs-12 col-md-8"><button class="btn btn-google-auth btn-hg" ng-click="googleLogin(\'registrationComplete\')"><span><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Sign in with Google</span></button></div><div class="section-divider col-xs-12 col-md-8 u_margin-md-top"><div></div><span>OR</span><div></div></div><div class="col-md-8 col-xs-12"><div ng-include="\'userstate/auth-form.html\'"></div><div class="form-group"><button class="btn btn-primary btn-hg" type="submit" form="forms.loginForm" ng-click="customLogin(\'registrationComplete\')"><span translate="Sign In"></span></button></div></div><br><div class="col-xs-12 u_margin-lg-top"><p class="text-muted"><a id="sign-in-link" href="#" ui-sref="common.auth.requestpasswordreset">Forgot your password?</a></p><p class="text-muted">Don\'t have an account? <a id="sign-in-link" href="#" ng-click="showSignUp()">Sign up</a></p></div>');
+    '<h1 class="u_remove-top">Sign In</h1><p class="lead text-muted">to your Rise Vision account</p><div class="col-xs-12 col-md-8"><button class="btn btn-google-auth btn-hg" ng-click="googleLogin(\'registrationComplete\')"><span><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"> Sign in with Google</span></button></div><div class="section-divider col-xs-12 col-md-8 u_margin-md-top"><div></div><span>OR</span><div></div></div><div class="col-md-8 col-xs-12"><div ng-include="\'userstate/auth-form.html\'"></div><div class="form-group"><button class="btn btn-primary btn-hg" type="submit" form="forms.loginForm" ng-click="customLogin(\'registrationComplete\')"><span translate="Sign In"></span></button></div></div><br><div class="col-xs-12 u_margin-lg-top"><p class="text-muted"><a id="sign-in-link" href="#" ui-sref="common.auth.requestpasswordreset">Forgot your password?</a></p><p class="text-muted">Don\'t have an account? <a id="sign-in-link" ui-sref="common.auth.createaccount">Sign up</a></p></div>');
 }]);
 })();
 

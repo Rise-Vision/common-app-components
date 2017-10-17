@@ -62,11 +62,6 @@
       })
 
       .state("common.auth.unauthorized", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.unauthorized.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/login.html");
@@ -86,11 +81,6 @@
       })
 
       .state("common.auth.createaccount", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.createaccount.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/create-account.html");
@@ -140,6 +130,19 @@
 
       $rootScope.$on("risevision.user.signedOut", function () {
         $state.go("common.auth.unauthorized");
+      });
+
+      $rootScope.$on("$stateChangeStart", function (event, toState,
+        toParams, fromState, fromParams) {
+        if ((toState.name === "common.auth.unauthorized" ||
+          toState.name === "common.auth.unregistered" ||
+          toState.name === "common.auth.createaccount") && !toParams.state) {
+          event.preventDefault();
+
+          $state.go(toState.name, {
+            state: fromParams.state || urlStateService.get()
+          });
+        }
       });
 
       $rootScope.$on("risevision.user.authorized", function () {
