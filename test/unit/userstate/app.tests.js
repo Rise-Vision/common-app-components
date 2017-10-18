@@ -102,14 +102,17 @@ describe("app:", function() {
         $state.go.should.not.have.been.called;
       });
 
-      it("should redirect and attach state variable", function() {
+      it("should redirect and attach state variable to existing params", function() {
         $rootScope.$broadcast("$stateChangeStart", {
           name: "common.auth.unauthorized"
-        }, {}, null, {});
+        }, {
+          someParam: "value"
+        }, null, {});
         
         $rootScope.$digest();
         
         $state.go.should.have.been.calledWith("common.auth.unauthorized", {
+          someParam: "value",
           state: "newState"
         });
       });

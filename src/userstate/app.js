@@ -139,11 +139,12 @@
         if (toState && (toState.name === "common.auth.unauthorized" ||
           toState.name === "common.auth.unregistered" ||
           toState.name === "common.auth.createaccount") && !toParams.state) {
+
+          toParams.state = fromParams.state || urlStateService.get();
+
           event.preventDefault();
 
-          $state.go(toState.name, {
-            state: fromParams.state || urlStateService.get()
-          });
+          $state.go(toState.name, toParams);
         }
       });
 
