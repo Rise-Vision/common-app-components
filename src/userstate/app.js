@@ -126,7 +126,9 @@
   ])
 
   .run(["$rootScope", "$state", "$stateParams", "urlStateService",
-    function ($rootScope, $state, $stateParams, urlStateService) {
+    "userState",
+    function ($rootScope, $state, $stateParams, urlStateService, userState) {
+      userState._restoreState();
 
       $rootScope.$on("risevision.user.signedOut", function () {
         $state.go("common.auth.unauthorized");

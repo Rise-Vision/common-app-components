@@ -13,7 +13,7 @@ describe("controller: Google Result", function() {
     });
     $provide.service("userState", function() {
       return userState = {
-        _restoreState: sinon.spy(),
+        _restoreState: function() {},
         _setUserToken: sinon.spy()
       };
     });
@@ -30,7 +30,6 @@ describe("controller: Google Result", function() {
   });
 
   it("should restore state and redirect", function() {
-    userState._restoreState.should.have.been.called;
     userState._setUserToken.should.have.been.calledWith({
       state: "currentState",
       access_token: "token"
