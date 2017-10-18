@@ -18,7 +18,7 @@ angular.module("risevision.common.components.userstate")
             var newState;
 
             if (!userState.isLoggedIn()) {
-              newState = "common.auth.unauthorized";
+              newState = "common.auth.createaccount";
             } else if ($state.get("common.auth.unregistered")) {
               newState = "common.auth.unregistered";
             }

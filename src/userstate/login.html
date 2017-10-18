@@ -3,7 +3,7 @@
 
 <!-- GOOGLE API -->
 <div class="col-xs-12 col-md-8">
-  <button class="btn btn-google-auth btn-hg" ng-click="googleLogin('registrationComplete')">
+  <button class="btn btn-google-auth btn-hg" id="sign-in-google-link" ng-click="googleLogin('registrationComplete')">
     <span>
       <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg">
       Sign in with Google
@@ -31,6 +31,6 @@
 <br>
 
 <div class="col-xs-12 u_margin-lg-top">
-	<p class="text-muted"> <a id="sign-in-link" href="#" ui-sref="common.auth.requestpasswordreset">Forgot your password?</a></p>
-	<p class="text-muted"> Don't have an account? <a id="sign-in-link" ui-sref="common.auth.createaccount">Sign up</a></p>
+	<p class="text-muted"> <a id="reset-password-link" ui-sref="common.auth.requestpasswordreset">Forgot your password?</a></p>
+	<p class="text-muted"> Don't have an account? <a id="sign-up-link" ui-sref="common.auth.createaccount">Sign up</a></p>
 </div>
