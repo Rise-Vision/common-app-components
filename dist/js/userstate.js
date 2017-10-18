@@ -166,13 +166,14 @@ angular.module("risevision.common.components.userstate")
     function ($q, $state, $location, userState, userAuthFactory) {
       return function () {
         var deferred = $q.defer();
-        userAuthFactory.authenticate(false).then(function () {
-          if (userState.isRiseVisionUser()) {
-            deferred.resolve();
-          } else {
-            return $q.reject();
-          }
-        })
+        userAuthFactory.authenticate(false)
+          .then(function () {
+            if (userState.isRiseVisionUser()) {
+              deferred.resolve();
+            } else {
+              return $q.reject();
+            }
+          })
           .then(null, function () {
             var newState;
 
