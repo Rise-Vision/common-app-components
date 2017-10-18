@@ -53,22 +53,6 @@ angular.module("risevision.common.components.userstate")
         return userAuthFactory.isPasswordValid($scope.credentials.password);
       };
 
-      $scope.showSignUp = function () {
-        var stateString = urlStateService.get();
-
-        $state.go("common.auth.createaccount.final", {
-          state: $stateParams.state
-        });
-      };
-
-      $scope.showSignIn = function () {
-        var stateString = urlStateService.get();
-
-        $state.go("common.auth.unauthorized.final", {
-          state: $stateParams.state
-        });
-      };
-
       $scope.createAccount = function (endStatus) {
         $scope.errors = {};
 
