@@ -5,7 +5,7 @@
     <div class="panel-body bg-danger u_margin-sm-top" ng-show="errors.duplicateError">
       <p class="u_remove-bottom">
         <i class="fa fa-warning icon-left"></i>
-        <span>This email address is already registered.  You can <a href="#" ng-click="showSignIn()">sign in </a>with this address.</span> 
+        <span>This email address is already registered.  You can <a href="#" ng-click="showSignIn()">sign in</a> with this address.</span> 
       </p> 
     </div>
 
@@ -54,7 +54,7 @@
   
     <div class="form-group" ng-class="{'has-error': (forms.loginForm.$submitted && forms.loginForm.username.$invalid)}" show-errors>
       <label class="control-label">Email</label>
-      <input type="email" class="form-control" placeholder="Enter Username" id="username" name="username" ng-model="credentials.username" required focus-me="true">
+      <input type="email" class="form-control" placeholder="Enter Your Email Address" id="username" name="username" ng-model="credentials.username" required focus-me="true">
       <p class="text-danger" ng-show="forms.loginForm.$submitted && forms.loginForm.username.$invalid">
         Please enter an Email
       </p>

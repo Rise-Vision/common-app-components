@@ -3,9 +3,9 @@
 angular.module("risevision.common.components.userstate")
   .controller("LoginCtrl", ["$scope", "$loading", "$stateParams",
     "$state", "userAuthFactory", "customAuthFactory", "uiFlowManager",
-    "urlStateService", "userState", "$window", "isSignUp",
+    "urlStateService", "userState", "isSignUp",
     function ($scope, $loading, $stateParams, $state, userAuthFactory,
-      customAuthFactory, uiFlowManager, urlStateService, userState, $window,
+      customAuthFactory, uiFlowManager, urlStateService, userState,
       isSignUp) {
       $scope.forms = {};
       $scope.credentials = {};
@@ -34,10 +34,6 @@ angular.module("risevision.common.components.userstate")
           userAuthFactory.authenticate(true, $scope.credentials)
             .then(function () {
               urlStateService.redirectToState($stateParams.state);
-
-              if (!userState.isRiseVisionUser()) {
-                $window.location.reload();
-              }
             })
             .then(null, function () {
               $scope.errors.loginError = true;
@@ -51,22 +47,6 @@ angular.module("risevision.common.components.userstate")
 
       $scope.isPasswordValid = function () {
         return userAuthFactory.isPasswordValid($scope.credentials.password);
-      };
-
-      $scope.showSignUp = function () {
-        var stateString = urlStateService.get();
-
-        $state.go("common.auth.createaccount.final", {
-          state: $stateParams.state
-        });
-      };
-
-      $scope.showSignIn = function () {
-        var stateString = urlStateService.get();
-
-        $state.go("common.auth.unauthorized.final", {
-          state: $stateParams.state
-        });
       };
 
       $scope.createAccount = function (endStatus) {

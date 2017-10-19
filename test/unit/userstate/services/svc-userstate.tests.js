@@ -154,7 +154,6 @@ describe("Services: userState", function() {
         .then(function(){
           companyState.init.should.have.been.called;
           userState.updateUserProfile.should.have.been.calledWith({username: "username@test.com"});
-          $broadcastSpy.should.have.been.calledWith("risevision.profile.refreshed");
 
           done();
         })
@@ -171,7 +170,6 @@ describe("Services: userState", function() {
         .then(null, function(error) {
           companyState.init.should.not.have.been.called;
           userState.updateUserProfile.should.not.have.been.called;
-          $broadcastSpy.should.not.have.been.calledWith("risevision.profile.refreshed");
 
           expect(error).to.deep.equal("Error retrieving profile");
           done();

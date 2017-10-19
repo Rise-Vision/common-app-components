@@ -22,6 +22,9 @@ describe("service: access:", function() {
     });
     $provide.service("userState",function(){
       return {
+        isRiseVisionUser : function(){
+          return isRiseVisionUser;
+        },
         isLoggedIn: function() {
           return isLoggedIn;
         },
@@ -31,7 +34,10 @@ describe("service: access:", function() {
     });
     $provide.service("$state", function() {
       return $state = {
-        go: sinon.spy()
+        go: sinon.spy(),
+        get: sinon.spy(function() {
+          return true;
+        })
       };
     });
     $provide.service("$location", function() {
@@ -39,10 +45,18 @@ describe("service: access:", function() {
         replace: sinon.spy()
       };
     });
+    $provide.service("urlStateService", function() {
+      return {
+        get: function() {
+          return "newState";
+        }
+      };
+    });
   }));
-
-  var canAccessApps, $location, $state, authenticate, isLoggedIn;
+  
+  var canAccessApps, $location, $state, authenticate, isRiseVisionUser, isLoggedIn;
   beforeEach(function(){
+    isRiseVisionUser = true;
     authenticate = true;
     isLoggedIn = true;
 
@@ -56,7 +70,7 @@ describe("service: access:", function() {
     expect(canAccessApps).to.be.a("function");
   });
 
-  it("should return resolve if authenticated",function(done){
+  it("should resolve if authenticated",function(done){
     canAccessApps()
     .then(function(){
       done();
@@ -65,17 +79,20 @@ describe("service: access:", function() {
       done("error");
     });
   });
-
-  it("should reject if user is not authenticated",function(done){
-    authenticate = false;
-    isLoggedIn = false;
+  
+  it("should reject if user is not Rise Vision User",function(done){
+    isRiseVisionUser = false;
+    authenticate = true;
+    isLoggedIn = true;
 
     canAccessApps()
     .then(function() {
       done("authenticated");
     })
     .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.createaccount", null, {
+      $state.go.should.have.been.calledWith("common.auth.unregistered", {
+        state: "newState"
+      }, {
         reload: true
       });
 
@@ -84,4 +101,49 @@ describe("service: access:", function() {
       done();
     });  
   });
+  
+  it("should reject if user is not Rise Vision User",function(done){
+    isRiseVisionUser = false;
+    authenticate = true;
+    isLoggedIn = false;
+
+    canAccessApps()
+    .then(function() {
+      done("authenticated");
+    })
+    .then(null, function() {
+      $state.go.should.have.been.calledWith("common.auth.createaccount", {
+        state: "newState"
+      }, {
+        reload: true
+      });
+
+      $location.replace.should.have.been.called;
+
+      done();
+    });
+  });
+  
+  it("should reject if user is not authenticated",function(done){
+    isRiseVisionUser = true;
+    authenticate = false;
+    isLoggedIn = false;
+
+    canAccessApps()
+    .then(function() {
+      done("authenticated");
+    })
+    .then(null, function() {
+      $state.go.should.have.been.calledWith("common.auth.createaccount", {
+        state: "newState"
+      }, {
+        reload: true
+      });
+
+      $location.replace.should.have.been.called;
+
+      done();
+    });  
+  });
+
 });

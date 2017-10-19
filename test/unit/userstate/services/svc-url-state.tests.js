@@ -24,7 +24,8 @@ describe("Services: urlStateService", function() {
     });
     $provide.service("userState", function() {
       return userState = {
-        _persistState: sinon.spy()
+        _persistState: sinon.spy(),
+        _restoreState: function() {}
       };
     });
   }));

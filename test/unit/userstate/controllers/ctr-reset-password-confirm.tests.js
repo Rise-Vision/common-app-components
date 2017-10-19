@@ -64,7 +64,7 @@ describe("controller: Reset Password Confirm", function() {
 
       setTimeout(function() {
         expect(userauth.resetPassword).to.have.been.calledWith("username", "token", "password1");
-        expect($state.go).to.have.been.calledWith("common.auth.unauthorized.final");
+        expect($state.go).to.have.been.calledWith("common.auth.unauthorized");
         expect($scope.notMatchingPassword).to.be.false;
         expect($scope.invalidToken).to.be.false;
         expect($loading.startGlobal).to.have.been.called;

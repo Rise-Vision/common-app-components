@@ -44,7 +44,7 @@
 
       // Use $stateProvider to configure states.
       $stateProvider.state("common", {
-        template: "<div ui-view></div>"
+        template: "<div class=\"app-launcher\" ui-view></div>"
       })
 
       .state("common.googleresult", {
@@ -52,17 +52,21 @@
         controller: "GoogleResultCtrl"
       })
 
+      .state("common.googleresult2", {
+        url: "/access_token=:access_token&token_type=:token_type&expires_in=:expires_in",
+        controller: "GoogleResultCtrl"
+      })
+
       .state("common.auth", {
         abstract: true,
-        template: "<div class=\"app-launcher\" ui-view></div>"
+        templateProvider: ["$templateCache",
+          function ($templateCache) {
+            return $templateCache.get("userstate/auth-common.html");
+          }
+        ]
       })
 
       .state("common.auth.unauthorized", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.unauthorized.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/login.html");
@@ -82,11 +86,6 @@
       })
 
       .state("common.auth.createaccount", {
-        controller: "UrlStateCtrl",
-        template: "<div ui-view></div>"
-      })
-
-      .state("common.auth.createaccount.final", {
         templateProvider: ["$templateCache",
           function ($templateCache) {
             return $templateCache.get("userstate/create-account.html");
@@ -132,15 +131,32 @@
   ])
 
   .run(["$rootScope", "$state", "$stateParams", "urlStateService",
-    function ($rootScope, $state, $stateParams, urlStateService) {
+    "userState",
+    function ($rootScope, $state, $stateParams, urlStateService, userState) {
+      userState._restoreState();
 
       $rootScope.$on("risevision.user.signedOut", function () {
         $state.go("common.auth.unauthorized");
       });
 
+      $rootScope.$on("$stateChangeStart", function (event, toState,
+        toParams, fromState, fromParams) {
+        if (toState && (toState.name === "common.auth.unauthorized" ||
+          toState.name === "common.auth.unregistered" ||
+          toState.name === "common.auth.createaccount") && !toParams.state) {
+
+          if (fromParams.state) {
+            toParams.state = fromParams.state;
+
+            event.preventDefault();
+
+            $state.go(toState.name, toParams);
+          }
+        }
+      });
+
       $rootScope.$on("risevision.user.authorized", function () {
-        if ($stateParams.state &&
-          $state.current.name.indexOf("common.auth") !== -1) {
+        if ($state.current.name.indexOf("common.auth") !== -1) {
           urlStateService.redirectToState($stateParams.state);
         }
       });

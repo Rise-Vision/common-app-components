@@ -79,8 +79,6 @@ describe("controller: Log In", function() {
       uiFlowManager = $injector.get("uiFlowManager");
       userAuthFactory = $injector.get("userAuthFactory");
 
-      sinon.stub($injector.get("$window").location, "reload");
-
       $controller("LoginCtrl", {
         $scope: $scope,
         $state: $injector.get("$state"),

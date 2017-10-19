@@ -24,26 +24,22 @@ describe("app:", function() {
       expect(state.controller).to.equal("GoogleResultCtrl");
     });
     
-    it("auth states should be proxied", function() {
-      ["common.auth.unauthorized", "common.auth.createaccount",
-        "common.auth.unregistered"].forEach(function(stateName) {
-        var state = $state.get("common.auth.unauthorized");
-        expect(state).to.be.ok;
-        expect(state.url).to.not.be.ok;
-        expect(state.controller).to.equal("UrlStateCtrl");
-        expect(state.template).to.be.ok;
-      });
+    it("common.googleresult2", function() {
+      var state = $state.get("common.googleresult2");
+      expect(state).to.be.ok;
+      expect(state.url).to.equal("/access_token=:access_token&token_type=:token_type&expires_in=:expires_in");
+      expect(state.controller).to.equal("GoogleResultCtrl");
     });
-
-    it("common.auth.unauthorized.final", function() {
-      var state = $state.get("common.auth.unauthorized.final");
+    
+    it("common.auth.unauthorized", function() {
+      var state = $state.get("common.auth.unauthorized");
       expect(state).to.be.ok;
       expect(state.url).to.equal("/unauthorized/:state");
       expect(state.controller).to.equal("LoginCtrl");
     });
     
-    it("common.auth.createaccount.final", function() {
-      var state = $state.get("common.auth.createaccount.final");
+    it("common.auth.createaccount", function() {
+      var state = $state.get("common.auth.createaccount");
       expect(state).to.be.ok;
       expect(state.url).to.equal("/createaccount/:state");
       expect(state.controller).to.equal("LoginCtrl");
@@ -54,6 +50,7 @@ describe("app:", function() {
     it("should register", function() {
       expect($rootScope.$$listeners["risevision.user.signedOut"]).to.be.ok;
       expect($rootScope.$$listeners["risevision.user.authorized"]).to.be.ok;
+      expect($rootScope.$$listeners["$stateChangeStart"]).to.be.ok;
     });
 
     it("should forward user to signout page", function() {
@@ -70,20 +67,125 @@ describe("app:", function() {
       expect($state.current.name).to.equal("common.auth.unauthorized");
     });
 
-    it("should restore previous state after authentication", function() {
-      $state.go("common.auth.unauthorized.final", {
-        state: "stateString"
+    describe("common.auth.unauthorized", function() {
+      it("should restore previous state after authentication", function() {
+        $state.go("common.auth.unauthorized", {
+          state: "stateString"
+        });
+        
+        $rootScope.$digest();
+        
+        expect($state.current.name).to.equal("common.auth.unauthorized");
+
+        $rootScope.$broadcast("risevision.user.authorized");
+        
+        $rootScope.$digest();
+        
+        urlStateService.redirectToState.should.have.been.calledWith("stateString");
       });
       
-      $rootScope.$digest();
-      
-      expect($state.current.name).to.equal("common.auth.unauthorized.final");
+      it("should go to blank state after authentication", function() {
+        $state.go("common.auth.unauthorized", {});
+        
+        $rootScope.$digest();
+        
+        expect($state.current.name).to.equal("common.auth.unauthorized");
 
-      $rootScope.$broadcast("risevision.user.authorized");
+        $rootScope.$broadcast("risevision.user.authorized");
+        
+        $rootScope.$digest();
+        
+        urlStateService.redirectToState.should.have.been.called;
+      });      
+    });
+
+    describe("$stateChangeStart", function() {
+      beforeEach(function() {
+        sinon.stub($state, "go");
+      });
+
+      it("should not redirect for null state", function() {
+        $rootScope.$broadcast("$stateChangeStart", {});
+        
+        $rootScope.$digest();
+        
+        $state.go.should.not.have.been.called;
+      });
+
+      it("should not redirect for random state", function() {
+        $rootScope.$broadcast("$stateChangeStart", {
+          name: "common.auth.randomState"
+        });
+        
+        $rootScope.$digest();
+        
+        $state.go.should.not.have.been.called;
+      });
+
+      it("should redirect and use existing state variable", function() {
+        $rootScope.$broadcast("$stateChangeStart", {
+          name: "common.auth.unauthorized"
+        }, {}, null, {
+          state: "existingState"
+        });
+        
+        $rootScope.$digest();
+        
+        $state.go.should.have.been.calledWith("common.auth.unauthorized", {
+          state: "existingState"
+        });
+      });
       
-      $rootScope.$digest();
-      
-      urlStateService.redirectToState.should.have.been.calledWith("stateString");
+      it("should not redirect if state variable exists", function() {
+        $rootScope.$broadcast("$stateChangeStart", {
+          name: "common.auth.unauthorized"
+        }, {
+          state: "existingState"
+        }, null, {});
+        
+        $rootScope.$digest();
+        
+        $state.go.should.not.have.been.called;
+      });
+
+      it("should not redirect if existing state isn't there", function() {
+        $rootScope.$broadcast("$stateChangeStart", {
+          name: "common.auth.unregistered"
+        }, {}, null, {});
+
+        $rootScope.$digest();
+        
+        $state.go.should.not.have.been.called;
+      });      
+
+      it("should redirect for unregistered state", function() {
+        $rootScope.$broadcast("$stateChangeStart", {
+          name: "common.auth.unregistered"
+        }, {}, null, {
+          state: "existingState"
+        });
+        
+        $rootScope.$digest();
+        
+        $state.go.should.have.been.calledWith("common.auth.unregistered", {
+          state: "existingState"
+        });
+      });
+
+      it("should redirect for createaccount state", function() {
+        $rootScope.$broadcast("$stateChangeStart", {
+          name: "common.auth.createaccount"
+        }, {}, null, {
+          state: "existingState"
+        });
+        
+        $rootScope.$digest();
+        
+        $state.go.should.have.been.calledWith("common.auth.createaccount", {
+          state: "existingState"
+        });
+      });
+
     });
   });
     

@@ -32,7 +32,7 @@ angular.module("risevision.common.components.userstate")
           .newPassword)
           .then(function () {
             $log.log("Password updated");
-            $state.go("common.auth.unauthorized.final", {
+            $state.go("common.auth.unauthorized", {
               passwordReset: true
             });
           })
