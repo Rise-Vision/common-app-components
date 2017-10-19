@@ -52,6 +52,11 @@
         controller: "GoogleResultCtrl"
       })
 
+      .state("common.googleresult2", {
+        url: "/access_token=:access_token&token_type=:token_type&expires_in=:expires_in",
+        controller: "GoogleResultCtrl"
+      })
+
       .state("common.auth", {
         abstract: true,
         templateProvider: ["$templateCache",
@@ -140,17 +145,18 @@
           toState.name === "common.auth.unregistered" ||
           toState.name === "common.auth.createaccount") && !toParams.state) {
 
-          toParams.state = fromParams.state || urlStateService.get();
+          if (fromParams.state) {
+            toParams.state = fromParams.state;
 
-          event.preventDefault();
+            event.preventDefault();
 
-          $state.go(toState.name, toParams);
+            $state.go(toState.name, toParams);
+          }
         }
       });
 
       $rootScope.$on("risevision.user.authorized", function () {
-        if ($stateParams.state &&
-          $state.current.name.indexOf("common.auth") !== -1) {
+        if ($state.current.name.indexOf("common.auth") !== -1) {
           urlStateService.redirectToState($stateParams.state);
         }
       });

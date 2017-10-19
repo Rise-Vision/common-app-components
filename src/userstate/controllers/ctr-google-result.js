@@ -10,9 +10,7 @@ angular.module("risevision.common.components.userstate")
 
       if ($stateParams.access_token) {
         userState._setUserToken($stateParams);
-      }
 
-      if ($stateParams.state) {
         urlStateService.redirectToState($stateParams.state);
       }
     }

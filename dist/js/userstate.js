@@ -52,6 +52,11 @@
         controller: "GoogleResultCtrl"
       })
 
+      .state("common.googleresult2", {
+        url: "/access_token=:access_token&token_type=:token_type&expires_in=:expires_in",
+        controller: "GoogleResultCtrl"
+      })
+
       .state("common.auth", {
         abstract: true,
         templateProvider: ["$templateCache",
@@ -140,17 +145,18 @@
           toState.name === "common.auth.unregistered" ||
           toState.name === "common.auth.createaccount") && !toParams.state) {
 
-          toParams.state = fromParams.state || urlStateService.get();
+          if (fromParams.state) {
+            toParams.state = fromParams.state;
 
-          event.preventDefault();
+            event.preventDefault();
 
-          $state.go(toState.name, toParams);
+            $state.go(toState.name, toParams);
+          }
         }
       });
 
       $rootScope.$on("risevision.user.authorized", function () {
-        if ($stateParams.state &&
-          $state.current.name.indexOf("common.auth") !== -1) {
+        if ($state.current.name.indexOf("common.auth") !== -1) {
           urlStateService.redirectToState($stateParams.state);
         }
       });
@@ -165,8 +171,9 @@
 
 angular.module("risevision.common.components.userstate")
   .factory("canAccessApps", ["$q", "$state", "$location",
-    "userState", "userAuthFactory",
-    function ($q, $state, $location, userState, userAuthFactory) {
+    "userState", "userAuthFactory", "urlStateService",
+    function ($q, $state, $location, userState, userAuthFactory,
+      urlStateService) {
       return function () {
         var deferred = $q.defer();
         userAuthFactory.authenticate(false)
@@ -187,7 +194,9 @@ angular.module("risevision.common.components.userstate")
             }
 
             if (newState) {
-              $state.go(newState, null, {
+              $state.go(newState, {
+                state: urlStateService.get()
+              }, {
                 reload: true
               });
 
@@ -1815,9 +1824,7 @@ angular.module("risevision.common.components.userstate")
 
       if ($stateParams.access_token) {
         userState._setUserToken($stateParams);
-      }
 
-      if ($stateParams.state) {
         urlStateService.redirectToState($stateParams.state);
       }
     }
@@ -1828,9 +1835,9 @@ angular.module("risevision.common.components.userstate")
 angular.module("risevision.common.components.userstate")
   .controller("LoginCtrl", ["$scope", "$loading", "$stateParams",
     "$state", "userAuthFactory", "customAuthFactory", "uiFlowManager",
-    "urlStateService", "userState", "$window", "isSignUp",
+    "urlStateService", "userState", "isSignUp",
     function ($scope, $loading, $stateParams, $state, userAuthFactory,
-      customAuthFactory, uiFlowManager, urlStateService, userState, $window,
+      customAuthFactory, uiFlowManager, urlStateService, userState,
       isSignUp) {
       $scope.forms = {};
       $scope.credentials = {};
@@ -1859,10 +1866,6 @@ angular.module("risevision.common.components.userstate")
           userAuthFactory.authenticate(true, $scope.credentials)
             .then(function () {
               urlStateService.redirectToState($stateParams.state);
-
-              if (!userState.isRiseVisionUser()) {
-                $window.location.reload();
-              }
             })
             .then(null, function () {
               $scope.errors.loginError = true;

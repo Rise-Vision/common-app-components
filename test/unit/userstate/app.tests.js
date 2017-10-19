@@ -10,9 +10,6 @@ describe("app:", function() {
       urlStateService = $injector.get("urlStateService");
       
       sinon.stub(urlStateService, "redirectToState");
-      sinon.stub(urlStateService, "get", function() {
-        return "newState";
-      });
     });
   });
 
@@ -24,6 +21,13 @@ describe("app:", function() {
       var state = $state.get("common.googleresult");
       expect(state).to.be.ok;
       expect(state.url).to.equal("/state=:state&access_token=:access_token&token_type=:token_type&expires_in=:expires_in");
+      expect(state.controller).to.equal("GoogleResultCtrl");
+    });
+    
+    it("common.googleresult2", function() {
+      var state = $state.get("common.googleresult2");
+      expect(state).to.be.ok;
+      expect(state.url).to.equal("/access_token=:access_token&token_type=:token_type&expires_in=:expires_in");
       expect(state.controller).to.equal("GoogleResultCtrl");
     });
     
@@ -63,20 +67,36 @@ describe("app:", function() {
       expect($state.current.name).to.equal("common.auth.unauthorized");
     });
 
-    it("should restore previous state after authentication", function() {
-      $state.go("common.auth.unauthorized", {
-        state: "stateString"
+    describe("common.auth.unauthorized", function() {
+      it("should restore previous state after authentication", function() {
+        $state.go("common.auth.unauthorized", {
+          state: "stateString"
+        });
+        
+        $rootScope.$digest();
+        
+        expect($state.current.name).to.equal("common.auth.unauthorized");
+
+        $rootScope.$broadcast("risevision.user.authorized");
+        
+        $rootScope.$digest();
+        
+        urlStateService.redirectToState.should.have.been.calledWith("stateString");
       });
       
-      $rootScope.$digest();
-      
-      expect($state.current.name).to.equal("common.auth.unauthorized");
+      it("should go to blank state after authentication", function() {
+        $state.go("common.auth.unauthorized", {});
+        
+        $rootScope.$digest();
+        
+        expect($state.current.name).to.equal("common.auth.unauthorized");
 
-      $rootScope.$broadcast("risevision.user.authorized");
-      
-      $rootScope.$digest();
-      
-      urlStateService.redirectToState.should.have.been.calledWith("stateString");
+        $rootScope.$broadcast("risevision.user.authorized");
+        
+        $rootScope.$digest();
+        
+        urlStateService.redirectToState.should.have.been.called;
+      });      
     });
 
     describe("$stateChangeStart", function() {
@@ -100,21 +120,6 @@ describe("app:", function() {
         $rootScope.$digest();
         
         $state.go.should.not.have.been.called;
-      });
-
-      it("should redirect and attach state variable to existing params", function() {
-        $rootScope.$broadcast("$stateChangeStart", {
-          name: "common.auth.unauthorized"
-        }, {
-          someParam: "value"
-        }, null, {});
-        
-        $rootScope.$digest();
-        
-        $state.go.should.have.been.calledWith("common.auth.unauthorized", {
-          someParam: "value",
-          state: "newState"
-        });
       });
 
       it("should redirect and use existing state variable", function() {
@@ -142,28 +147,42 @@ describe("app:", function() {
         
         $state.go.should.not.have.been.called;
       });
-      
-      it("should redirect for unregistered state", function() {
+
+      it("should not redirect if existing state isn't there", function() {
         $rootScope.$broadcast("$stateChangeStart", {
           name: "common.auth.unregistered"
         }, {}, null, {});
+
+        $rootScope.$digest();
+        
+        $state.go.should.not.have.been.called;
+      });      
+
+      it("should redirect for unregistered state", function() {
+        $rootScope.$broadcast("$stateChangeStart", {
+          name: "common.auth.unregistered"
+        }, {}, null, {
+          state: "existingState"
+        });
         
         $rootScope.$digest();
         
         $state.go.should.have.been.calledWith("common.auth.unregistered", {
-          state: "newState"
+          state: "existingState"
         });
       });
 
       it("should redirect for createaccount state", function() {
         $rootScope.$broadcast("$stateChangeStart", {
           name: "common.auth.createaccount"
-        }, {}, null, {});
+        }, {}, null, {
+          state: "existingState"
+        });
         
         $rootScope.$digest();
         
         $state.go.should.have.been.calledWith("common.auth.createaccount", {
-          state: "newState"
+          state: "existingState"
         });
       });
 

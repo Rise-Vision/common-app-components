@@ -45,6 +45,13 @@ describe("service: access:", function() {
         replace: sinon.spy()
       };
     });
+    $provide.service("urlStateService", function() {
+      return {
+        get: function() {
+          return "newState";
+        }
+      };
+    });
   }));
   
   var canAccessApps, $location, $state, authenticate, isRiseVisionUser, isLoggedIn;
@@ -83,7 +90,9 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.unregistered", null, {
+      $state.go.should.have.been.calledWith("common.auth.unregistered", {
+        state: "newState"
+      }, {
         reload: true
       });
 
@@ -103,7 +112,9 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.createaccount", null, {
+      $state.go.should.have.been.calledWith("common.auth.createaccount", {
+        state: "newState"
+      }, {
         reload: true
       });
 
@@ -123,7 +134,9 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.createaccount", null, {
+      $state.go.should.have.been.calledWith("common.auth.createaccount", {
+        state: "newState"
+      }, {
         reload: true
       });
 

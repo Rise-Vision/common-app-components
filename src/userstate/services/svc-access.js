@@ -2,8 +2,9 @@
 
 angular.module("risevision.common.components.userstate")
   .factory("canAccessApps", ["$q", "$state", "$location",
-    "userState", "userAuthFactory",
-    function ($q, $state, $location, userState, userAuthFactory) {
+    "userState", "userAuthFactory", "urlStateService",
+    function ($q, $state, $location, userState, userAuthFactory,
+      urlStateService) {
       return function () {
         var deferred = $q.defer();
         userAuthFactory.authenticate(false)
@@ -24,7 +25,9 @@ angular.module("risevision.common.components.userstate")
             }
 
             if (newState) {
-              $state.go(newState, null, {
+              $state.go(newState, {
+                state: urlStateService.get()
+              }, {
                 reload: true
               });
 
