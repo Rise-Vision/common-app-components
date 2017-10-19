@@ -87,6 +87,11 @@ describe("Services: googleAuthFactory", function() {
         return deferred.promise;
       };
     });
+    $provide.value("$rootScope", {
+      redirectToRoot: true,
+      $on: function() {},
+      $broadcast: function() {}
+    });
   }));
   
   var googleAuthFactory, userState, $http, $window, inRVAFrame,
