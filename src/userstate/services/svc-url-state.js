@@ -53,6 +53,7 @@
             }
           } else { // HTML5 mode
             state.p = state.p || "/";
+            state.s = state.s || "";
             $location.url(state.p + state.s);
             $location.replace();
           }
