@@ -36,7 +36,7 @@ describe("service: access:", function() {
       return $state = {
         go: sinon.spy(),
         get: sinon.spy(function() {
-          return true;
+          return stateAvailable;
         })
       };
     });
@@ -54,11 +54,12 @@ describe("service: access:", function() {
     });
   }));
   
-  var canAccessApps, $location, $state, authenticate, isRiseVisionUser, isLoggedIn;
+  var canAccessApps, $location, $state, stateAvailable, authenticate, isRiseVisionUser, isLoggedIn;
   beforeEach(function(){
     isRiseVisionUser = true;
     authenticate = true;
     isLoggedIn = true;
+    stateAvailable = true;
 
     inject(function($injector){
       canAccessApps = $injector.get("canAccessApps");
@@ -99,6 +100,47 @@ describe("service: access:", function() {
       $location.replace.should.have.been.called;
 
       done();
+    });  
+  });
+  
+  it("should not replace location if we want to allowReturn to the original page",function(done){
+    isRiseVisionUser = false;
+    authenticate = true;
+    isLoggedIn = true;
+
+    canAccessApps(undefined, true)
+    .then(function() {
+      done("authenticated");
+    })
+    .then(null, function() {
+      $state.go.should.have.been.calledWith("common.auth.unregistered", {
+        state: "newState"
+      }, {
+        reload: true
+      });
+
+      $location.replace.should.not.have.been.called;
+
+      done();
+    });  
+  });
+  
+  it("should resolve and not redirect if unregistered state is not available",function(done){
+    isRiseVisionUser = false;
+    authenticate = true;
+    isLoggedIn = true;
+    stateAvailable = false;
+
+    canAccessApps()
+    .then(function() {
+      $state.go.should.not.have.been.called;
+
+      $location.replace.should.not.have.been.called;
+
+      done();
+    })
+    .then(null, function() {
+      done("error")
     });  
   });
   
@@ -143,7 +185,29 @@ describe("service: access:", function() {
       $location.replace.should.have.been.called;
 
       done();
-    });  
+    });
+  });
+  
+  it("should redirect to login page if authenticate is true",function(done){
+    isRiseVisionUser = true;
+    authenticate = false;
+    isLoggedIn = false;
+
+    canAccessApps(true)
+    .then(function() {
+      done("authenticated");
+    })
+    .then(null, function() {
+      $state.go.should.have.been.calledWith("common.auth.unauthorized", {
+        state: "newState"
+      }, {
+        reload: true
+      });
+
+      $location.replace.should.have.been.called;
+
+      done();
+    });
   });
 
 });

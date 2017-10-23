@@ -48,23 +48,8 @@ describe("app:", function() {
 
   describe("listeners: ", function() {
     it("should register", function() {
-      expect($rootScope.$$listeners["risevision.user.signedOut"]).to.be.ok;
       expect($rootScope.$$listeners["risevision.user.authorized"]).to.be.ok;
       expect($rootScope.$$listeners["$stateChangeStart"]).to.be.ok;
-    });
-
-    it("should forward user to signout page", function() {
-      $state.go("common.googleresult");
-      
-      $rootScope.$digest();
-      
-      expect($state.current.name).to.equal("common.googleresult");
-      
-      $rootScope.$broadcast("risevision.user.signedOut");
-      
-      $rootScope.$digest();
-
-      expect($state.current.name).to.equal("common.auth.unauthorized");
     });
 
     describe("common.auth.unauthorized", function() {

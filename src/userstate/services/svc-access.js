@@ -5,7 +5,7 @@ angular.module("risevision.common.components.userstate")
     "userState", "userAuthFactory", "urlStateService",
     function ($q, $state, $location, userState, userAuthFactory,
       urlStateService) {
-      return function () {
+      return function (authenticate, allowReturn) {
         var deferred = $q.defer();
         userAuthFactory.authenticate(false)
           .then(function () {
@@ -19,7 +19,11 @@ angular.module("risevision.common.components.userstate")
             var newState;
 
             if (!userState.isLoggedIn()) {
-              newState = "common.auth.createaccount";
+              if (authenticate) {
+                newState = "common.auth.unauthorized";
+              } else {
+                newState = "common.auth.createaccount";
+              }
             } else if ($state.get("common.auth.unregistered")) {
               newState = "common.auth.unregistered";
             }
@@ -31,10 +35,14 @@ angular.module("risevision.common.components.userstate")
                 reload: true
               });
 
-              $location.replace();
-            }
+              if (!allowReturn) {
+                $location.replace();
+              }
 
-            deferred.reject();
+              deferred.reject();
+            } else {
+              deferred.resolve();
+            }
           });
         return deferred.promise;
       };
