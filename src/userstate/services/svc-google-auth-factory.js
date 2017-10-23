@@ -9,14 +9,14 @@
     "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
   )
     .value("GOOGLE_OAUTH2_URL", "https://accounts.google.com/o/oauth2/auth")
-    .factory("googleAuthFactory", ["$q", "$log", "$location",
+    .factory("googleAuthFactory", ["$rootScope", "$q", "$log", "$location",
       "$interval", "$window", "$http", "$stateParams", "gapiLoader",
       "getOAuthUserInfo", "uiFlowManager", "getBaseDomain", "userState",
-      "CLIENT_ID", "OAUTH2_SCOPES", "GOOGLE_OAUTH2_URL",
-      function ($q, $log, $location, $interval, $window, $http,
+      "urlStateService", "CLIENT_ID", "OAUTH2_SCOPES", "GOOGLE_OAUTH2_URL",
+      function ($rootScope, $q, $log, $location, $interval, $window, $http,
         $stateParams,
         gapiLoader, getOAuthUserInfo, uiFlowManager, getBaseDomain,
-        userState,
+        userState, urlStateService,
         CLIENT_ID, OAUTH2_SCOPES, GOOGLE_OAUTH2_URL) {
 
         var _accessTokenRefreshHandler = null;
@@ -130,17 +130,21 @@
           if (!forceAuth) {
             return authenticate(forceAuth);
           } else {
-            var loc, state;
+            var loc;
+            var state = $stateParams.state;
 
-            // Redirect to the URL root and append pathname back to the URL
-            // on Authentication success
-            // This prevents Domain authentication errors for sub-folders
-            // Warning: Root folder must have CH available for this to work,
-            // otherwise no redirect is performed!
-            loc = $window.location.origin + "/";
+            // Redirect to full URL path
+            if ($rootScope.redirectToRoot === false) {
+              loc = $window.location.href.substr(0, $window.location.href
+                .indexOf("#")) || $window.location.href;
+
+              state = urlStateService.clearStatePath(state);
+            } else {
+              loc = $window.location.origin + "/";
+            }
 
             // double encode since response gets decoded once!
-            state = encodeURIComponent($stateParams.state);
+            state = encodeURIComponent(state);
 
             userState._persistState();
             uiFlowManager.persist();

@@ -87,10 +87,22 @@ describe("Services: googleAuthFactory", function() {
         return deferred.promise;
       };
     });
+    $provide.value("$rootScope", $rootScope = {
+      redirectToRoot: true,
+      $on: function() {},
+      $broadcast: function() {}
+    });
+    $provide.service("urlStateService", function() {
+      return {
+        clearStatePath: function() {
+          return "clearedPath";
+        }
+      };
+    });
   }));
   
-  var googleAuthFactory, userState, $http, $window, inRVAFrame,
-    authorizeResponse, gapiLoader, gapiAuth, failOAuthUser;
+  var googleAuthFactory, userState, $http, $window, $rootScope, 
+    inRVAFrame, authorizeResponse, gapiLoader, gapiAuth, failOAuthUser;
   
   describe("authenticate: ", function() {
     beforeEach(function() {
@@ -98,7 +110,7 @@ describe("Services: googleAuthFactory", function() {
       failOAuthUser = false;
       inRVAFrame = true;
 
-      inject(function($injector){
+      inject(function($injector){        
         googleAuthFactory = $injector.get("googleAuthFactory");
       });
     });
@@ -199,7 +211,7 @@ describe("Services: googleAuthFactory", function() {
     beforeEach(module(function ($provide) {
       $provide.value("$window", {
         location: {
-          href: "http://localhost:8000/editor/list?cid=companyId",
+          href: "http://localhost:8000/editor/list?cid=companyId#somehash",
           origin: "http://localhost:8000",
           pathname: "/editor/list",
           search: "?cid=companyId",
@@ -218,7 +230,7 @@ describe("Services: googleAuthFactory", function() {
 
     it("should not redirect if forceAuth is false", function(done) {
       googleAuthFactory.authenticate().then(function(resp) {
-        expect($window.location.href).to.equal("http://localhost:8000/editor/list?cid=companyId");
+        expect($window.location.href).to.equal("http://localhost:8000/editor/list?cid=companyId#somehash");
         expect(resp).to.deep.equal({ email: "someuser@awesome.io" });
 
         done();
@@ -237,6 +249,25 @@ describe("Services: googleAuthFactory", function() {
           "&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2F" + 
           "&prompt=select_account" +
           "&state=someState"
+        );
+
+        done();
+      }, 10);
+    });
+
+    it("should redirect to a specific path and strip params", function(done) {
+      $rootScope.redirectToRoot = false;
+
+      googleAuthFactory.authenticate(true);
+      
+      setTimeout(function() {
+        expect($window.location.href).to.equal("https://accounts.google.com/o/oauth2/auth" +
+          "?response_type=token" +
+          "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile" +
+          "&client_id=614513768474.apps.googleusercontent.com" +
+          "&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Feditor%2Flist%3Fcid%3DcompanyId" + 
+          "&prompt=select_account" +
+          "&state=clearedPath"
         );
 
         done();

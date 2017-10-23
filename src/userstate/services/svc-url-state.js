@@ -31,7 +31,7 @@
           return state;
         };
 
-        urlStateService.redirectToState = function (stateString) {
+        var _parseState = function (stateString) {
           var state = {};
 
           try {
@@ -39,6 +39,12 @@
           } catch (err) {
             // Parse failed
           }
+
+          return state;
+        };
+
+        urlStateService.redirectToState = function (stateString) {
+          var state = _parseState(stateString);
 
           if (state.u || !$location.$$html5) { // hash found, assume non HTML5 mode
             if (state.p || state.s) { // requires redirect
@@ -57,6 +63,15 @@
             $location.url(state.p + state.s);
             $location.replace();
           }
+        };
+
+        urlStateService.clearStatePath = function (stateString) {
+          var state = _parseState(stateString);
+
+          state.p = undefined;
+          state.s = undefined;
+
+          return encodeURIComponent(JSON.stringify(state));
         };
 
         return urlStateService;
