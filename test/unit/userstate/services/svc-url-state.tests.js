@@ -42,6 +42,7 @@ describe("Services: urlStateService", function() {
     expect(urlStateService).to.be.ok;
     expect(urlStateService.get).to.be.a("function");
     expect(urlStateService.redirectToState).to.be.a("function");
+    expect(urlStateService.clearStatePath).to.be.a("function");
   });
 
   it("get: ", function() {
@@ -87,5 +88,9 @@ describe("Services: urlStateService", function() {
         expect($window.location.hash).to.equal("");
       });  
     });
+  });
+
+  it("clearStatePath: ", function() {
+    expect(urlStateService.clearStatePath(encodeURIComponent("{\"p\":\"path\",\"u\":\"hash\",\"s\":\"?search\"}"))).to.equal(encodeURIComponent("{\"u\":\"hash\"}"));
   });
 });
