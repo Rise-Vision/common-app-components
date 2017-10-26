@@ -55,6 +55,7 @@ describe("controller: Request Password Reset", function() {
       setTimeout(function() {
         expect(userauth.requestPasswordReset).to.have.been.calledWith("username");
         expect($scope.emailSent).to.be.true;
+        expect($scope.isGoogleAccount).to.be.false;
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.have.been.called;
@@ -70,10 +71,27 @@ describe("controller: Request Password Reset", function() {
       setTimeout(function() {
         expect(userauth.requestPasswordReset).to.have.been.calledWith("username");
         expect($scope.emailSent).to.be.true;
+        expect($scope.isGoogleAccount).to.be.false;
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.not.have.been.called;
         expect($log.error).to.have.been.called;
+        done();
+      }, 0);
+    });
+
+    it("should not show email sent message when Google Account", function(done) {
+      sandbox.stub(userauth, "requestPasswordReset").returns(Q.reject({ result: { error: { message: "Google account" } } }));
+      $scope.requestPasswordReset();
+
+      setTimeout(function() {
+        expect(userauth.requestPasswordReset).to.have.been.calledWith("username");
+        expect($scope.emailSent).to.be.false;
+        expect($scope.isGoogleAccount).to.be.true;
+        expect($loading.startGlobal).to.have.been.called;
+        expect($loading.stopGlobal).to.have.been.called;
+        expect($log.log).to.have.been.called;
+        expect($log.error).to.not.have.been.called;
         done();
       }, 0);
     });
