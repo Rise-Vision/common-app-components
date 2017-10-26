@@ -5,7 +5,7 @@ angular.module("risevision.common.components.userstate")
     "userState", "userAuthFactory", "urlStateService",
     function ($q, $state, $location, userState, userAuthFactory,
       urlStateService) {
-      return function (authenticate, allowReturn) {
+      return function (signup, allowReturn) {
         var deferred = $q.defer();
         userAuthFactory.authenticate(false)
           .then(function () {
@@ -19,10 +19,10 @@ angular.module("risevision.common.components.userstate")
             var newState;
 
             if (!userState.isLoggedIn()) {
-              if (authenticate) {
-                newState = "common.auth.unauthorized";
-              } else {
+              if (signup) {
                 newState = "common.auth.createaccount";
+              } else {
+                newState = "common.auth.unauthorized";
               }
             } else if ($state.get("common.auth.unregistered")) {
               newState = "common.auth.unregistered";

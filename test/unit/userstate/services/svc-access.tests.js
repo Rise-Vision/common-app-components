@@ -154,7 +154,7 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.createaccount", {
+      $state.go.should.have.been.calledWith("common.auth.unauthorized", {
         state: "newState"
       }, {
         reload: true
@@ -176,7 +176,7 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.createaccount", {
+      $state.go.should.have.been.calledWith("common.auth.unauthorized", {
         state: "newState"
       }, {
         reload: true
@@ -188,7 +188,7 @@ describe("service: access:", function() {
     });
   });
   
-  it("should redirect to login page if authenticate is true",function(done){
+  it("should redirect to login page if signup is true",function(done){
     isRiseVisionUser = true;
     authenticate = false;
     isLoggedIn = false;
@@ -198,7 +198,7 @@ describe("service: access:", function() {
       done("authenticated");
     })
     .then(null, function() {
-      $state.go.should.have.been.calledWith("common.auth.unauthorized", {
+      $state.go.should.have.been.calledWith("common.auth.createaccount", {
         state: "newState"
       }, {
         reload: true

@@ -5,7 +5,7 @@
     <div class="panel-body bg-danger u_margin-sm-top" ng-show="errors.duplicateError">
       <p class="u_remove-bottom">
         <i class="fa fa-warning icon-left"></i>
-        <span>This email address is already registered.  You can <a ui-sref="common.auth.unauthorized">sign in</a> with this address.</span> 
+        <span id="already-registered-warning">This email address is already registered. You can <a ui-sref="common.auth.unauthorized">sign in</a> with this address.</span> 
       </p> 
     </div>
 
@@ -13,7 +13,7 @@
     <div class="panel-body bg-danger u_margin-sm-top" ng-show="errors.loginError">
       <p class="u_remove-bottom">
         <i class="fa fa-warning icon-left"></i>
-        <span>Your email address/password combination is incorrect.</span> 
+        <span id="incorrect-credentials-error">Your email address/password combination is incorrect. <br/>If you are having problems signing in, please check this <a href="https://community.risevision.com/rise_vision_inc/topics/new-log-in-screen-new-sign-in-screen" target="_blank">Community article</a>.</span> 
       </p>
     </div>
 
