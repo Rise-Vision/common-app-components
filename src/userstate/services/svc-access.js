@@ -19,7 +19,9 @@ angular.module("risevision.common.components.userstate")
             var newState;
 
             if (!userState.isLoggedIn()) {
-              if (signup) {
+              if (userState._state.inRVAFrame) {
+                userAuthFactory.authenticate(true);
+              } else if (signup) {
                 newState = "common.auth.createaccount";
               } else {
                 newState = "common.auth.unauthorized";
