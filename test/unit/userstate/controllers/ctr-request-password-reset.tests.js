@@ -64,8 +64,24 @@ describe("controller: Request Password Reset", function() {
       }, 0);
     });
 
+    it("should show email sent message on user not found", function(done) {
+      sandbox.stub(userauth, "requestPasswordReset").returns(Q.reject({ result: { code: 404 } }));
+      $scope.requestPasswordReset();
+
+      setTimeout(function() {
+        expect(userauth.requestPasswordReset).to.have.been.calledWith("username");
+        expect($scope.emailSent).to.be.true;
+        expect($scope.isGoogleAccount).to.be.false;
+        expect($loading.startGlobal).to.have.been.called;
+        expect($loading.stopGlobal).to.have.been.called;
+        expect($log.log).to.not.have.been.called;
+        expect($log.error).to.have.been.called;
+        done();
+      }, 0);
+    });
+
     it("should show email sent message on error", function(done) {
-      sandbox.stub(userauth, "requestPasswordReset").returns(Q.reject());
+      sandbox.stub(userauth, "requestPasswordReset").returns(Q.reject({ result: { code: 500 } }));
       $scope.requestPasswordReset();
 
       setTimeout(function() {
@@ -81,7 +97,7 @@ describe("controller: Request Password Reset", function() {
     });
 
     it("should not show email sent message when Google Account", function(done) {
-      sandbox.stub(userauth, "requestPasswordReset").returns(Q.reject({ result: { error: { message: "Google account" } } }));
+      sandbox.stub(userauth, "requestPasswordReset").returns(Q.reject({ result: { code: 409 } }));
       $scope.requestPasswordReset();
 
       setTimeout(function() {
