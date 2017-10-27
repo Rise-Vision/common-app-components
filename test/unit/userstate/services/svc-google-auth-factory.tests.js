@@ -110,7 +110,8 @@ describe("Services: googleAuthFactory", function() {
       failOAuthUser = false;
       inRVAFrame = true;
 
-      inject(function($injector){        
+      inject(function($injector){
+        $window = $injector.get("$window");
         googleAuthFactory = $injector.get("googleAuthFactory");
       });
     });
@@ -148,8 +149,44 @@ describe("Services: googleAuthFactory", function() {
         done();
       }, 10);
     });
+
+    it("should authorize even if authUser is missing", function(done) {
+      userState._state.userToken = undefined;
+      googleAuthFactory.authenticate();
+      
+      setTimeout(function() {
+        gapiAuth.authorize.should.have.been.calledWith({
+          "client_id":"614513768474.apps.googleusercontent.com",
+          "scope":"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+          "cookie_policy":"protocol://domain",
+          "authuser": undefined,
+          "immediate":true
+        });
+
+        done();
+      }, 10);
+    });
+
+    it("should authorize with popup via select_account", function(done) {
+      googleAuthFactory.authenticate(true);
+      
+      setTimeout(function() {
+        gapiAuth.authorize.should.have.been.calledWith({
+          "client_id":"614513768474.apps.googleusercontent.com",
+          "scope":"https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+          "cookie_policy":"protocol://domain",
+          "authuser":"username@test.com",
+          "prompt":"select_account"
+        });
+
+        done();
+      }, 10);
+    });
     
-    it("should authorize with redirect via select_account", function(done) {
+    it("should authorize with popup via select_account if in iframe", function(done) {
+      inRVAFrame = false;
+      $window.self = 1;
+      $window.top = 0;
       googleAuthFactory.authenticate(true);
       
       setTimeout(function() {

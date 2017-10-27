@@ -647,9 +647,7 @@ angular.module("risevision.common.components.logging")
               getBaseDomain()
           };
 
-          if (_state.userToken !== "dummy") {
-            opts.authuser = _state.userToken.email;
-          } else {
+          if (_state.userToken === "dummy") {
             opts.authuser = $http.get(
               "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" +
               _state.params.access_token)
@@ -659,6 +657,8 @@ angular.module("risevision.common.components.logging")
                 $log.debug("Error retrieving userinfo");
                 return opts.authuser;
               });
+          } else if (_state.userToken) {
+            opts.authuser = _state.userToken.email;
           }
 
           if (attemptImmediate) {
@@ -762,7 +762,8 @@ angular.module("risevision.common.components.logging")
         };
 
         var googleAuthFactory = {
-          authenticate: userState._state.inRVAFrame ?
+          authenticate: userState._state.inRVAFrame ||
+            ($window.self !== $window.top) ?
             authenticate : authenticateRedirect
         };
 
