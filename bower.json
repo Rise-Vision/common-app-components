@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "angular": "1.2.18",
-    "angular-ui-router": "^0.2.15",
+    "angular-ui-router": "^0.2.18",
     "rv-common-style": "https://github.com/Rise-Vision/common-style.git#v1.4.0",
     "angular-bootstrap": "0.13.1",
     "angular-ui-flow-manager": "https://github.com/Rise-Vision/angular-ui-flow-manager.git",
