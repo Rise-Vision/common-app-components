@@ -1953,7 +1953,8 @@ angular.module("risevision.common.components.userstate")
             $scope.emailSent = true;
           })
           .catch(function (err) {
-            var error = err && err.result && err.result.code;
+            var error = err && err.result && err.result.error && err.result
+              .error.code;
 
             if (error === 409) {
               $log.log("Requested password reset for Google account");
