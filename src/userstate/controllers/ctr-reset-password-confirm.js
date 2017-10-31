@@ -42,7 +42,7 @@ angular.module("risevision.common.components.userstate")
             if (error === "Password reset token does not match") {
               $scope.invalidToken = true;
             } else {
-              $log.error(err);
+              console.error(err);
             }
           })
           .finally(function () {
@@ -60,7 +60,7 @@ angular.module("risevision.common.components.userstate")
             $scope.emailResetSent = true;
           })
           .catch(function (err) {
-            $log.error(err);
+            console.error(err);
           })
           .finally(function () {
             $loading.stopGlobal("auth-request-password-reset");

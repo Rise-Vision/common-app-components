@@ -25,7 +25,7 @@ angular.module("risevision.common.components.userstate")
               $log.log("Requested password reset for Google account");
               $scope.isGoogleAccount = true;
             } else { // No special case for 404, for security reasons
-              $log.error(err);
+              console.error(err);
               $scope.emailSent = true;
             }
           })

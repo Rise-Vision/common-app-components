@@ -11,7 +11,7 @@ angular.module("risevision.common.components.userstate")
           $log.log("User confirmed");
         })
         .catch(function (err) {
-          $log.error(err);
+          console.error(err);
         })
         .finally(function () {
           $loading.stopGlobal("auth-confirm-account");
