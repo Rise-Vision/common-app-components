@@ -59,7 +59,6 @@ describe("controller: Request Password Reset", function() {
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.have.been.called;
-        expect($log.error).to.not.have.been.called;
         done();
       }, 0);
     });
@@ -75,7 +74,6 @@ describe("controller: Request Password Reset", function() {
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.not.have.been.called;
-        expect($log.error).to.have.been.called;
         done();
       }, 0);
     });
@@ -91,7 +89,6 @@ describe("controller: Request Password Reset", function() {
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.not.have.been.called;
-        expect($log.error).to.have.been.called;
         done();
       }, 0);
     });
@@ -107,7 +104,6 @@ describe("controller: Request Password Reset", function() {
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.have.been.called;
-        expect($log.error).to.not.have.been.called;
         done();
       }, 0);
     });

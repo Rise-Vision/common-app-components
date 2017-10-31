@@ -70,7 +70,6 @@ describe("controller: Reset Password Confirm", function() {
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.have.been.called;
-        expect($log.error).to.not.have.been.called;
         done();
       }, 0);
     });
@@ -103,7 +102,6 @@ describe("controller: Reset Password Confirm", function() {
         expect($scope.invalidToken).to.be.true;
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
-        expect($log.error).to.not.have.been.called;
         done();
       }, 0);
     });
@@ -121,7 +119,6 @@ describe("controller: Reset Password Confirm", function() {
         expect($scope.invalidToken).to.be.false;
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
-        expect($log.error).to.have.been.called;
         done();
       }, 0);
     });
@@ -138,7 +135,6 @@ describe("controller: Reset Password Confirm", function() {
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.have.been.called;
-        expect($log.error).to.not.have.been.called;
         done();
       }, 0);
     });
@@ -153,7 +149,6 @@ describe("controller: Reset Password Confirm", function() {
         expect($loading.startGlobal).to.have.been.called;
         expect($loading.stopGlobal).to.have.been.called;
         expect($log.log).to.not.have.been.called;
-        expect($log.error).to.have.been.called;
         done();
       }, 0);
     });
