@@ -132,6 +132,7 @@
           } else {
             var loc;
             var state = $stateParams.state;
+            var redirectUrl;
 
             // Redirect to full URL path
             if ($rootScope.redirectToRoot === false) {
@@ -143,20 +144,25 @@
               loc = $window.location.origin + "/";
             }
 
-            // double encode since response gets decoded once!
-            state = encodeURIComponent(state);
-
             userState._persistState();
             uiFlowManager.persist();
 
-            $window.location.href = GOOGLE_OAUTH2_URL +
+            redirectUrl = GOOGLE_OAUTH2_URL +
               "?response_type=token" +
               "&scope=" + encodeURIComponent(OAUTH2_SCOPES) +
               "&client_id=" + CLIENT_ID +
               "&redirect_uri=" + encodeURIComponent(loc) +
             //http://stackoverflow.com/a/14393492
-            "&prompt=select_account" +
-              "&state=" + state;
+            "&prompt=select_account";
+
+            if (state) {
+              // double encode since response gets decoded once!
+              state = encodeURIComponent(state);
+
+              redirectUrl += "&state=" + state;
+            }
+
+            $window.location.href = redirectUrl;
 
             // returns a promise that never get fulfilled since we are redirecting
             // to that google oauth2 page

@@ -3,15 +3,16 @@
 angular.module("risevision.common.components.userstate")
   .controller("LoginCtrl", ["$scope", "$loading", "$stateParams",
     "$state", "userAuthFactory", "customAuthFactory", "uiFlowManager",
-    "urlStateService", "userState", "isSignUp",
+    "urlStateService", "userState", "isSignUp", "FORCE_GOOGLE_AUTH",
     function ($scope, $loading, $stateParams, $state, userAuthFactory,
       customAuthFactory, uiFlowManager, urlStateService, userState,
-      isSignUp) {
+      isSignUp, FORCE_GOOGLE_AUTH) {
       $scope.forms = {};
       $scope.credentials = {};
       $scope.messages = {};
       $scope.errors = {};
       $scope.isSignUp = isSignUp;
+      $scope.FORCE_GOOGLE_AUTH = FORCE_GOOGLE_AUTH;
 
       $scope.messages.passwordReset = $stateParams.passwordReset;
       $scope.messages.accountConfirmed = $stateParams.accountConfirmed;

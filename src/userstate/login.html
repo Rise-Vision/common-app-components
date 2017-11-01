@@ -11,14 +11,14 @@
   </button>
 </div>
 
-<div class="section-divider col-xs-12 col-md-8 u_margin-md-top">				
+<div class="section-divider col-xs-12 col-md-8 u_margin-md-top" ng-if="!FORCE_GOOGLE_AUTH">				
   <div></div>
     <span>OR</span>
     <div></div>
 </div>
 
 <!-- CUSTOM LOGIN -->
-<div class="col-md-8 col-xs-12">
+<div class="col-md-8 col-xs-12" ng-if="!FORCE_GOOGLE_AUTH">
 	<div ng-include="'userstate/auth-form.html'"></div>
 
 	<div class="form-group">
@@ -31,6 +31,6 @@
 <br>
 
 <div class="col-xs-12 u_margin-lg-top">
-	<p class="text-muted"> <a id="reset-password-link" ui-sref="common.auth.requestpasswordreset">Forgot your password?</a></p>
+	<p class="text-muted" ng-if="!FORCE_GOOGLE_AUTH"> <a id="reset-password-link" ui-sref="common.auth.requestpasswordreset">Forgot your password?</a></p>
 	<p class="text-muted"> Don't have an account? <a id="sign-up-link" ui-sref="common.auth.createaccount">Sign up</a></p>
 </div>

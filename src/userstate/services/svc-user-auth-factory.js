@@ -2,14 +2,16 @@
   "use strict";
 
   angular.module("risevision.common.components.userstate")
+    .value("FORCE_GOOGLE_AUTH", false)
     .factory("userAuthFactory", ["$q", "$log", "$location",
       "$rootScope", "$loading", "$window", "$document",
       "gapiLoader", "objectHelper", "rvTokenStore", "externalLogging",
       "userState", "googleAuthFactory", "customAuthFactory",
+      "FORCE_GOOGLE_AUTH",
       function ($q, $log, $location, $rootScope, $loading, $window,
         $document, gapiLoader, objectHelper,
         rvTokenStore, externalLogging, userState, googleAuthFactory,
-        customAuthFactory) {
+        customAuthFactory, FORCE_GOOGLE_AUTH) {
 
         var _state = userState._state;
 
@@ -193,7 +195,8 @@
               var authenticationPromise;
 
               // Credentials or Token provided; assume authenticated
-              if (credentials || _state.userToken && _state.userToken.token) {
+              if (credentials || _state.userToken && _state.userToken.token &&
+                !FORCE_GOOGLE_AUTH) {
                 isRiseAuthUser = true;
                 authenticationPromise = customAuthFactory.authenticate(
                   credentials);
