@@ -22,15 +22,16 @@
   angular.module("risevision.common.components.userstate", [
     "ui.router",
     "angular-md5",
+    "risevision.common.components.ui-flow",
     "risevision.common.components.util",
     "risevision.common.components.rvtokenstore",
     "risevision.common.components.logging",
+    "risevision.common.components.loading",
     "risevision.common.config",
     "risevision.common.gapi", "LocalStorageModule",
     "risevision.core.cache",
     "risevision.core.oauth2", "risevision.core.company",
-    "risevision.core.util", "risevision.core.userprofile",
-    "risevision.common.loading", "risevision.ui-flow"
+    "risevision.core.util", "risevision.core.userprofile"
   ])
 
   // Set up our mappings between URLs, templates, and controllers

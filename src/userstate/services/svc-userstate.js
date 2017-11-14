@@ -59,7 +59,8 @@
         };
 
         var getAccessToken = function () {
-          return $window.gapi ? $window.gapi.auth.getToken() : null;
+          return $window.gapi && $window.gapi.auth ?
+            $window.gapi.auth.getToken() : null;
         };
 
         var _restoreState = function () {

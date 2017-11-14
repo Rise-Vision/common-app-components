@@ -1,6 +1,6 @@
 {
   "name": "rv-common-app-components",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "homepage": "https://github.com/Rise-Vision/common-app-components",
   "authors": [
     "Rise Vision"
@@ -14,32 +14,26 @@
     "test"
   ],
   "devDependencies": {
-    "angular": "~1.3.0",
-    "angular-mocks": "~1.3.0",
-    "q": "1.0.1",
-    "jquery": "1.11.0",
-    "sinon": "~1.10.2",
-    "lodash": "~2.4.1"
+    "angular-mocks": "~1.5.0",
+    "q": "1.0.1"
   },
   "dependencies": {
-    "angular": "1.2.18",
-    "angular-ui-router": "^0.2.18",
-    "rv-common-style": "https://github.com/Rise-Vision/common-style.git#v1.4.0",
+    "angular": "~1.5.0",
     "angular-bootstrap": "0.13.1",
-    "angular-ui-flow-manager": "https://github.com/Rise-Vision/angular-ui-flow-manager.git",
+    "angular-local-storage": "~0.1.4",
+    "angular-ui-router": "^0.2.18",
+    "angular-sanitize": "~1.5.0",
+    "angular-spinner": "~0.4.0",
+    "angular-md5": "^0.1.10",
+    "jquery": "^2",
     "ng-biscuit": "~0.2.1",
-    "ng-core-api-client": "https://github.com/Rise-Vision/ng-core-api-client.git",
-    "ng-gapi-loader": "https://github.com/Rise-Vision/ng-gapi-loader.git",
-    "rv-loading": "https://github.com/Rise-Vision/rv-loading.git",
+    "rv-common-style": "https://github.com/Rise-Vision/common-style.git",
     "rv-common-i18n": "https://github.com/Rise-Vision/common-i18n.git",
-    "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#1.0.4",
-    "angular-md5": "^0.1.10"
+    "widget-settings-ui-components": "https://github.com/Rise-Vision/widget-settings-ui-components.git#1.0.4"
   },
   "resolutions": {
-    "angular": "~1.3.0",
-    "angular-mocks": "~1.3.0",
-    "jquery": "1.11.0",
+    "angular": "~1.5.0",
     "angular-bootstrap": "0.13.1",
-    "rv-common-style": "v1.4.0"
+    "jquery": "^2"
   }
 }

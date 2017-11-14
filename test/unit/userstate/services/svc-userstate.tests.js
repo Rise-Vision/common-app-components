@@ -336,10 +336,10 @@ describe("Services: userState", function() {
       it("should retrieve gapi token", function() {
         expect(userState.getAccessToken()).to.not.be.ok;
         
-        $window.gapi = {
-          auth: {
-            getToken: function() { }
-          }
+        $window.gapi = $window.gapi || {};
+
+        $window.gapi.auth = {
+          getToken: function() { }
         };
         expect(userState.getAccessToken()).to.not.be.ok;
 

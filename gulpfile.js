@@ -63,16 +63,14 @@
     "bower_components/jquery/dist/jquery.js",
     "bower_components/angular/angular.js",
     "bower_components/angular-ui-router/release/angular-ui-router.js",
+    "bower_components/angular-local-storage/dist/angular-local-storage.js",
     "bower_components/q/q.js",
     "bower_components/angular-mocks/angular-mocks.js",
     "bower_components/angular-spinner/angular-spinner.js",
-    "bower_components/rv-loading/loading.js",
+    "bower_components/angular-sanitize/angular-sanitize.js",
     "bower_components/angular-bootstrap/ui-bootstrap-tpls.js",
     "bower_components/lodash/dist/lodash.js",
-    "bower_components/angular-ui-flow-manager/src/js/*.js",
     "bower_components/ng-biscuit/dist/ng-biscuit.js",
-    "bower_components/ng-gapi-loader/src/js/*.js",
-    "bower_components/ng-core-api-client/src/js/*.js",
     "bower_components/angular-local-storage/dist/angular-local-storage.js",
     "bower_components/angular-md5/angular-md5.js",
     "src/config.js",
@@ -81,6 +79,7 @@
     "src/**/dtv-*.js",
     "src/**/ctr-*.js",
     "src/**/ftr-*.js",
+    "test/unit/**/mocks/*.js",
     "test/unit/**/*.tests.js"
   ];
   gulp.task("test:unit", factory.testUnitAngular({
